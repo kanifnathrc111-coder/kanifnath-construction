@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KANIFNATH CONSTRUCTION - Secure Access</title>
+
+<style>
+body{
+margin:0;
+height:100vh;
+font-family:Segoe UI, Arial;
+background:linear-gradient(135deg,#111,#7a0c0c);
+display:flex;
+justify-content:center;
+align-items:center;
+color:#fff;
+}
+
+.card{
+background:#1c1c1c;
+padding:45px;
+width:360px;
+border-radius:18px;
+box-shadow:0 30px 70px rgba(0,0,0,0.6);
+text-align:center;
+}
+
+.logo{
+width:75px;
+margin-bottom:15px;
+}
+
+.title{
+font-size:18px;
+letter-spacing:2px;
+margin-bottom:30px;
+}
+
+.pin-display{
+background:#111;
+padding:12px;
+border-radius:10px;
+margin-bottom:20px;
+letter-spacing:8px;
+font-size:22px;
+border:1px solid #333;
+}
+
+.pin-pad{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:12px;
+}
+
+.pin-btn{
+background:#2a2a2a;
+padding:14px;
+border-radius:10px;
+cursor:pointer;
+font-size:16px;
+transition:0.3s;
+}
+
+.pin-btn:hover{
+background:#7a0c0c;
+transform:translateY(-2px);
+}
+
+.footer{
+margin-top:30px;
+font-size:11px;
+color:#777;
+}
+
+.error{
+color:#ff5c5c;
+margin-top:15px;
+font-size:13px;
+display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<img src="LOGOKF.jpg" class="logo">
+<div class="title">EXECUTIVE ACCESS PANEL</div>
+
+<div class="pin-display" id="pinDisplay">----</div>
+
+<div class="pin-pad">
+<div class="pin-btn" onclick="addPin('1')">1</div>
+<div class="pin-btn" onclick="addPin('2')">2</div>
+<div class="pin-btn" onclick="addPin('3')">3</div>
+<div class="pin-btn" onclick="addPin('4')">4</div>
+<div class="pin-btn" onclick="addPin('5')">5</div>
+<div class="pin-btn" onclick="addPin('6')">6</div>
+<div class="pin-btn" onclick="addPin('7')">7</div>
+<div class="pin-btn" onclick="addPin('8')">8</div>
+<div class="pin-btn" onclick="addPin('9')">9</div>
+<div class="pin-btn" onclick="clearPin()">C</div>
+<div class="pin-btn" onclick="addPin('0')">0</div>
+<div class="pin-btn" onclick="submitPin()">✔</div>
+</div>
+
+<div class="error" id="errorMsg">Invalid PIN</div>
+
+<div class="footer">
+© <span id="year"></span> Kanifnath Construction
+</div>
+
+</div>
+
+<script>
+document.getElementById("year").innerText=new Date().getFullYear();
+
+let correctPin="0511";   // 🔐 Change PIN here
+let enteredPin="";
+
+function addPin(num){
+if(enteredPin.length<4){
+enteredPin+=num;
+updateDisplay();
+}
+}
+
+function clearPin(){
+enteredPin="";
+updateDisplay();
+}
+
+function updateDisplay(){
+let masked=enteredPin.replace(/./g,"•");
+document.getElementById("pinDisplay").innerText=
+masked.padEnd(4,"-");
+}
+
+function submitPin(){
+if(enteredPin===correctPin){
+localStorage.setItem("kcLogin","true");
+window.location.href="index.html";
+}else{
+document.getElementById("errorMsg").style.display="block";
+setTimeout(()=>{
+document.getElementById("errorMsg").style.display="none";
+},2000);
+clearPin();
+}
+}
+</script>
+
+</body>
+</html>

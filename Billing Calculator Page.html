@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KANIFNATH CONSTRUCTION - TAX INVOICE</title>
+
+<style>
+@page { size:A4; margin:18mm; }
+
+body{
+font-family:Segoe UI, Arial;
+background:linear-gradient(135deg,#eef2f7,#ffffff);
+margin:0;
+padding:30px;
+}
+
+.container{
+position:relative;
+width:210mm;
+min-height:297mm;
+margin:auto;
+background:#fff;
+padding:35px;
+border-radius:10px;
+box-shadow:0 12px 35px rgba(0,0,0,0.08);
+border:1px solid #e5e5e5;
+box-sizing:border-box;
+overflow:hidden;
+}
+
+.container::before{
+content:"KANIFNATH CONSTRUCTION";
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%) rotate(-30deg);
+font-size:65px;
+font-weight:900;
+letter-spacing:4px;
+color:#7a0c0c;
+opacity:0.035;
+pointer-events:none;
+}
+
+:root{ --primary:#7a0c0c; }
+
+.header{
+display:flex;
+justify-content:space-between;
+border-bottom:2px solid var(--primary);
+padding-bottom:15px;
+margin-bottom:25px;
+}
+
+.left img{ width:85px; }
+
+.company{
+font-size:26px;
+font-weight:800;
+color:var(--primary);
+}
+
+.tag{ font-size:12px; color:#555; }
+
+.right{
+text-align:right;
+font-size:12px;
+line-height:1.6;
+margin-top:20px;
+color:#444;
+}
+
+.title{
+text-align:center;
+font-size:20px;
+font-weight:700;
+margin-bottom:25px;
+}
+
+.info{
+display:flex;
+gap:15px;
+margin-bottom:20px;
+flex-wrap:wrap;
+}
+
+.box{
+flex:1;
+min-width:260px;
+border:1px solid #ddd;
+padding:12px;
+border-radius:6px;
+font-size:13px;
+background:#fafafa;
+}
+
+.box input, .box select{
+width:100%;
+border:none;
+border-bottom:1px solid #aaa;
+outline:none;
+padding:3px;
+background:transparent;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+display:block;
+overflow-x:auto;
+white-space:nowrap;
+}
+
+th{
+background:var(--primary);
+color:#fff;
+padding:9px;
+font-size:12px;
+}
+
+td{
+border:1px solid #e0e0e0;
+padding:7px;
+font-size:12px;
+text-align:center;
+}
+
+td input, td textarea{
+width:95%;
+padding:4px;
+font-size:12px;
+}
+
+.summary{
+margin-top:30px;
+width:45%;
+float:right;
+background:#f8f8f8;
+padding:18px;
+border-radius:8px;
+box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+.summary div{
+display:flex;
+justify-content:space-between;
+margin-bottom:10px;
+font-size:14px;
+}
+
+.total{
+font-weight:bold;
+font-size:17px;
+color:var(--primary);
+}
+
+button{
+background:var(--primary);
+color:#fff;
+border:none;
+padding:7px 14px;
+border-radius:5px;
+cursor:pointer;
+margin-right:8px;
+font-size:12px;
+}
+
+button:hover{ background:#4d0606; }
+
+.status-badge{
+padding:4px 10px;
+border-radius:12px;
+font-size:11px;
+margin-left:6px;
+}
+
+.terms{
+margin-top:40px;
+display:none;
+background:#fdf7f7;
+padding:18px;
+border-radius:8px;
+border:1px solid #f1d4d4;
+clear:both;
+}
+
+.terms textarea{
+width:100%;
+height:120px;
+resize:vertical;
+border:1px solid #ccc;
+padding:8px;
+font-size:13px;
+}
+
+.footer{
+margin-top:60px;
+border-top:1px solid #ddd;
+padding-top:15px;
+display:flex;
+justify-content:space-between;
+font-size:12px;
+color:#555;
+clear:both;
+}
+
+.signature-name{
+font-family:'Brush Script MT','Lucida Handwriting',cursive;
+font-size:26px;
+color:#7a0c0c;
+}
+
+@media print{
+button{display:none;}
+body{background:#fff;}
+.container{box-shadow:none;border:none;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<div class="left">
+<img src="LOGOKF.jpg">
+<div class="company">KANIFNATH CONSTRUCTION</div>
+<div class="tag">LABOUR SUPPLIER & DEVELOPER'S</div>
+</div>
+
+<div class="right">
+Kalewadi, Tal. Daund, Dist. Pune - 413801<br>
+Mob: 9763739384 / 9325503934<br>
+Email: kanifnathr.c111@gmail.com<br>
+GSTIN: 27DHBPC7233L1ZB
+</div>
+</div>
+
+<div class="title">TAX INVOICE</div>
+
+<div class="info">
+<div class="box">
+Invoice No: <span id="invNo"></span><br>
+Date: <span id="invDate"></span><br>
+Due Date: <input type="date" id="dueDate"><br>
+Status:
+<select id="statusSelect" onchange="updateStatusBadge()">
+<option value="Pending">Pending</option>
+<option value="Paid">Paid</option>
+</select>
+<span id="statusBadge" class="status-badge" style="background:#ffe0e0;color:#a30000;">Pending</span>
+</div>
+
+<div class="box">
+Client Name:<br>
+<input type="text" id="clientName"><br>
+Site Location:<br>
+<input type="text">
+</div>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Sr</th>
+<th>L</th>
+<th>W</th>
+<th>H</th>
+<th>Vol</th>
+<th>Description</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="body"></tbody>
+</table>
+
+<div style="margin-top:15px;">
+<button onclick="addRow()">Add Item</button>
+<button onclick="saveInvoice()">Save Invoice</button>
+<button onclick="window.print()">Save PDF</button>
+<button onclick="toggleTerms()">Add / Remove Terms</button>
+</div>
+
+<div class="summary">
+<div><span>Subtotal:</span><span>₹ <span id="subtotal">0.00</span></span></div>
+<div>
+<span>GST (%):</span>
+<input type="number" id="gst" value="18" style="width:60px" oninput="calculate()">
+</div>
+<div><span>GST Amount:</span><span>₹ <span id="gstAmount">0.00</span></span></div>
+<div>
+<span>Advance:</span>
+<input type="number" id="advance" value="0" style="width:80px" oninput="calculate()">
+</div>
+<div class="total">
+<span>Balance:</span>
+<span>₹ <span id="final">0.00</span></span>
+</div>
+</div>
+
+<div class="terms" id="termsSection">
+<h4 style="color:#7a0c0c;">Terms & Conditions</h4>
+<textarea>
+1. GST Extra as applicable.
+2. 50% Advance before starting work.
+3. Balance payable after completion.
+4. Water & Electricity by Client.
+</textarea>
+</div>
+
+<div class="footer">
+
+<div style="width:33%; text-align:left;">
+Bank Details:<br>
+AXIS BANK<br>
+A/C No: 925020056308477<br>
+IFSC: UTIB0001952
+</div>
+
+<div style="width:33%; text-align:center; font-weight:600; color:#7a0c0c;">
+Thank you for your valuable business and continued support.
+</div>
+
+<div style="width:33%; text-align:right;">
+For Kanifnath Construction<br><br>
+<span class="signature-name">Rahul</span><br>
+Authorized Signatory
+</div>
+
+</div>
+
+<script>
+
+let invoiceCounter = parseInt(localStorage.getItem("kcInvoiceCounter")) || 1;
+
+document.getElementById("invNo").innerText="KC-"+String(invoiceCounter).padStart(4,'0');
+document.getElementById("invDate").innerText=new Date().toLocaleDateString();
+
+addRow();
+
+function addRow(){
+let row=document.getElementById("body").insertRow();
+row.innerHTML=`
+<td></td>
+<td><input type="number" step="0.01" class="len"></td>
+<td><input type="number" step="0.01" class="wid"></td>
+<td><input type="number" step="0.01" class="hei"></td>
+<td class="vol">0</td>
+<td><textarea></textarea></td>
+<td><input type="number" class="qty" value="1"></td>
+<td><input type="number" class="rate" value="0"></td>
+<td><input type="number" class="amtInput" value="0"></td>
+<td><button onclick="removeRow(this)">X</button></td>
+`;
+
+row.querySelectorAll("input").forEach(i=>{
+i.addEventListener("input",()=>update(row));
+});
+
+renumber();
+}
+
+function update(row){
+let l=parseFloat(row.querySelector(".len").value)||0;
+let w=parseFloat(row.querySelector(".wid").value)||0;
+let h=parseFloat(row.querySelector(".hei").value)||0;
+
+let vol=l*w*h;
+row.querySelector(".vol").innerText=vol.toFixed(3);
+
+let qty=parseFloat(row.querySelector(".qty").value)||0;
+let rate=parseFloat(row.querySelector(".rate").value)||0;
+
+if(vol>0){
+row.querySelector(".amtInput").value=(vol*qty*rate).toFixed(2);
+}
+
+calculate();
+}
+
+function calculate(){
+let subtotal=0;
+document.querySelectorAll(".amtInput").forEach(a=>{
+subtotal+=parseFloat(a.value)||0;
+});
+
+let gst=parseFloat(document.getElementById("gst").value)||0;
+let advance=parseFloat(document.getElementById("advance").value)||0;
+
+let gstAmount=subtotal*gst/100;
+let final=subtotal+gstAmount-advance;
+if(final<0) final=0;
+
+document.getElementById("subtotal").innerText=subtotal.toFixed(2);
+document.getElementById("gstAmount").innerText=gstAmount.toFixed(2);
+document.getElementById("final").innerText=final.toFixed(2);
+}
+
+function removeRow(btn){
+btn.closest("tr").remove();
+renumber();
+calculate();
+}
+
+function renumber(){
+document.querySelectorAll("#body tr").forEach((r,i)=>{
+r.cells[0].innerText=i+1;
+});
+}
+
+function toggleTerms(){
+let t=document.getElementById("termsSection");
+t.style.display=t.style.display==="none"?"block":"none";
+}
+
+function updateStatusBadge(){
+let status=document.getElementById("statusSelect").value;
+let badge=document.getElementById("statusBadge");
+badge.innerText=status;
+
+if(status==="Paid"){
+badge.style.background="#d4edda";
+badge.style.color="#155724";
+}else{
+badge.style.background="#ffe0e0";
+badge.style.color="#a30000";
+}
+}
+
+function saveInvoice(){
+let client=document.getElementById("clientName").value.trim();
+if(client===""){
+alert("Please Enter Client Name");
+return;
+}
+
+let status=document.getElementById("statusSelect").value;
+let due=document.getElementById("dueDate").value;
+let total=parseFloat(document.getElementById("final").innerText)||0;
+
+let data=JSON.parse(localStorage.getItem("kcDocs"))||[];
+
+data.push({
+type:"Invoice",
+number:document.getElementById("invNo").innerText,
+date:new Date().toISOString().split('T')[0],
+client:client,
+amount:total,
+status:status,
+dueDate:due
+});
+
+localStorage.setItem("kcDocs",JSON.stringify(data));
+localStorage.setItem("kcInvoiceCounter",invoiceCounter+1);
+
+alert("Invoice Saved Successfully!");
+location.reload();
+}
+
+</script>
+
+</body>
+</html>

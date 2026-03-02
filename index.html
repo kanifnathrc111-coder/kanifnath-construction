@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KANIFNATH CONSTRUCTION - Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+margin:0;
+font-family:Segoe UI;
+background:linear-gradient(135deg,#eef2f7,#ffffff);
+}
+
+.header{
+background:linear-gradient(90deg,#7a0c0c,#a30000);
+color:#fff;
+padding:18px 30px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 6px 20px rgba(0,0,0,0.2);
+flex-wrap:wrap;
+}
+
+.logo{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.logo img{ width:42px; }
+
+.nav span{
+cursor:pointer;
+margin-left:18px;
+font-size:14px;
+}
+
+.container{
+padding:40px;
+max-width:1200px;
+margin:auto;
+}
+
+.welcome{
+font-size:24px;
+font-weight:600;
+margin-bottom:25px;
+}
+
+.alert{
+background:#ffe0e0;
+color:#a30000;
+padding:12px 18px;
+border-radius:10px;
+margin-bottom:25px;
+display:none;
+font-weight:600;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:25px;
+margin-bottom:40px;
+}
+
+.stat-box{
+background:#fff;
+padding:25px;
+border-radius:16px;
+box-shadow:0 10px 30px rgba(0,0,0,0.06);
+transition:0.3s;
+}
+
+.stat-box:hover{
+transform:translateY(-6px);
+}
+
+.stat-box h3{
+margin:0;
+font-size:13px;
+color:#777;
+}
+
+.stat-box p{
+font-size:24px;
+font-weight:700;
+margin-top:10px;
+color:#7a0c0c;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:30px;
+margin-bottom:40px;
+}
+
+.card{
+background:#fff;
+padding:35px;
+border-radius:16px;
+box-shadow:0 10px 30px rgba(0,0,0,0.06);
+cursor:pointer;
+transition:0.3s;
+text-align:center;
+}
+
+.card:hover{
+transform:translateY(-8px);
+}
+
+.card h2{
+color:#7a0c0c;
+margin:0;
+}
+
+.chart-section{
+background:#fff;
+padding:30px;
+border-radius:16px;
+box-shadow:0 10px 30px rgba(0,0,0,0.06);
+margin-bottom:40px;
+}
+
+.recent{
+background:#fff;
+padding:25px;
+border-radius:16px;
+box-shadow:0 10px 30px rgba(0,0,0,0.06);
+}
+
+.recent-item{
+padding:12px 0;
+border-bottom:1px solid #eee;
+font-size:14px;
+display:flex;
+justify-content:space-between;
+}
+
+.footer{
+text-align:center;
+margin-top:60px;
+padding:20px;
+font-size:13px;
+color:#777;
+}
+
+@media(max-width:768px){
+.container{ padding:20px; }
+}
+</style>
+</head>
+
+<body>
+
+<script>
+if(localStorage.getItem("kcLogin")!=="true"){
+window.location.href="login.html";
+}
+
+function logout(){
+localStorage.removeItem("kcLogin");
+window.location.href="login.html";
+}
+
+/* BACKUP */
+function downloadBackup(){
+let data = localStorage.getItem("kcDocs");
+if(!data){
+alert("No Data Found");
+return;
+}
+let blob = new Blob([data], { type: "application/json" });
+let url = URL.createObjectURL(blob);
+let a = document.createElement("a");
+a.href = url;
+a.download = "kanifnath_backup.json";
+a.click();
+URL.revokeObjectURL(url);
+}
+
+/* RESTORE */
+function restoreBackup(event){
+let file = event.target.files[0];
+if(!file) return;
+
+let reader = new FileReader();
+reader.onload = function(e){
+try{
+let data = JSON.parse(e.target.result);
+localStorage.setItem("kcDocs", JSON.stringify(data));
+alert("Backup Restored Successfully!");
+location.reload();
+}catch(err){
+alert("Invalid Backup File");
+}
+};
+reader.readAsText(file);
+}
+
+let chartInstance;
+
+/* Counter Animation */
+function animateValue(id, end){
+let start=0;
+let duration=800;
+let increment=end/40;
+let obj=document.getElementById(id);
+
+let timer=setInterval(function(){
+start+=increment;
+if(start>=end){
+start=end;
+clearInterval(timer);
+}
+obj.innerText=parseFloat(start).toFixed(2);
+},20);
+}
+
+function loadDashboard(){
+
+let data=JSON.parse(localStorage.getItem("kcDocs"))||[];
+
+let invoiceCount=0;
+let revenue=0;
+let pending=0;
+let thisMonth=0;
+let monthlyData={};
+let recent=[];
+
+let currentMonth=new Date().getMonth();
+
+data.forEach(d=>{
+if(d.type==="Invoice"){
+invoiceCount++;
+let amt=parseFloat(d.amount)||0;
+revenue+=amt;
+
+if(d.status==="Pending"){
+pending+=amt;
+}
+
+let dDate=new Date(d.date);
+if(!isNaN(dDate)){
+if(dDate.getMonth()===currentMonth){
+thisMonth+=amt;
+}
+let month=dDate.toLocaleString('default',{month:'short'});
+if(!monthlyData[month]) monthlyData[month]=0;
+monthlyData[month]+=amt;
+}
+
+recent.push(d);
+}
+});
+
+animateValue("invoiceCount",invoiceCount);
+animateValue("totalRevenue",revenue);
+animateValue("pendingAmount",pending);
+animateValue("thisMonthRevenue",thisMonth);
+
+if(pending>0){
+document.getElementById("alertBox").style.display="block";
+}
+
+if(chartInstance){
+chartInstance.destroy();
+}
+
+chartInstance = new Chart(document.getElementById("revenueChart"),{
+type:"bar",
+data:{
+labels:Object.keys(monthlyData),
+datasets:[{
+data:Object.values(monthlyData),
+backgroundColor:"#7a0c0c"
+}]
+},
+options:{
+responsive:true,
+plugins:{ legend:{display:false} }
+}
+});
+
+let rDiv=document.getElementById("recentList");
+rDiv.innerHTML="";
+recent.slice(-5).reverse().forEach(d=>{
+rDiv.innerHTML+=`
+<div class="recent-item">
+<span>${d.number}</span>
+<span>₹ ${parseFloat(d.amount).toFixed(2)}</span>
+</div>`;
+});
+
+document.getElementById("year").innerText=new Date().getFullYear();
+}
+
+window.onload=loadDashboard;
+</script>
+
+<div class="header">
+<div class="logo">
+<img src="LOGOKF.jpg">
+<b>KANIFNATH CONSTRUCTION</b>
+</div>
+<div class="nav">
+<span onclick="downloadBackup()">Backup</span>
+<span onclick="document.getElementById('restoreFile').click()">Restore</span>
+<span onclick="location.href='history.html'">History</span>
+<span onclick="logout()">Logout</span>
+</div>
+</div>
+
+<input type="file" id="restoreFile" style="display:none" onchange="restoreBackup(event)">
+
+<div class="container">
+
+<div class="welcome">Welcome Rahul 👋</div>
+
+<div class="alert" id="alertBox">
+⚠ You have pending payments. Please review.
+</div>
+
+<div class="stats">
+<div class="stat-box">
+<h3>Total Invoices</h3>
+<p id="invoiceCount">0</p>
+</div>
+
+<div class="stat-box">
+<h3>Total Revenue (₹)</h3>
+<p id="totalRevenue">0</p>
+</div>
+
+<div class="stat-box">
+<h3>Pending Amount (₹)</h3>
+<p id="pendingAmount">0</p>
+</div>
+
+<div class="stat-box">
+<h3>This Month Revenue (₹)</h3>
+<p id="thisMonthRevenue">0</p>
+</div>
+</div>
+
+<div class="cards">
+<div class="card" onclick="location.href='Billing calculator Page.html'">
+<h2>Create Invoice</h2>
+</div>
+
+<div class="card" onclick="location.href='quotation.html'">
+<h2>Create Quotation</h2>
+</div>
+</div>
+
+<div class="chart-section">
+<h3>Monthly Revenue Overview</h3>
+<canvas id="revenueChart" height="100"></canvas>
+</div>
+
+<div class="recent">
+<h3>Recent Invoices</h3>
+<div id="recentList"></div>
+</div>
+
+<div class="footer">
+© <span id="year"></span> Kanifnath Construction
+</div>
+
+</div>
+
+</body>
+</html>
