@@ -1,13 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>KANIFNATH CONSTRUCTION - Dashboard</title>
+
+<!-- APP ICON + PWA -->
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#7a0c0c">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+
 body{
 margin:0;
 font-family:Segoe UI;
@@ -31,7 +40,9 @@ align-items:center;
 gap:10px;
 }
 
-.logo img{ width:42px; }
+.logo img{
+width:42px;
+}
 
 .nav span{
 cursor:pointer;
@@ -151,14 +162,18 @@ color:#777;
 }
 
 @media(max-width:768px){
-.container{ padding:20px; }
+.container{
+padding:20px;
 }
+}
+
 </style>
 </head>
 
 <body>
 
 <script>
+
 if(localStorage.getItem("kcLogin")!=="true"){
 window.location.href="login.html";
 }
@@ -169,57 +184,98 @@ window.location.href="login.html";
 }
 
 /* BACKUP */
+
 function downloadBackup(){
+
 let data = localStorage.getItem("kcDocs");
+
 if(!data){
 alert("No Data Found");
 return;
 }
+
 let blob = new Blob([data], { type: "application/json" });
+
 let url = URL.createObjectURL(blob);
+
 let a = document.createElement("a");
+
 a.href = url;
+
 a.download = "kanifnath_backup.json";
+
 a.click();
+
 URL.revokeObjectURL(url);
+
 }
 
 /* RESTORE */
+
 function restoreBackup(event){
+
 let file = event.target.files[0];
+
 if(!file) return;
 
 let reader = new FileReader();
+
 reader.onload = function(e){
+
 try{
+
 let data = JSON.parse(e.target.result);
+
 localStorage.setItem("kcDocs", JSON.stringify(data));
+
 alert("Backup Restored Successfully!");
+
 location.reload();
-}catch(err){
-alert("Invalid Backup File");
+
 }
+
+catch(err){
+
+alert("Invalid Backup File");
+
+}
+
 };
+
 reader.readAsText(file);
+
 }
 
 let chartInstance;
 
 /* Counter Animation */
+
 function animateValue(id, end){
+
 let start=0;
+
 let duration=800;
+
 let increment=end/40;
+
 let obj=document.getElementById(id);
 
 let timer=setInterval(function(){
+
 start+=increment;
+
 if(start>=end){
+
 start=end;
+
 clearInterval(timer);
+
 }
+
 obj.innerText=parseFloat(start).toFixed(2);
+
 },20);
+
 }
 
 function loadDashboard(){
@@ -227,93 +283,151 @@ function loadDashboard(){
 let data=JSON.parse(localStorage.getItem("kcDocs"))||[];
 
 let invoiceCount=0;
+
 let revenue=0;
+
 let pending=0;
+
 let thisMonth=0;
+
 let monthlyData={};
+
 let recent=[];
 
 let currentMonth=new Date().getMonth();
 
 data.forEach(d=>{
+
 if(d.type==="Invoice"){
+
 invoiceCount++;
+
 let amt=parseFloat(d.amount)||0;
+
 revenue+=amt;
 
 if(d.status==="Pending"){
+
 pending+=amt;
+
 }
 
 let dDate=new Date(d.date);
+
 if(!isNaN(dDate)){
+
 if(dDate.getMonth()===currentMonth){
+
 thisMonth+=amt;
+
 }
+
 let month=dDate.toLocaleString('default',{month:'short'});
+
 if(!monthlyData[month]) monthlyData[month]=0;
+
 monthlyData[month]+=amt;
+
 }
 
 recent.push(d);
+
 }
+
 });
 
 animateValue("invoiceCount",invoiceCount);
+
 animateValue("totalRevenue",revenue);
+
 animateValue("pendingAmount",pending);
+
 animateValue("thisMonthRevenue",thisMonth);
 
 if(pending>0){
+
 document.getElementById("alertBox").style.display="block";
+
 }
 
 if(chartInstance){
+
 chartInstance.destroy();
+
 }
 
 chartInstance = new Chart(document.getElementById("revenueChart"),{
+
 type:"bar",
+
 data:{
+
 labels:Object.keys(monthlyData),
+
 datasets:[{
+
 data:Object.values(monthlyData),
+
 backgroundColor:"#7a0c0c"
+
 }]
+
 },
+
 options:{
+
 responsive:true,
+
 plugins:{ legend:{display:false} }
+
 }
+
 });
 
 let rDiv=document.getElementById("recentList");
+
 rDiv.innerHTML="";
+
 recent.slice(-5).reverse().forEach(d=>{
+
 rDiv.innerHTML+=`
 <div class="recent-item">
 <span>${d.number}</span>
 <span>₹ ${parseFloat(d.amount).toFixed(2)}</span>
 </div>`;
+
 });
 
 document.getElementById("year").innerText=new Date().getFullYear();
+
 }
 
 window.onload=loadDashboard;
+
 </script>
 
 <div class="header">
+
 <div class="logo">
+
 <img src="LOGOKF.jpg">
+
 <b>KANIFNATH CONSTRUCTION</b>
+
 </div>
+
 <div class="nav">
+
 <span onclick="downloadBackup()">Backup</span>
+
 <span onclick="document.getElementById('restoreFile').click()">Restore</span>
+
 <span onclick="location.href='history.html'">History</span>
+
 <span onclick="logout()">Logout</span>
+
 </div>
+
 </div>
 
 <input type="file" id="restoreFile" style="display:none" onchange="restoreBackup(event)">
@@ -327,6 +441,7 @@ window.onload=loadDashboard;
 </div>
 
 <div class="stats">
+
 <div class="stat-box">
 <h3>Total Invoices</h3>
 <p id="invoiceCount">0</p>
@@ -346,26 +461,35 @@ window.onload=loadDashboard;
 <h3>This Month Revenue (₹)</h3>
 <p id="thisMonthRevenue">0</p>
 </div>
+
 </div>
 
 <div class="cards">
-<div class="card" onclick="location.href='Billing Calculator Page.html'">
+
+<div class="card" onclick="location.href='Billing calculator Page.html'">
 <h2>Create Invoice</h2>
 </div>
 
 <div class="card" onclick="location.href='quotation.html'">
 <h2>Create Quotation</h2>
 </div>
+
 </div>
 
 <div class="chart-section">
+
 <h3>Monthly Revenue Overview</h3>
+
 <canvas id="revenueChart" height="100"></canvas>
+
 </div>
 
 <div class="recent">
+
 <h3>Recent Invoices</h3>
+
 <div id="recentList"></div>
+
 </div>
 
 <div class="footer">
@@ -375,5 +499,4 @@ window.onload=loadDashboard;
 </div>
 
 </body>
-
 </html>
