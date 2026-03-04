@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,6 +7,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>KANIFNATH CONSTRUCTION - Dashboard</title>
+
+<!-- LOGIN SECURITY -->
+<script>
+if(localStorage.getItem("kcLogin")!=="true"){
+window.location.href="login.html";
+}
+</script>
 
 <!-- APP ICON + PWA -->
 <link rel="manifest" href="manifest.json">
@@ -161,22 +169,13 @@ font-size:13px;
 color:#777;
 }
 
-@media(max-width:768px){
-.container{
-padding:20px;
-}
-}
-
 </style>
+
 </head>
 
 <body>
 
 <script>
-
-if(localStorage.getItem("kcLogin")!=="true"){
-window.location.href="login.html";
-}
 
 function logout(){
 localStorage.removeItem("kcLogin");
@@ -253,11 +252,7 @@ let chartInstance;
 function animateValue(id, end){
 
 let start=0;
-
-let duration=800;
-
 let increment=end/40;
-
 let obj=document.getElementById(id);
 
 let timer=setInterval(function(){
@@ -265,11 +260,8 @@ let timer=setInterval(function(){
 start+=increment;
 
 if(start>=end){
-
 start=end;
-
 clearInterval(timer);
-
 }
 
 obj.innerText=parseFloat(start).toFixed(2);
@@ -283,17 +275,11 @@ function loadDashboard(){
 let data=JSON.parse(localStorage.getItem("kcDocs"))||[];
 
 let invoiceCount=0;
-
 let revenue=0;
-
 let pending=0;
-
 let thisMonth=0;
-
 let monthlyData={};
-
 let recent=[];
-
 let currentMonth=new Date().getMonth();
 
 data.forEach(d=>{
@@ -303,13 +289,10 @@ if(d.type==="Invoice"){
 invoiceCount++;
 
 let amt=parseFloat(d.amount)||0;
-
 revenue+=amt;
 
 if(d.status==="Pending"){
-
 pending+=amt;
-
 }
 
 let dDate=new Date(d.date);
@@ -317,9 +300,7 @@ let dDate=new Date(d.date);
 if(!isNaN(dDate)){
 
 if(dDate.getMonth()===currentMonth){
-
 thisMonth+=amt;
-
 }
 
 let month=dDate.toLocaleString('default',{month:'short'});
@@ -337,23 +318,16 @@ recent.push(d);
 });
 
 animateValue("invoiceCount",invoiceCount);
-
 animateValue("totalRevenue",revenue);
-
 animateValue("pendingAmount",pending);
-
 animateValue("thisMonthRevenue",thisMonth);
 
 if(pending>0){
-
 document.getElementById("alertBox").style.display="block";
-
 }
 
 if(chartInstance){
-
 chartInstance.destroy();
-
 }
 
 chartInstance = new Chart(document.getElementById("revenueChart"),{
@@ -361,25 +335,16 @@ chartInstance = new Chart(document.getElementById("revenueChart"),{
 type:"bar",
 
 data:{
-
 labels:Object.keys(monthlyData),
-
 datasets:[{
-
 data:Object.values(monthlyData),
-
 backgroundColor:"#7a0c0c"
-
 }]
-
 },
 
 options:{
-
 responsive:true,
-
 plugins:{ legend:{display:false} }
-
 }
 
 });
@@ -409,23 +374,15 @@ window.onload=loadDashboard;
 <div class="header">
 
 <div class="logo">
-
 <img src="LOGOKF.jpg">
-
 <b>KANIFNATH CONSTRUCTION</b>
-
 </div>
 
 <div class="nav">
-
 <span onclick="downloadBackup()">Backup</span>
-
 <span onclick="document.getElementById('restoreFile').click()">Restore</span>
-
 <span onclick="location.href='history.html'">History</span>
-
 <span onclick="logout()">Logout</span>
-
 </div>
 
 </div>
@@ -477,19 +434,13 @@ window.onload=loadDashboard;
 </div>
 
 <div class="chart-section">
-
 <h3>Monthly Revenue Overview</h3>
-
 <canvas id="revenueChart" height="100"></canvas>
-
 </div>
 
 <div class="recent">
-
 <h3>Recent Invoices</h3>
-
 <div id="recentList"></div>
-
 </div>
 
 <div class="footer">
@@ -500,5 +451,3 @@ window.onload=loadDashboard;
 
 </body>
 </html>
-
-
