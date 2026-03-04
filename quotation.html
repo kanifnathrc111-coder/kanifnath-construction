@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,6 +16,8 @@ margin:0;
 padding:20px;
 }
 
+:root{ --primary:#7a0c0c; }
+
 .container{
 position:relative;
 width:210mm;
@@ -23,8 +26,6 @@ margin:auto;
 background:#fff;
 padding:30px;
 box-shadow:0 5px 20px rgba(0,0,0,0.08);
-box-sizing:border-box;
-overflow:hidden;
 }
 
 .container::before{
@@ -37,11 +38,7 @@ font-size:55px;
 font-weight:700;
 color:#7a0c0c;
 opacity:0.04;
-letter-spacing:2px;
-pointer-events:none;
 }
-
-:root{ --primary:#7a0c0c; }
 
 .header{
 display:flex;
@@ -101,7 +98,6 @@ padding:4px;
 background:transparent;
 }
 
-/* MOBILE SAFE TABLE */
 table{
 width:100%;
 border-collapse:collapse;
@@ -122,7 +118,12 @@ border:1px solid #ddd;
 padding:6px;
 font-size:12px;
 text-align:center;
-vertical-align:top;
+}
+
+td input{
+width:90%;
+padding:4px;
+font-size:12px;
 }
 
 textarea{
@@ -130,15 +131,7 @@ width:100%;
 min-height:50px;
 padding:6px;
 font-size:13px;
-resize:vertical;
 border:1px solid #bbb;
-border-radius:4px;
-}
-
-td input{
-width:90%;
-padding:4px;
-font-size:12px;
 }
 
 .buttons{ margin-top:15px; }
@@ -154,8 +147,6 @@ margin-right:8px;
 font-size:12px;
 }
 
-button:hover{ background:#4d0606; }
-
 .summary{
 margin-top:30px;
 width:45%;
@@ -164,7 +155,6 @@ background:#fafafa;
 padding:15px;
 border-radius:8px;
 display:none;
-box-shadow:0 2px 6px rgba(0,0,0,0.05);
 }
 
 .summary div{
@@ -180,6 +170,11 @@ font-size:16px;
 color:var(--primary);
 }
 
+.qtyTotal{
+margin-top:20px;
+font-weight:600;
+}
+
 .clear{ clear:both; }
 
 .terms{
@@ -189,14 +184,6 @@ background:#fff8f8;
 padding:18px;
 border-radius:8px;
 border:1px solid #e0b4b4;
-clear:both;
-}
-
-.terms h4{
-font-size:16px;
-font-weight:700;
-margin-bottom:10px;
-color:#7a0c0c;
 }
 
 .footer{
@@ -229,7 +216,7 @@ body{background:#fff;}
 <div class="left">
 <img src="LOGOKF.jpg">
 <div class="company">KANIFNATH CONSTRUCTION</div>
-<div class="tag">LABOUR SUPPLIER & DEVELOPER'S</div>
+<div class="tag">LABOUR SUPPLIER & DEVELOPERS</div>
 </div>
 
 <div class="right">
@@ -241,21 +228,6 @@ GSTIN: 27DHBPC7233L1ZB
 </div>
 
 <div class="title">QUOTATION</div>
-
-<div class="info">
-<div class="box">
-Quotation No: <span id="quoteNo"></span><br>
-Date: <span id="quoteDate"></span><br>
-Validity (Days): <input type="number" value="15">
-</div>
-
-<div class="box">
-Client Name:<br>
-<input type="text" id="clientName"><br>
-Project Location:<br>
-<input type="text">
-</div>
-</div>
 
 <div class="buttons">
 <button onclick="addRow()">Add Item</button>
@@ -273,7 +245,6 @@ Project Location:<br>
 <th class="lwh">L</th>
 <th class="lwh">W</th>
 <th class="lwh">H</th>
-<th class="lwh">Vol</th>
 <th>Description</th>
 <th>Qty</th>
 <th>Rate</th>
@@ -284,17 +255,18 @@ Project Location:<br>
 <tbody id="body"></tbody>
 </table>
 
+<div class="qtyTotal">
+Total Qty (m³): <span id="totalQty">0</span>
+</div>
+
 <div class="summary" id="summaryBox">
-<div><span>Subtotal:</span><span>₹ <span id="subtotal">0.00</span></span></div>
+<div><span>Subtotal</span><span>₹ <span id="subtotal">0</span></span></div>
 <div>
-<span>GST (%):</span>
-<input type="number" id="gst" value="18" style="width:60px" oninput="calculate()">
+<span>GST (%)</span>
+<input type="number" id="gstPercent" value="18" style="width:60px" oninput="calculate()">
 </div>
-<div><span>GST Amount:</span><span>₹ <span id="gstAmount">0.00</span></span></div>
-<div class="total">
-<span>Grand Total:</span>
-<span>₹ <span id="final">0.00</span></span>
-</div>
+<div><span>GST Amount</span><span>₹ <span id="gstAmount">0</span></span></div>
+<div class="total"><span>Grand Total</span><span>₹ <span id="final">0</span></span></div>
 </div>
 
 <div class="clear"></div>
@@ -310,9 +282,7 @@ Project Location:<br>
 </div>
 
 <div class="footer">
-<div>
-Thank you for your inquiry. We look forward to working with you.
-</div>
+<div>Thank you for your inquiry. We look forward to working with you.</div>
 
 <div style="text-align:center;">
 For Kanifnath Construction<br><br>
@@ -324,67 +294,83 @@ Authorized Signatory
 </div>
 
 <script>
-document.getElementById("quoteNo").innerText="QT-"+Math.floor(Math.random()*1000);
-document.getElementById("quoteDate").innerText=new Date().toLocaleDateString();
 
 addRow();
 let showAmount=true;
 
 function addRow(){
+
 let row=document.getElementById("body").insertRow();
+
 row.innerHTML=`
 <td></td>
 <td class="lwh"><input type="number" step="0.01" class="len"></td>
 <td class="lwh"><input type="number" step="0.01" class="wid"></td>
 <td class="lwh"><input type="number" step="0.01" class="hei"></td>
-<td class="lwh vol">0</td>
 <td><textarea></textarea></td>
-<td><input type="number" class="qty" value="1"></td>
+<td><input type="number" class="qty" value="0"></td>
 <td><input type="number" class="rate" value="0"></td>
 <td class="amt amountCol">0.00</td>
 <td><button onclick="removeRow(this)">X</button></td>
 `;
+
 row.querySelectorAll("input").forEach(i=>{
 i.addEventListener("input",()=>update(row));
 });
+
 renumber();
 }
 
 function update(row){
-let l=parseFloat(row.querySelector(".len")?.value)||0;
-let w=parseFloat(row.querySelector(".wid")?.value)||0;
-let h=parseFloat(row.querySelector(".hei")?.value)||0;
-let vol=l*w*h;
-if(row.querySelector(".vol")) row.querySelector(".vol").innerText=vol.toFixed(3);
 
-let qty=parseFloat(row.querySelector(".qty").value)||0;
+let l=parseFloat(row.querySelector(".len").value)||0;
+let w=parseFloat(row.querySelector(".wid").value)||0;
+let h=parseFloat(row.querySelector(".hei").value)||0;
+
+let volume=l*w*h;
+
+let qtyInput=row.querySelector(".qty");
+
+if(qtyInput.value==0 && volume>0){
+qtyInput.value=volume.toFixed(3);
+}
+
+let qty=parseFloat(qtyInput.value)||0;
 let rate=parseFloat(row.querySelector(".rate").value)||0;
 
-let amt=(vol>0?vol:1)*qty*rate;
+let amt=qty*rate;
+
 row.querySelector(".amt").innerText=amt.toFixed(2);
 
 calculate();
 }
 
 function calculate(){
-if(!showAmount){
-document.getElementById("summaryBox").style.display="none";
-return;
-}
 
 let subtotal=0;
-document.querySelectorAll(".amt").forEach(a=>{
-subtotal+=parseFloat(a.innerText)||0;
+let totalQty=0;
+
+document.querySelectorAll("#body tr").forEach(r=>{
+
+let qty=parseFloat(r.querySelector(".qty").value)||0;
+let amt=parseFloat(r.querySelector(".amt").innerText)||0;
+
+subtotal+=amt;
+totalQty+=qty;
+
 });
 
-let gstPercent=parseFloat(document.getElementById("gst").value)||0;
+let gstPercent=parseFloat(document.getElementById("gstPercent").value)||0;
+
 let gstAmount=subtotal*gstPercent/100;
 let final=subtotal+gstAmount;
 
-document.getElementById("summaryBox").style.display="block";
 document.getElementById("subtotal").innerText=subtotal.toFixed(2);
 document.getElementById("gstAmount").innerText=gstAmount.toFixed(2);
 document.getElementById("final").innerText=final.toFixed(2);
+document.getElementById("totalQty").innerText=totalQty.toFixed(3);
+
+document.getElementById("summaryBox").style.display="block";
 }
 
 function removeRow(btn){
@@ -401,44 +387,40 @@ r.cells[0].innerText=i+1;
 
 function toggleLWH(){
 document.querySelectorAll(".lwh").forEach(el=>{
-el.style.display = el.style.display==="none" ? "" : "none";
+el.style.display=el.style.display==="none"?"":"none";
 });
 }
 
 function toggleAmount(){
 showAmount=!showAmount;
 document.querySelectorAll(".amountCol").forEach(el=>{
-el.style.display = showAmount ? "" : "none";
+el.style.display=showAmount?"":"none";
 });
 calculate();
 }
 
 function toggleTerms(){
 let t=document.getElementById("termsSection");
-t.style.display = t.style.display==="none" ? "block" : "none";
+t.style.display=t.style.display==="none"?"block":"none";
 }
 
 function shareWhatsApp(){
+
 calculate();
-let quoteNo=document.getElementById("quoteNo").innerText;
-let total=document.getElementById("final").innerText || "0.00";
-let client=document.getElementById("clientName").value || "Client";
 
-let message=`Hello ${client},
+let total=document.getElementById("final").innerText;
 
-Please find below quotation details:
+let message=`Quotation from Kanifnath Construction
 
-Quotation No: ${quoteNo}
 Total Amount: ₹ ${total}
 
-Kindly review and let us know your confirmation.
-
-Regards,
+Regards
 Kanifnath Construction`;
 
-let url="https://wa.me/?text="+encodeURIComponent(message);
-window.open(url,"_blank");
+window.open("https://wa.me/?text="+encodeURIComponent(message));
+
 }
+
 </script>
 
 </body>
