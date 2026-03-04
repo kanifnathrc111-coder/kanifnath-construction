@@ -1,51 +1,85 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KANIFNATH CONSTRUCTION - Secure Access</title>
+<title>Kanifnath Construction - Secure Access</title>
 
 <style>
+
 body{
 margin:0;
 height:100vh;
-font-family:Segoe UI, Arial;
-background:linear-gradient(135deg,#111,#7a0c0c);
 display:flex;
 justify-content:center;
 align-items:center;
+font-family:Segoe UI,Arial;
+background:#0b0f1a;
 color:#fff;
+overflow:hidden;
 }
+
+/* animated background */
+
+body::before{
+content:"";
+position:absolute;
+width:1200px;
+height:1200px;
+background:conic-gradient(#00e5ff,#5c6cff,#00e5ff);
+filter:blur(200px);
+animation:spin 25s linear infinite;
+opacity:0.25;
+z-index:-1;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+
+/* card */
 
 .card{
-background:#1c1c1c;
+width:370px;
 padding:45px;
-width:360px;
-border-radius:18px;
-box-shadow:0 30px 70px rgba(0,0,0,0.6);
+border-radius:20px;
 text-align:center;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(20px);
+box-shadow:0 20px 50px rgba(0,0,0,0.6);
 }
 
+/* logo */
+
 .logo{
-width:75px;
-margin-bottom:15px;
+width:90px;
+margin-bottom:10px;
 }
+
+/* title */
 
 .title{
 font-size:18px;
 letter-spacing:2px;
-margin-bottom:30px;
+margin-bottom:25px;
+color:#d7dcff;
 }
 
+/* pin display */
+
 .pin-display{
-background:#111;
-padding:12px;
-border-radius:10px;
-margin-bottom:20px;
-letter-spacing:8px;
-font-size:22px;
-border:1px solid #333;
+background:#0c1226;
+padding:14px;
+border-radius:12px;
+margin-bottom:22px;
+font-size:26px;
+letter-spacing:10px;
+border:1px solid #2a3a7a;
 }
+
+/* keypad */
 
 .pin-pad{
 display:grid;
@@ -54,23 +88,22 @@ gap:12px;
 }
 
 .pin-btn{
-background:#2a2a2a;
-padding:14px;
-border-radius:10px;
+background:#172041;
+padding:16px;
+border-radius:12px;
 cursor:pointer;
-font-size:16px;
-transition:0.3s;
+font-size:18px;
+transition:0.2s;
 }
 
 .pin-btn:hover{
-background:#7a0c0c;
-transform:translateY(-2px);
+box-shadow:0 0 12px #00e5ff;
 }
 
-.footer{
-margin-top:30px;
-font-size:11px;
-color:#777;
+.pin-btn:active{
+transform:scale(0.9);
+background:#00e5ff;
+color:#000;
 }
 
 .error{
@@ -79,6 +112,13 @@ margin-top:15px;
 font-size:13px;
 display:none;
 }
+
+.footer{
+margin-top:25px;
+font-size:11px;
+color:#888;
+}
+
 </style>
 </head>
 
@@ -87,26 +127,38 @@ display:none;
 <div class="card">
 
 <img src="LOGOKF.jpg" class="logo">
-<div class="title">EXECUTIVE ACCESS PANEL</div>
 
-<div class="pin-display" id="pinDisplay">----</div>
+<div class="title">
+KANIFNATH CONTROL PANEL
+</div>
+
+<div class="pin-display" id="pinDisplay">
+----
+</div>
 
 <div class="pin-pad">
+
 <div class="pin-btn" onclick="addPin('1')">1</div>
 <div class="pin-btn" onclick="addPin('2')">2</div>
 <div class="pin-btn" onclick="addPin('3')">3</div>
+
 <div class="pin-btn" onclick="addPin('4')">4</div>
 <div class="pin-btn" onclick="addPin('5')">5</div>
 <div class="pin-btn" onclick="addPin('6')">6</div>
+
 <div class="pin-btn" onclick="addPin('7')">7</div>
 <div class="pin-btn" onclick="addPin('8')">8</div>
 <div class="pin-btn" onclick="addPin('9')">9</div>
+
 <div class="pin-btn" onclick="clearPin()">C</div>
 <div class="pin-btn" onclick="addPin('0')">0</div>
 <div class="pin-btn" onclick="submitPin()">✔</div>
+
 </div>
 
-<div class="error" id="errorMsg">Invalid PIN</div>
+<div class="error" id="errorMsg">
+Invalid PIN
+</div>
 
 <div class="footer">
 © <span id="year"></span> Kanifnath Construction
@@ -115,42 +167,131 @@ display:none;
 </div>
 
 <script>
-document.getElementById("year").innerText=new Date().getFullYear();
 
-let correctPin="0511";   // 🔐 Change PIN here
+document.getElementById("year").innerText =
+new Date().getFullYear();
+
+let correctPin="7841";
 let enteredPin="";
+let attempts=0;
+let locked=false;
+
+/* voice */
+
+function speak(text){
+
+let msg=new SpeechSynthesisUtterance(text);
+
+msg.rate=0.9;
+msg.pitch=1.1;
+msg.volume=1;
+
+speechSynthesis.speak(msg);
+
+}
+
+/* welcome voice */
+
+window.onload=function(){
+
+speak("Rahul, welcome to Kanifnath Construction. Please enter the password.");
+
+}
+
+/* add pin */
 
 function addPin(num){
+
+if(locked) return;
+
 if(enteredPin.length<4){
+
 enteredPin+=num;
+
 updateDisplay();
+
 }
+
 }
+
+/* clear */
 
 function clearPin(){
+
 enteredPin="";
+
 updateDisplay();
+
 }
+
+/* display */
 
 function updateDisplay(){
+
 let masked=enteredPin.replace(/./g,"•");
+
 document.getElementById("pinDisplay").innerText=
 masked.padEnd(4,"-");
+
 }
 
+/* submit */
+
 function submitPin(){
+
+if(locked) return;
+
 if(enteredPin===correctPin){
+
+speak("Thank you. Access granted.");
+
 localStorage.setItem("kcLogin","true");
+
+setTimeout(()=>{
 window.location.href="index.html";
+},1500);
+
 }else{
+
+attempts++;
+
 document.getElementById("errorMsg").style.display="block";
+
+speak("Invalid password");
+
 setTimeout(()=>{
 document.getElementById("errorMsg").style.display="none";
 },2000);
+
 clearPin();
+
+if(attempts>=3){
+
+locked=true;
+
+speak("System locked for thirty seconds");
+
+document.getElementById("errorMsg").innerText="Too many attempts. Try after 30 seconds";
+
+document.getElementById("errorMsg").style.display="block";
+
+setTimeout(()=>{
+
+locked=false;
+attempts=0;
+document.getElementById("errorMsg").innerText="Invalid PIN";
+document.getElementById("errorMsg").style.display="none";
+
+},30000);
+
 }
+
 }
+
+}
+
 </script>
 
 </body>
 </html>
+```
