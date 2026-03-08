@@ -1,425 +1,513 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KANIFNATH CONSTRUCTION - QUOTATION</title>
+<title>KANIFNATH CONSTRUCTION -  QUOTATION</title>
 
 <style>
-@page { size:A4; margin:18mm; }
+
+@page { size:A4; margin:12mm; }
 
 body{
-font-family:Segoe UI, Arial;
-background:#f4f4f4;
+font-family:Segoe UI,Arial;
+background:#f3f3f3;
 margin:0;
 padding:20px;
 }
 
-:root{ --primary:#7a0c0c; }
+:root{
+--primary:#7a0c0c;
+}
 
 .container{
-position:relative;
 width:210mm;
 min-height:297mm;
+background:white;
 margin:auto;
-background:#fff;
-padding:30px;
-box-shadow:0 5px 20px rgba(0,0,0,0.08);
+padding:35px;
+box-shadow:0 0 15px rgba(0,0,0,0.1);
+box-sizing:border-box;
 }
 
-.container::before{
-content:"KANIFNATH CONSTRUCTION";
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%) rotate(-40deg);
-font-size:55px;
-font-weight:700;
-color:#7a0c0c;
-opacity:0.04;
+/* BUTTON PANEL */
+
+.btn-panel{
+margin-bottom:20px;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
 }
+
+button{
+padding:8px 14px;
+border:none;
+border-radius:4px;
+color:white;
+cursor:pointer;
+}
+
+.btn-add{background:#2e7d32;}
+.btn-toggle{background:#546e7a;}
+.btn-print{background:#7a0c0c;}
+
+/* HEADER */
 
 .header{
 display:flex;
 justify-content:space-between;
-border-bottom:2px solid var(--primary);
+border-bottom:3px solid var(--primary);
 padding-bottom:15px;
 margin-bottom:25px;
 }
 
-.left img{ width:85px; }
-
-.company{
-font-size:26px;
-font-weight:800;
+.brand h1{
+margin:0;
 color:var(--primary);
 }
 
-.tag{ font-size:12px; color:#444; }
-
-.right{
+.contact{
 text-align:right;
 font-size:12px;
-line-height:1.6;
-margin-top:25px;
+line-height:1.5;
 }
 
-.title{
+/* TITLE */
+
+.doc-title{
 text-align:center;
 font-size:20px;
-font-weight:700;
+font-weight:bold;
+margin:25px 0;
+text-decoration:underline;
+}
+
+/* CLIENT INFO */
+
+.info-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
 margin-bottom:25px;
 }
 
-.info{
+.info-box{
+border:1px solid #ddd;
+padding:10px;
+}
+
+.info-row{
 display:flex;
-gap:15px;
-margin-bottom:20px;
-flex-wrap:wrap;
+margin-bottom:6px;
 }
 
-.box{
-flex:1;
-min-width:260px;
-border:1px solid #ccc;
-padding:12px;
-border-radius:6px;
+.info-row label{
+width:100px;
+font-weight:bold;
 font-size:13px;
-background:#fafafa;
 }
 
-.box input{
-width:100%;
+.info-row input{
+flex:1;
 border:none;
-border-bottom:1px solid #aaa;
+border-bottom:1px dashed #ccc;
 outline:none;
-padding:4px;
-background:transparent;
 }
+
+/* TABLE */
 
 table{
 width:100%;
 border-collapse:collapse;
-display:block;
-overflow-x:auto;
-white-space:nowrap;
+table-layout:fixed;
 }
 
 th{
 background:var(--primary);
-color:#fff;
+color:white;
 padding:8px;
 font-size:12px;
 }
 
 td{
-border:1px solid #ddd;
+border:1px solid #ccc;
 padding:6px;
+text-align:center;
+font-size:12px;
+}
+
+tbody tr:hover{
+background:#faf6f6;
+}
+
+td input, td textarea{
+width:95%;
+border:none;
+background:transparent;
+outline:none;
 font-size:12px;
 text-align:center;
 }
 
-td input{
-width:90%;
-padding:4px;
-font-size:12px;
+td textarea{
+text-align:left;
+resize:none;
 }
 
-textarea{
-width:100%;
-min-height:50px;
-padding:6px;
-font-size:13px;
-border:1px solid #bbb;
-}
-
-.buttons{ margin-top:15px; }
-
-button{
-background:var(--primary);
-color:#fff;
-border:none;
-padding:6px 12px;
-border-radius:4px;
-cursor:pointer;
-margin-right:8px;
-font-size:12px;
-}
+/* SUMMARY */
 
 .summary{
-margin-top:30px;
-width:45%;
-float:right;
-background:#fafafa;
+margin-top:20px;
+width:300px;
+margin-left:auto;
+border:1px solid #ccc;
 padding:15px;
-border-radius:8px;
-display:none;
 }
 
-.summary div{
+.sum-row{
 display:flex;
 justify-content:space-between;
 margin-bottom:8px;
-font-size:14px;
 }
 
 .total{
 font-weight:bold;
 font-size:16px;
 color:var(--primary);
+border-top:2px solid var(--primary);
+padding-top:6px;
 }
 
-.qtyTotal{
-margin-top:20px;
-font-weight:600;
+/* SECTIONS */
+
+.section{
+margin-top:25px;
+font-size:12px;
+line-height:1.6;
 }
 
-.clear{ clear:both; }
+.section h3{
+color:var(--primary);
+margin-bottom:5px;
+}
 
-.terms{
+/* SIGN */
+
+.sign{
 margin-top:40px;
-display:none;
-background:#fff8f8;
-padding:18px;
-border-radius:8px;
-border:1px solid #e0b4b4;
-}
-
-.footer{
-margin-top:60px;
-border-top:1px solid #ccc;
-padding-top:10px;
 display:flex;
 justify-content:space-between;
-font-size:12px;
 }
 
-.signature-name{
-font-family:'Brush Script MT','Lucida Handwriting',cursive;
-font-size:26px;
-color:#7a0c0c;
+.sign-line{
+margin-top:50px;
+border-top:1px solid black;
+width:170px;
 }
 
 @media print{
-.buttons{display:none;}
-body{background:#fff;}
+.btn-panel,.action-col{display:none!important;}
+body{background:white;padding:0;}
+.container{box-shadow:none;}
 }
+
 </style>
 </head>
 
 <body>
 
+<div class="btn-panel">
+
+<button class="btn-add" onclick="addRow()">+ Add Item</button>
+
+<button class="btn-toggle" onclick="toggleColumn('.lwh-col')">L/W/H</button>
+
+<button class="btn-toggle" onclick="toggleAmount()">Amount</button>
+
+<button class="btn-toggle" onclick="toggleGST()">GST</button>
+
+<button class="btn-print" onclick="window.print()">Print / PDF</button>
+
+</div>
+
 <div class="container">
 
 <div class="header">
-<div class="left">
-<img src="LOGOKF.jpg">
-<div class="company">KANIFNATH CONSTRUCTION</div>
-<div class="tag">LABOUR SUPPLIER & DEVELOPERS</div>
+
+<div class="brand">
+<h1>KANIFNATH CONSTRUCTION</h1>
+<p style="margin:0;font-size:12px;font-weight:bold">
+LABOUR SUPPLIER & DEVELOPERS
+</p>
 </div>
 
-<div class="right">
+<div class="contact">
 Kalewadi, Tal. Daund, Dist. Pune - 413801<br>
 Mob: 9763739384 / 9325503934<br>
-Email: kanifnathr.c111@gmail.com<br>
 GSTIN: 27DHBPC7233L1ZB
 </div>
+
 </div>
 
-<div class="title">QUOTATION</div>
+<div class="doc-title"> QUOTATION</div>
 
-<div class="buttons">
-<button onclick="addRow()">Add Item</button>
-<button onclick="toggleLWH()">Toggle L×W×H</button>
-<button onclick="toggleAmount()">Toggle Amount</button>
-<button onclick="toggleTerms()">Toggle Terms</button>
-<button onclick="window.print()">Save PDF</button>
-<button onclick="shareWhatsApp()">Share WhatsApp</button>
+<div class="info-grid">
+
+<div class="info-box">
+<div class="info-row"><label>Client:</label><input></div>
+<div class="info-row"><label>Site:</label><input></div>
+</div>
+
+<div class="info-box">
+<div class="info-row"><label>Quote No:</label><input id="qno"></div>
+<div class="info-row"><label>Date:</label><input type="date" id="qdate"></div>
+</div>
+
 </div>
 
 <table>
+
 <thead>
+
 <tr>
-<th>Sr</th>
-<th class="lwh">L</th>
-<th class="lwh">W</th>
-<th class="lwh">H</th>
-<th>Description</th>
+
+<th style="width:30px">Sr</th>
+
+<th>Work Description</th>
+
+<th class="lwh-col">L</th>
+<th class="lwh-col">W</th>
+<th class="lwh-col">H</th>
+
 <th>Qty</th>
+
+<th>Unit</th>
+
 <th>Rate</th>
-<th class="amountCol">Amount</th>
-<th>Action</th>
+
+<th class="amt-col">Amount</th>
+
+<th class="action-col">-</th>
+
 </tr>
+
 </thead>
-<tbody id="body"></tbody>
+
+<tbody id="billBody"></tbody>
+
 </table>
 
-<div class="qtyTotal">
-Total Qty (m³): <span id="totalQty">0</span>
-</div>
-
 <div class="summary" id="summaryBox">
-<div><span>Subtotal</span><span>₹ <span id="subtotal">0</span></span></div>
+
+<div class="sum-row">
+<span>Total Qty</span>
+<span id="sumQty">0</span>
+</div>
+
+<div class="sum-row">
+<span>Sub Total</span>
+<span id="subTotal">0</span>
+</div>
+
+<div class="sum-row" id="gstSection">
+<span>GST 18%</span>
+<span id="gstAmt">0</span>
+</div>
+
+<div class="sum-row total">
+<span>Grand Total</span>
+<span id="finalTotal">0</span>
+</div>
+
+</div>
+
+<!-- TECHNICAL SPECIFICATIONS -->
+
+<div class="section">
+
+<h3>Technical Specifications</h3>
+
+<div contenteditable="true">
+
+• GI Hexagonal Double Twisted Mesh<br>
+• Wire Diameter: 4.00 mm Zinc Coated<br>
+• Mesh Opening: 100 x 120 mm<br>
+• Stone Size: 100 mm – 200 mm<br>
+• Binding Wire: 2.20 mm
+
+</div>
+
+</div>
+
+<!-- SCOPE -->
+
+<div class="section">
+
+<h3>Scope of Work</h3>
+
+<div contenteditable="true">
+
+Supply and installation of gabion boxes including tying,
+placement and filling with stone material as per site
+requirements.
+
+</div>
+
+</div>
+
+<!-- TERMS -->
+
+<div class="section">
+
+<h3>Terms & Conditions</h3>
+
+<div contenteditable="true">
+
+• Quotation validity: 7 days<br>
+• GST extra as applicable<br>
+• Transportation extra if required<br>
+• Work completion depends on site conditions
+
+</div>
+
+</div>
+
+<!-- PAYMENT -->
+
+<div class="section">
+
+<h3>Payment Terms</h3>
+
+<div contenteditable="true">
+
+• 20% advance before starting work<br>
+• 50% after material delivery<br>
+• Balance after completion
+
+</div>
+
+</div>
+
+<div class="sign">
+
+<div style="font-size:11px">
+
+* This is computer generated quotation
+
+</div>
+
 <div>
-<span>GST (%)</span>
-<input type="number" id="gstPercent" value="18" style="width:60px" oninput="calculate()">
-</div>
-<div><span>GST Amount</span><span>₹ <span id="gstAmount">0</span></span></div>
-<div class="total"><span>Grand Total</span><span>₹ <span id="final">0</span></span></div>
-</div>
 
-<div class="clear"></div>
+<b>For Kanifnath Construction</b>
 
-<div class="terms" id="termsSection">
-<h4>Terms & Conditions</h4>
-<textarea>
-1. Prices valid for 15 days.
-2. Taxes extra as applicable.
-3. Payment terms mutually agreed.
-4. Work subject to site clearance.
-</textarea>
-</div>
+<div class="sign-line"></div>
 
-<div class="footer">
-<div>Thank you for your inquiry. We look forward to working with you.</div>
-
-<div style="text-align:center;">
-For Kanifnath Construction<br><br>
-<span class="signature-name">Rahul</span><br>
 Authorized Signatory
+
 </div>
+
 </div>
 
 </div>
 
 <script>
 
-addRow();
-let showAmount=true;
+document.getElementById('qdate').valueAsDate=new Date()
+
+let last=localStorage.getItem("quoteNo")||0
+last++
+localStorage.setItem("quoteNo",last)
+
+qno.value="KC/"+String(last).padStart(3,'0')
 
 function addRow(){
 
-let row=document.getElementById("body").insertRow();
+let tr=document.createElement("tr")
 
-row.innerHTML=`
-<td></td>
-<td class="lwh"><input type="number" step="0.01" class="len"></td>
-<td class="lwh"><input type="number" step="0.01" class="wid"></td>
-<td class="lwh"><input type="number" step="0.01" class="hei"></td>
-<td><textarea></textarea></td>
-<td><input type="number" class="qty" value="0"></td>
-<td><input type="number" class="rate" value="0"></td>
-<td class="amt amountCol">0.00</td>
-<td><button onclick="removeRow(this)">X</button></td>
-`;
+tr.innerHTML=`
 
-row.querySelectorAll("input").forEach(i=>{
-i.addEventListener("input",()=>update(row));
-});
+<td class="sr"></td>
 
-renumber();
+<td><textarea rows="2"></textarea></td>
+
+<td class="lwh-col"><input class="l" type="number"></td>
+<td class="lwh-col"><input class="w" type="number"></td>
+<td class="lwh-col"><input class="h" type="number"></td>
+
+<td><input class="qty" type="number"></td>
+
+<td><input value="Cum"></td>
+
+<td><input class="rate" type="number"></td>
+
+<td class="amt-col amt">0</td>
+
+<td class="action-col"><button onclick="this.closest('tr').remove();update()">X</button></td>
+
+`
+
+billBody.appendChild(tr)
+
+update()
+
 }
 
-function update(row){
+function update(){
 
-let l=parseFloat(row.querySelector(".len").value)||0;
-let w=parseFloat(row.querySelector(".wid").value)||0;
-let h=parseFloat(row.querySelector(".hei").value)||0;
+let sub=0
+let qty=0
 
-let volume=l*w*h;
+document.querySelectorAll("#billBody tr").forEach((r,i)=>{
 
-let qtyInput=row.querySelector(".qty");
+r.querySelector(".sr").innerText=i+1
 
-if(qtyInput.value==0 && volume>0){
-qtyInput.value=volume.toFixed(3);
+let q=parseFloat(r.querySelector(".qty").value)||0
+let rate=parseFloat(r.querySelector(".rate").value)||0
+
+let amt=q*rate
+
+r.querySelector(".amt").innerText=amt.toFixed(2)
+
+sub+=amt
+qty+=q
+
+})
+
+let gst=sub*0.18
+
+sumQty.innerText=qty.toFixed(3)
+subTotal.innerText=sub.toFixed(2)
+gstAmt.innerText=gst.toFixed(2)
+finalTotal.innerText=(sub+gst).toFixed(2)
+
 }
 
-let qty=parseFloat(qtyInput.value)||0;
-let rate=parseFloat(row.querySelector(".rate").value)||0;
+document.addEventListener("input",update)
 
-let amt=qty*rate;
+function toggleColumn(cls){
 
-row.querySelector(".amt").innerText=amt.toFixed(2);
+document.querySelectorAll(cls).forEach(e=>{
+e.style.display=(e.style.display==="none")?"":"none"
+})
 
-calculate();
-}
-
-function calculate(){
-
-let subtotal=0;
-let totalQty=0;
-
-document.querySelectorAll("#body tr").forEach(r=>{
-
-let qty=parseFloat(r.querySelector(".qty").value)||0;
-let amt=parseFloat(r.querySelector(".amt").innerText)||0;
-
-subtotal+=amt;
-totalQty+=qty;
-
-});
-
-let gstPercent=parseFloat(document.getElementById("gstPercent").value)||0;
-
-let gstAmount=subtotal*gstPercent/100;
-let final=subtotal+gstAmount;
-
-document.getElementById("subtotal").innerText=subtotal.toFixed(2);
-document.getElementById("gstAmount").innerText=gstAmount.toFixed(2);
-document.getElementById("final").innerText=final.toFixed(2);
-document.getElementById("totalQty").innerText=totalQty.toFixed(3);
-
-document.getElementById("summaryBox").style.display="block";
-}
-
-function removeRow(btn){
-btn.closest("tr").remove();
-renumber();
-calculate();
-}
-
-function renumber(){
-document.querySelectorAll("#body tr").forEach((r,i)=>{
-r.cells[0].innerText=i+1;
-});
-}
-
-function toggleLWH(){
-document.querySelectorAll(".lwh").forEach(el=>{
-el.style.display=el.style.display==="none"?"":"none";
-});
 }
 
 function toggleAmount(){
-showAmount=!showAmount;
-document.querySelectorAll(".amountCol").forEach(el=>{
-el.style.display=showAmount?"":"none";
-});
-calculate();
-}
 
-function toggleTerms(){
-let t=document.getElementById("termsSection");
-t.style.display=t.style.display==="none"?"block":"none";
-}
+toggleColumn('.amt-col')
 
-function shareWhatsApp(){
-
-calculate();
-
-let total=document.getElementById("final").innerText;
-
-let message=`Quotation from Kanifnath Construction
-
-Total Amount: ₹ ${total}
-
-Regards
-Kanifnath Construction`;
-
-window.open("https://wa.me/?text="+encodeURIComponent(message));
+summaryBox.style.display=(summaryBox.style.display==="none")?"block":"none"
 
 }
+
+function toggleGST(){
+
+gstSection.style.display=(gstSection.style.display==="none")?"block":"none"
+
+}
+
+addRow()
 
 </script>
 
