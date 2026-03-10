@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -323,23 +324,41 @@ function addRow(){
 let row=document.getElementById("body").insertRow();
 row.innerHTML=`
 <td></td>
-<td class="lwh"><input type="number"></td>
-<td class="lwh"><input type="number"></td>
-<td class="lwh"><input type="number"></td>
+<td class="lwh"><input type="number" class="l"></td>
+<td class="lwh"><input type="number" class="w"></td>
+<td class="lwh"><input type="number" class="h"></td>
 <td><textarea></textarea></td>
 <td><input type="number" class="qty" value="1"></td>
 <td><input type="number" class="rate" value="0"></td>
 <td><input type="number" class="amt" value="0"></td>
 <td><button onclick="removeRow(this)">X</button></td>`;
-row.querySelectorAll(".qty,.rate").forEach(i=>{
-i.addEventListener("input",()=>update(row));
+
+row.querySelectorAll(".l,.w,.h").forEach(i=>{
+i.addEventListener("input",()=>updateFromLWH(row));
 });
+
+row.querySelectorAll(".qty,.rate").forEach(i=>{
+i.addEventListener("input",()=>updateAmount(row));
+});
+
 renumber();
 }
 
-function update(row){
+function updateFromLWH(row){
+let l=parseFloat(row.querySelector(".l").value)||0;
+let w=parseFloat(row.querySelector(".w").value)||0;
+let h=parseFloat(row.querySelector(".h").value)||0;
+
+let qty=l*w*h;
+row.querySelector(".qty").value=qty.toFixed(2);
+
+updateAmount(row);
+}
+
+function updateAmount(row){
 let qty=parseFloat(row.querySelector(".qty").value)||0;
 let rate=parseFloat(row.querySelector(".rate").value)||0;
+
 row.querySelector(".amt").value=(qty*rate).toFixed(2);
 calculate();
 }
@@ -434,6 +453,7 @@ if(num<100000) return numberToWords(Math.floor(num/1000))+" Thousand "+numberToW
 if(num<10000000) return numberToWords(Math.floor(num/100000))+" Lakh "+numberToWords(num%100000);
 return numberToWords(Math.floor(num/10000000))+" Crore "+numberToWords(num%10000000);
 }
+
 </script>
 </body>
 </html>
