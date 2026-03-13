@@ -1,0 +1,409 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Kanifnath Construction - Site Ledger</title>
+
+<style>
+
+body{
+font-family:Segoe UI;
+background:#f4f6fb;
+margin:0;
+}
+
+/* HEADER */
+
+.header{
+background:#7a0c0c;
+color:white;
+padding:12px 20px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+}
+
+.logo{
+display:flex;
+align-items:center;
+gap:10px;
+font-weight:bold;
+}
+
+.logo img{
+width:40px;
+border-radius:6px;
+}
+
+/* CONTAINER */
+
+.container{
+max-width:1100px;
+margin:auto;
+background:white;
+padding:25px;
+margin-top:20px;
+border-radius:10px;
+box-shadow:0 6px 20px rgba(0,0,0,0.08);
+}
+
+input{
+padding:7px;
+margin:5px;
+border:1px solid #ccc;
+border-radius:6px;
+}
+
+button{
+padding:7px 12px;
+border:none;
+background:#7a0c0c;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+.delete{
+background:#c62828;
+}
+
+.export{
+background:#2e7d32;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+}
+
+th{
+background:#7a0c0c;
+color:white;
+padding:8px;
+font-size:13px;
+}
+
+td{
+border:1px solid #ddd;
+padding:6px;
+text-align:center;
+font-size:13px;
+}
+
+.section{
+margin-top:35px;
+}
+
+.summary{
+margin-top:15px;
+font-weight:bold;
+font-size:16px;
+}
+
+.footer{
+text-align:center;
+margin-top:40px;
+padding:15px;
+font-size:12px;
+color:#777;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<div class="logo">
+<img src="LOGOKF.jpg">
+KANIFNATH CONSTRUCTION
+</div>
+
+<div>Site Ledger</div>
+
+</div>
+
+<div class="container">
+
+<h2>🏗 Site Ledger</h2>
+
+Site Name :
+<input id="siteName" placeholder="Site name">
+
+<button onclick="render()">Load</button>
+
+<!-- PAYMENT -->
+
+<div class="section">
+
+<h3>💰 Payment Received</h3>
+
+<input type="date" id="pdate">
+<input type="text" id="pnote" placeholder="Description">
+<input type="number" id="pamt" placeholder="Amount">
+
+<button onclick="addPayment()">Add</button>
+
+<table>
+
+<thead>
+<tr>
+<th>Date</th>
+<th>Description</th>
+<th>Amount</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="paymentTable"></tbody>
+
+</table>
+
+<div class="summary">
+Total Payment : ₹ <span id="payTotal">0</span>
+</div>
+
+</div>
+
+<!-- LABOUR EXPENSE -->
+
+<div class="section">
+
+<h3>👷 Labour Expense</h3>
+
+<input type="date" id="ldate">
+<input type="text" id="lname" placeholder="Labour Name">
+<input type="text" id="lnote" placeholder="Work note">
+<input type="number" id="lamt" placeholder="Amount">
+
+<button onclick="addLabour()">Add</button>
+
+<table>
+
+<thead>
+<tr>
+<th>Date</th>
+<th>Labour</th>
+<th>Work</th>
+<th>Amount</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="labourTable"></tbody>
+
+</table>
+
+<div class="summary">
+Total Labour Expense : ₹ <span id="labTotal">0</span>
+</div>
+
+</div>
+
+<!-- FINAL BILL -->
+
+<div class="section">
+
+<h3>📊 Final Bill</h3>
+
+<input type="number" id="finalBill" placeholder="Final bill amount">
+
+<button onclick="calc()">Calculate</button>
+
+<div class="summary">
+Advance Received : ₹ <span id="adv">0</span>
+</div>
+
+<div class="summary">
+Remaining Balance : ₹ <span id="bal">0</span>
+</div>
+
+</div>
+
+<br>
+
+<button class="export" onclick="exportCSV()">Export Excel</button>
+
+</div>
+
+<div class="footer">
+© Kanifnath Construction
+</div>
+
+<script>
+
+/* AUTO DATE */
+
+pdate.valueAsDate=new Date()
+ldate.valueAsDate=new Date()
+
+function getData(){
+return JSON.parse(localStorage.getItem("kcDocs"))||[]
+}
+
+function saveData(data){
+localStorage.setItem("kcDocs",JSON.stringify(data))
+}
+
+function addPayment(){
+
+let data=getData()
+
+data.push({
+
+type:"Payment",
+site:siteName.value,
+date:pdate.value,
+note:pnote.value,
+amount:Number(pamt.value)
+
+})
+
+saveData(data)
+
+render()
+
+}
+
+function addLabour(){
+
+let data=getData()
+
+data.push({
+
+type:"Labour",
+site:siteName.value,
+date:ldate.value,
+name:lname.value,
+note:lnote.value,
+amount:Number(lamt.value)
+
+})
+
+saveData(data)
+
+render()
+
+}
+
+function render(){
+
+let data=getData()
+
+let site=siteName.value
+
+let payments=data.filter(d=>d.type==="Payment" && d.site===site)
+
+let labour=data.filter(d=>d.type==="Labour" && d.site===site)
+
+let payTotal=0
+let labTotal=0
+
+let payHTML=""
+let labHTML=""
+
+payments.forEach((p,i)=>{
+
+payHTML+=`
+<tr>
+<td>${p.date}</td>
+<td>${p.note}</td>
+<td>₹ ${p.amount}</td>
+<td><button class="delete" onclick="deleteRow(${i})">X</button></td>
+</tr>
+`
+
+payTotal+=p.amount
+
+})
+
+labour.forEach((l,i)=>{
+
+labHTML+=`
+<tr>
+<td>${l.date}</td>
+<td>${l.name}</td>
+<td>${l.note}</td>
+<td>₹ ${l.amount}</td>
+<td><button class="delete" onclick="deleteRow(${i})">X</button></td>
+</tr>
+`
+
+labTotal+=l.amount
+
+})
+
+paymentTable.innerHTML=payHTML
+labourTable.innerHTML=labHTML
+
+payTotalSpan=payTotal
+labTotalSpan=labTotal
+
+document.getElementById("payTotal").innerText=payTotal
+document.getElementById("labTotal").innerText=labTotal
+document.getElementById("adv").innerText=payTotal
+
+}
+
+function deleteRow(i){
+
+let data=getData()
+
+data.splice(i,1)
+
+saveData(data)
+
+render()
+
+}
+
+function calc(){
+
+let bill=Number(finalBill.value)||0
+
+let adv=Number(document.getElementById("adv").innerText)||0
+
+document.getElementById("bal").innerText=bill-adv
+
+}
+
+function exportCSV(){
+
+let data=getData()
+
+let rows=[["Site","Date","Type","Labour","Note","Amount"]]
+
+data.forEach(d=>{
+
+rows.push([d.site,d.date,d.type,d.name||"",d.note,d.amount])
+
+})
+
+let csv=rows.map(r=>r.join(",")).join("\n")
+
+let blob=new Blob([csv],{type:"text/csv"})
+
+let a=document.createElement("a")
+
+a.href=URL.createObjectURL(blob)
+
+a.download="ledger.csv"
+
+a.click()
+
+}
+
+render()
+
+</script>
+
+</body>
+</html>
+
