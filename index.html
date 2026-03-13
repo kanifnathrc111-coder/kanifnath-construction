@@ -6,39 +6,33 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>KANIFNATH CONSTRUCTION - Dashboard</title>
+<title>Kanifnath Construction Dashboard</title>
 
-<!-- LOGIN SECURITY -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 if(localStorage.getItem("kcLogin")!=="true"){
 window.location.href="login.html";
 }
 </script>
 
-<!-- APP ICON + PWA -->
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" href="icon-1922.png">
-<link rel="apple-touch-icon" href="icon-1922.png">
-<meta name="theme-color" content="#7a0c0c">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
 
 body{
 margin:0;
 font-family:Segoe UI;
-background:linear-gradient(135deg,#eef2f7,#ffffff);
+background:#f4f6fb;
 }
 
+/* HEADER */
+
 .header{
-background:linear-gradient(90deg,#7a0c0c,#a30000);
-color:#fff;
-padding:18px 30px;
+background:#7a0c0c;
+color:white;
+padding:15px 25px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-box-shadow:0 6px 20px rgba(0,0,0,0.2);
 flex-wrap:wrap;
 }
 
@@ -46,126 +40,120 @@ flex-wrap:wrap;
 display:flex;
 align-items:center;
 gap:10px;
+font-weight:bold;
+font-size:18px;
 }
 
-.logo img{
-width:42px;
+.logo-img{
+width:40px;
+height:40px;
+border-radius:8px;
+object-fit:cover;
+box-shadow:0 0 8px rgba(0,0,0,0.3);
 }
 
 .nav span{
+margin-left:15px;
 cursor:pointer;
-margin-left:18px;
-font-size:14px;
 }
 
+/* CONTAINER */
+
 .container{
-padding:40px;
 max-width:1200px;
 margin:auto;
+padding:25px;
 }
 
 .welcome{
 font-size:24px;
-font-weight:600;
-margin-bottom:25px;
+margin-bottom:20px;
 }
 
-.alert{
-background:#ffe0e0;
-color:#a30000;
-padding:12px 18px;
-border-radius:10px;
-margin-bottom:25px;
-display:none;
-font-weight:600;
-}
+/* STATS */
 
 .stats{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:25px;
-margin-bottom:40px;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;
+margin-bottom:25px;
 }
 
-.stat-box{
-background:#fff;
-padding:25px;
-border-radius:16px;
-box-shadow:0 10px 30px rgba(0,0,0,0.06);
-transition:0.3s;
+.stat{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.08);
+text-align:center;
 }
 
-.stat-box:hover{
-transform:translateY(-6px);
-}
-
-.stat-box h3{
+.stat h4{
 margin:0;
-font-size:13px;
 color:#777;
+font-size:14px;
 }
 
-.stat-box p{
+.stat p{
 font-size:24px;
-font-weight:700;
-margin-top:10px;
+font-weight:bold;
 color:#7a0c0c;
 }
 
-.cards{
+/* ACTIONS */
+
+.actions{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-gap:30px;
-margin-bottom:40px;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;
+margin-bottom:25px;
 }
 
 .card{
-background:#fff;
-padding:35px;
-border-radius:16px;
-box-shadow:0 10px 30px rgba(0,0,0,0.06);
-cursor:pointer;
-transition:0.3s;
+background:white;
+padding:25px;
+border-radius:12px;
 text-align:center;
+cursor:pointer;
+box-shadow:0 5px 15px rgba(0,0,0,0.08);
+transition:0.3s;
 }
 
 .card:hover{
-transform:translateY(-8px);
+transform:translateY(-5px);
 }
 
-.card h2{
-color:#7a0c0c;
-margin:0;
+/* CHART */
+
+.chart-box{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.08);
+margin-bottom:25px;
 }
 
-.chart-section{
-background:#fff;
-padding:30px;
-border-radius:16px;
-box-shadow:0 10px 30px rgba(0,0,0,0.06);
-margin-bottom:40px;
-}
+/* RECENT */
 
 .recent{
-background:#fff;
-padding:25px;
-border-radius:16px;
-box-shadow:0 10px 30px rgba(0,0,0,0.06);
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.08);
 }
 
 .recent-item{
-padding:12px 0;
-border-bottom:1px solid #eee;
-font-size:14px;
 display:flex;
 justify-content:space-between;
+border-bottom:1px solid #eee;
+padding:8px 0;
 }
+
+/* FOOTER */
 
 .footer{
 text-align:center;
-margin-top:60px;
-padding:20px;
-font-size:13px;
+margin-top:30px;
+font-size:12px;
 color:#777;
 }
 
@@ -175,69 +163,154 @@ color:#777;
 
 <body>
 
+<div class="header">
+
+<div class="logo">
+
+<img src="LOGOKF.jpg" class="logo-img">
+
+<span>KANIFNATH CONSTRUCTION</span>
+
+</div>
+
+<div class="nav">
+
+<span onclick="downloadBackup()">💾 Backup</span>
+
+<span onclick="document.getElementById('restore').click()">♻ Restore</span>
+
+<span onclick="location.href='history.html'">📊 History</span>
+
+<span onclick="logout()">🚪 Logout</span>
+
+</div>
+
+</div>
+
+<input type="file" id="restore" style="display:none" onchange="restoreBackup(event)">
+
+<div class="container">
+
+<div class="welcome">
+👋 Welcome Rahul
+</div>
+
+<!-- STATS -->
+
+<div class="stats">
+
+<div class="stat">
+<h4>💰 Revenue</h4>
+<p id="revenue">0</p>
+</div>
+
+<div class="stat">
+<h4>📉 Expense</h4>
+<p id="expense">0</p>
+</div>
+
+<div class="stat">
+<h4>📈 Profit</h4>
+<p id="profit">0</p>
+</div>
+
+<div class="stat">
+<h4>🧾 Invoices</h4>
+<p id="invoiceCount">0</p>
+</div>
+
+</div>
+
+<!-- ACTIONS -->
+
+<div class="actions">
+
+<div class="card" onclick="location.href='Billing Calculator Page.html'">
+🧾 Create Invoice
+</div>
+
+<div class="card" onclick="location.href='quotation.html'">
+📄 Create Quotation
+</div>
+
+<div class="card" onclick="location.href='site-ledger.html'">
+💰 Site Ledger
+</div>
+
+</div>
+
+<!-- CHART -->
+
+<div class="chart-box">
+
+<h3>📊 Revenue Overview</h3>
+
+<canvas id="chart"></canvas>
+
+</div>
+
+<!-- RECENT -->
+
+<div class="recent">
+
+<h3>📜 Recent Activity</h3>
+
+<div id="recentList"></div>
+
+</div>
+
+<div class="footer">
+
+© <span id="year"></span> Kanifnath Construction
+
+</div>
+
+</div>
+
 <script>
+
+/* LOGOUT */
 
 function logout(){
 localStorage.removeItem("kcLogin");
-window.location.href="login.html";
+location.href="login.html";
 }
 
 /* BACKUP */
 
 function downloadBackup(){
 
-let data = localStorage.getItem("kcDocs");
+let data=localStorage.getItem("kcDocs");
 
 if(!data){
 alert("No Data Found");
 return;
 }
 
-let blob = new Blob([data], { type: "application/json" });
+let blob=new Blob([data],{type:"application/json"});
+let url=URL.createObjectURL(blob);
 
-let url = URL.createObjectURL(blob);
-
-let a = document.createElement("a");
-
-a.href = url;
-
-a.download = "kanifnath_backup.json";
-
+let a=document.createElement("a");
+a.href=url;
+a.download="backup.json";
 a.click();
-
-URL.revokeObjectURL(url);
 
 }
 
 /* RESTORE */
 
-function restoreBackup(event){
+function restoreBackup(e){
 
-let file = event.target.files[0];
+let file=e.target.files[0];
+let reader=new FileReader();
 
-if(!file) return;
+reader.onload=function(event){
 
-let reader = new FileReader();
+localStorage.setItem("kcDocs",event.target.result);
 
-reader.onload = function(e){
-
-try{
-
-let data = JSON.parse(e.target.result);
-
-localStorage.setItem("kcDocs", JSON.stringify(data));
-
-alert("Backup Restored Successfully!");
+alert("Backup Restored");
 
 location.reload();
-
-}
-
-catch(err){
-
-alert("Invalid Backup File");
-
-}
 
 };
 
@@ -245,121 +318,79 @@ reader.readAsText(file);
 
 }
 
-let chartInstance;
-
-/* Counter Animation */
-
-function animateValue(id, end){
-
-let start=0;
-let increment=end/40;
-let obj=document.getElementById(id);
-
-let timer=setInterval(function(){
-
-start+=increment;
-
-if(start>=end){
-start=end;
-clearInterval(timer);
-}
-
-obj.innerText=parseFloat(start).toFixed(2);
-
-},20);
-
-}
+/* DASHBOARD DATA */
 
 function loadDashboard(){
 
 let data=JSON.parse(localStorage.getItem("kcDocs"))||[];
 
-let invoiceCount=0;
 let revenue=0;
-let pending=0;
-let thisMonth=0;
-let monthlyData={};
+let expense=0;
+let invoices=0;
+
 let recent=[];
-let currentMonth=new Date().getMonth();
 
 data.forEach(d=>{
 
 if(d.type==="Invoice"){
-
-invoiceCount++;
-
-let amt=parseFloat(d.amount)||0;
-revenue+=amt;
-
-if(d.status==="Pending"){
-pending+=amt;
+revenue+=parseFloat(d.amount)||0;
+invoices++;
 }
 
-let dDate=new Date(d.date);
-
-if(!isNaN(dDate)){
-
-if(dDate.getMonth()===currentMonth){
-thisMonth+=amt;
-}
-
-let month=dDate.toLocaleString('default',{month:'short'});
-
-if(!monthlyData[month]) monthlyData[month]=0;
-
-monthlyData[month]+=amt;
-
+if(d.type==="Expense"){
+expense+=parseFloat(d.amount)||0;
 }
 
 recent.push(d);
 
-}
-
 });
 
-animateValue("invoiceCount",invoiceCount);
-animateValue("totalRevenue",revenue);
-animateValue("pendingAmount",pending);
-animateValue("thisMonthRevenue",thisMonth);
+let profit=revenue-expense;
 
-if(pending>0){
-document.getElementById("alertBox").style.display="block";
-}
+document.getElementById("revenue").innerText=revenue.toFixed(2);
+document.getElementById("expense").innerText=expense.toFixed(2);
+document.getElementById("profit").innerText=profit.toFixed(2);
+document.getElementById("invoiceCount").innerText=invoices;
 
-if(chartInstance){
-chartInstance.destroy();
-}
+/* CHART */
 
-chartInstance = new Chart(document.getElementById("revenueChart"),{
+new Chart(document.getElementById("chart"),{
 
 type:"bar",
 
 data:{
-labels:Object.keys(monthlyData),
-datasets:[{
-data:Object.values(monthlyData),
-backgroundColor:"#7a0c0c"
-}]
-},
 
-options:{
-responsive:true,
-plugins:{ legend:{display:false} }
+labels:["Revenue","Expense","Profit"],
+
+datasets:[{
+
+data:[revenue,expense,profit],
+
+backgroundColor:["#7a0c0c","#ff4d4d","#2e7d32"]
+
+}]
+
 }
 
 });
 
-let rDiv=document.getElementById("recentList");
+/* RECENT */
 
-rDiv.innerHTML="";
+let r=document.getElementById("recentList");
 
 recent.slice(-5).reverse().forEach(d=>{
 
-rDiv.innerHTML+=`
+r.innerHTML+=`
+
 <div class="recent-item">
-<span>${d.number}</span>
-<span>₹ ${parseFloat(d.amount).toFixed(2)}</span>
-</div>`;
+
+<span>${d.number||d.type}</span>
+
+<span>₹ ${parseFloat(d.amount||0).toFixed(2)}</span>
+
+</div>
+
+`;
 
 });
 
@@ -367,87 +398,10 @@ document.getElementById("year").innerText=new Date().getFullYear();
 
 }
 
-window.onload=loadDashboard;
+loadDashboard();
 
 </script>
 
-<div class="header">
-
-<div class="logo">
-<img src="LOGOKF.jpg">
-<b>KANIFNATH CONSTRUCTION</b>
-</div>
-
-<div class="nav">
-<span onclick="downloadBackup()">Backup</span>
-<span onclick="document.getElementById('restoreFile').click()">Restore</span>
-<span onclick="location.href='history.html'">History</span>
-<span onclick="logout()">Logout</span>
-</div>
-
-</div>
-
-<input type="file" id="restoreFile" style="display:none" onchange="restoreBackup(event)">
-
-<div class="container">
-
-<div class="welcome">Welcome Rahul 👋</div>
-
-<div class="alert" id="alertBox">
-⚠ You have pending payments. Please review.
-</div>
-
-<div class="stats">
-
-<div class="stat-box">
-<h3>Total Invoices</h3>
-<p id="invoiceCount">0</p>
-</div>
-
-<div class="stat-box">
-<h3>Total Revenue (₹)</h3>
-<p id="totalRevenue">0</p>
-</div>
-
-<div class="stat-box">
-<h3>Pending Amount (₹)</h3>
-<p id="pendingAmount">0</p>
-</div>
-
-<div class="stat-box">
-<h3>This Month Revenue (₹)</h3>
-<p id="thisMonthRevenue">0</p>
-</div>
-
-</div>
-
-<div class="cards">
-
-<div class="card" onclick="location.href='Billing Calculator Page.html'">
-<h2>Create Invoice</h2>
-</div>
-
-<div class="card" onclick="location.href='quotation.html'">
-<h2>Create Quotation</h2>
-</div>
-
-</div>
-
-<div class="chart-section">
-<h3>Monthly Revenue Overview</h3>
-<canvas id="revenueChart" height="100"></canvas>
-</div>
-
-<div class="recent">
-<h3>Recent Invoices</h3>
-<div id="recentList"></div>
-</div>
-
-<div class="footer">
-© <span id="year"></span> Kanifnath Construction
-</div>
-
-</div>
-
 </body>
 </html>
+
