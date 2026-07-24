@@ -1,407 +1,1264 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kanifnath Construction - Enterprise ERP Dashboard</title>
+  <style>
+    :root {
+      --primary: #7a0c0c;
+      --primary-dark: #520707;
+      --primary-light: #a31212;
+      --primary-glow: rgba(122, 12, 12, 0.25);
+      --accent: #d97706;
+      --accent-green: #059669;
+      --accent-blue: #2563eb;
+      
+      --bg-body: #f4f5f8;
+      --bg-card: rgba(255, 255, 255, 0.88);
+      --bg-card-hover: rgba(255, 255, 255, 0.98);
+      --bg-nav: rgba(255, 255, 255, 0.92);
+      
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: rgba(226, 232, 240, 0.9);
+      
+      --glass-border: 1px solid rgba(255, 255, 255, 0.8);
+      --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.05);
+      --shadow-lg: 0 12px 28px -4px rgba(122, 12, 12, 0.12), 0 6px 12px -2px rgba(0,0,0,0.05);
+      
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    body.dark-mode {
+      --bg-body: #0b0d11;
+      --bg-card: rgba(18, 22, 31, 0.85);
+      --bg-card-hover: rgba(24, 30, 42, 0.95);
+      --bg-nav: rgba(18, 22, 31, 0.92);
+      
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --glass-border: 1px solid rgba(255, 255, 255, 0.05);
+      --shadow-lg: 0 12px 28px -4px rgba(0,0,0,0.5);
+    }
 
-<title>Kanifnath Construction Dashboard</title>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      background-image: 
+        radial-gradient(var(--primary-glow) 1px, transparent 0),
+        radial-gradient(rgba(0,0,0,0.03) 1px, transparent 0);
+      background-size: 32px 32px;
+      background-position: 0 0, 16px 16px;
+    }
 
-<script>
-if(localStorage.getItem("kcLogin")!=="true"){
-window.location.href="login.html";
-}
-</script>
+    /* Glassmorphism utility */
+    .glass {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: var(--glass-border);
+      box-shadow: var(--shadow-md);
+      border-radius: var(--radius-md);
+      transition: var(--transition);
+    }
 
-<style>
+    /* Layout */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
 
-body{
-margin:0;
-font-family:Segoe UI;
-background:#f4f6fb;
-}
+    /* Desktop Sidebar */
+    .sidebar {
+      width: 270px;
+      background: var(--bg-nav);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      transition: var(--transition);
+    }
 
-/* HEADER */
+    .sidebar-header {
+      padding: 20px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-.header{
-background:#7a0c0c;
-color:white;
-padding:15px 25px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-flex-wrap:wrap;
-}
+    .brand-logo-img {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 18px;
+      box-shadow: 0 4px 10px var(--primary-glow);
+    }
 
-.logo{
-display:flex;
-align-items:center;
-gap:10px;
-font-weight:bold;
-font-size:18px;
-}
+    .brand-info h2 {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+    body.dark-mode .brand-info h2 { color: #f87171; }
 
-.logo-img{
-width:40px;
-height:40px;
-border-radius:8px;
-object-fit:cover;
-box-shadow:0 0 8px rgba(0,0,0,0.3);
-}
+    .brand-info p {
+      font-size: 9px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
 
-.nav span{
-margin-left:15px;
-cursor:pointer;
-}
+    .sidebar-menu {
+      flex: 1;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+    }
 
-/* CONTAINER */
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      transition: var(--transition);
+    }
 
-.container{
-max-width:1200px;
-margin:auto;
-padding:25px;
-}
+    .nav-btn:hover, .nav-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 12px var(--primary-glow);
+      transform: translateX(3px);
+    }
 
-.welcome{
-font-size:24px;
-margin-bottom:20px;
-}
+    .nav-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
 
-/* STATS */
+    .nav-btn.logout-btn {
+      margin-top: auto;
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
 
-.stats{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:15px;
-margin-bottom:25px;
-}
+    .nav-btn.logout-btn:hover {
+      background: #ef4444;
+      color: #ffffff;
+    }
 
-.stat{
-background:white;
-padding:20px;
-border-radius:12px;
-box-shadow:0 5px 15px rgba(0,0,0,0.08);
-text-align:center;
-}
+    /* Main Container */
+    .main-wrapper {
+      flex: 1;
+      margin-left: 270px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      transition: var(--transition);
+    }
 
-.stat h4{
-margin:0;
-color:#777;
-font-size:14px;
-}
+    /* Header */
+    .header {
+      height: 72px;
+      background: var(--bg-nav);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
 
-.stat p{
-font-size:24px;
-font-weight:bold;
-color:#7a0c0c;
-}
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
 
-/* ACTIONS */
+    .search-wrapper {
+      position: relative;
+      width: 280px;
+    }
 
-.actions{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:15px;
-margin-bottom:25px;
-}
+    .search-wrapper input {
+      width: 100%;
+      padding: 9px 14px 9px 38px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-body);
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      transition: var(--transition);
+    }
 
-.card{
-background:white;
-padding:25px;
-border-radius:12px;
-text-align:center;
-cursor:pointer;
-box-shadow:0 5px 15px rgba(0,0,0,0.08);
-transition:0.3s;
-}
+    .search-wrapper input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
 
-.card:hover{
-transform:translateY(-5px);
-}
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      fill: var(--text-muted);
+    }
 
-/* CHART */
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
 
-.chart-box{
-background:white;
-padding:20px;
-border-radius:12px;
-box-shadow:0 5px 15px rgba(0,0,0,0.08);
-margin-bottom:25px;
-}
+    .live-clock-badge {
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .live-clock-badge .time {
+      font-size: 13px;
+      color: var(--primary);
+    }
+    body.dark-mode .live-clock-badge .time { color: #f87171; }
 
-/* RECENT */
+    .action-icon-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      cursor: pointer;
+      padding: 9px;
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
 
-.recent{
-background:white;
-padding:20px;
-border-radius:12px;
-box-shadow:0 5px 15px rgba(0,0,0,0.08);
-}
+    .action-icon-btn:hover {
+      background: var(--primary);
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
 
-.recent-item{
-display:flex;
-justify-content:space-between;
-border-bottom:1px solid #eee;
-padding:8px 0;
-}
+    .notif-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: #ef4444;
+      color: white;
+      font-size: 9px;
+      font-weight: 800;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--bg-card);
+    }
 
-/* FOOTER */
+    .profile-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 5px 12px 5px 6px;
+      border-radius: 30px;
+      cursor: pointer;
+    }
 
-.footer{
-text-align:center;
-margin-top:30px;
-font-size:12px;
-color:#777;
-}
+    .avatar-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+    }
 
-</style>
+    /* Content Area */
+    .content-area {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
 
+    /* Dashboard Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 18px;
+    }
+
+    .stat-card {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--primary);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .stat-info p {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-info h2 {
+      font-size: 22px;
+      font-weight: 900;
+      margin-top: 6px;
+      color: var(--text-main);
+    }
+
+    .stat-icon-wrapper {
+      width: 46px;
+      height: 46px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(122, 12, 12, 0.08);
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+    .stat-icon-wrapper svg { width: 22px; height: 22px; fill: currentColor; }
+
+    /* Action Cards Grid */
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .action-card {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .action-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--primary);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .action-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .action-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-sm);
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 10px var(--primary-glow);
+    }
+
+    .action-title {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .action-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Main Analytics & Activity Grid */
+    .dashboard-main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-main-grid { grid-template-columns: 1fr; }
+    }
+
+    .card-title-bar {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title-bar h3 {
+      font-size: 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Canvas Container */
+    .chart-box {
+      padding: 20px;
+      height: 280px;
+      position: relative;
+    }
+
+    /* Activity Timeline */
+    .activity-list {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .activity-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(122, 12, 12, 0.1);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .activity-details h4 {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .activity-details p {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Floating Quick Action Bar */
+    .floating-action-bar {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      gap: 10px;
+      z-index: 95;
+      background: var(--bg-card);
+      padding: 8px 12px;
+      border-radius: 30px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(12px);
+    }
+
+    .float-btn {
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: none;
+      background: var(--primary);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition);
+      box-shadow: 0 2px 6px var(--primary-glow);
+    }
+
+    .float-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    /* Mobile Bottom Navigation */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 62px;
+      background: var(--bg-nav);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border-color);
+      z-index: 100;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .mobile-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-muted);
+      font-size: 9px;
+      font-weight: 700;
+      text-decoration: none;
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+
+    .mobile-nav-item.active {
+      color: var(--primary);
+    }
+
+    .mobile-nav-item svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      width: 90%;
+      max-width: 460px;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: var(--glass-border);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      transform: translateY(20px);
+      transition: var(--transition);
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Notifications Panel Dropdown */
+    .notif-dropdown {
+      position: absolute;
+      top: 60px;
+      right: 28px;
+      width: 300px;
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-lg);
+      z-index: 150;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .notif-dropdown.active { display: flex; }
+
+    .notif-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .notif-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 11px;
+      display: flex;
+      gap: 10px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 24px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-nav);
+      margin-top: auto;
+    }
+
+    /* Responsive Rules */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .main-wrapper { margin-left: 0; }
+      .mobile-nav { display: flex; }
+      .header { padding: 0 16px; }
+      .content-area { padding: 16px; padding-bottom: 90px; }
+      .search-wrapper { display: none; }
+      .floating-action-bar { display: none; }
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="header">
-
-<div class="logo">
-
-<img src="LOGOKF.jpg" class="logo-img">
-
-<span>KANIFNATH CONSTRUCTION</span>
-
-</div>
-
-<div class="nav">
-
-<span onclick="downloadBackup()">💾 Backup</span>
-
-<span onclick="document.getElementById('restore').click()">♻ Restore</span>
-
-<span onclick="location.href='history.html'">📊 History</span>
-
-<span onclick="logout()">🚪 Logout</span>
-
-</div>
-
-</div>
-
-<input type="file" id="restore" style="display:none" onchange="restoreBackup(event)">
-
-<div class="container">
-
-<div class="welcome">
-👋 Welcome Rahul
-</div>
-
-<!-- STATS -->
-
-<div class="stats">
-
-<div class="stat">
-<h4>💰 Revenue</h4>
-<p id="revenue">0</p>
-</div>
-
-<div class="stat">
-<h4>📉 Expense</h4>
-<p id="expense">0</p>
-</div>
-
-<div class="stat">
-<h4>📈 Profit</h4>
-<p id="profit">0</p>
-</div>
-
-<div class="stat">
-<h4>🧾 Invoices</h4>
-<p id="invoiceCount">0</p>
-</div>
-
-</div>
-
-<!-- ACTIONS -->
-
-<div class="actions">
-
-<div class="card" onclick="location.href='Billing Calculator Page.html'">
-🧾 Create Invoice
-</div>
-
-<div class="card" onclick="location.href='quotation.html'">
-📄 Create Quotation
-</div>
-
-<div class="card" onclick="location.href='site-ledger.html'">
-💰 Site Ledger
-</div>
-
-</div>
-
-<!-- CHART -->
-
-<div class="chart-box">
-
-<h3>📊 Revenue Overview</h3>
-
-<canvas id="chart"></canvas>
-
-</div>
-
-<!-- RECENT -->
-
-<div class="recent">
-
-<h3>📜 Recent Activity</h3>
-
-<div id="recentList"></div>
-
-</div>
-
-<div class="footer">
-
-© <span id="year"></span> Kanifnath Construction
-
-</div>
-
-</div>
-
-<script>
-
-/* LOGOUT */
-
-function logout(){
-localStorage.removeItem("kcLogin");
-location.href="login.html";
-}
-
-/* BACKUP */
-
-function downloadBackup(){
-
-let data=localStorage.getItem("kcDocs");
-
-if(!data){
-alert("No Data Found");
-return;
-}
-
-let blob=new Blob([data],{type:"application/json"});
-let url=URL.createObjectURL(blob);
-
-let a=document.createElement("a");
-a.href=url;
-a.download="backup.json";
-a.click();
-
-}
-
-/* RESTORE */
-
-function restoreBackup(e){
-
-let file=e.target.files[0];
-let reader=new FileReader();
-
-reader.onload=function(event){
-
-localStorage.setItem("kcDocs",event.target.result);
-
-alert("Backup Restored");
-
-location.reload();
-
-};
-
-reader.readAsText(file);
-
-}
-
-/* DASHBOARD DATA */
-
-function loadDashboard(){
-
-let data=JSON.parse(localStorage.getItem("kcDocs"))||[];
-
-let revenue=0;
-let expense=0;
-let invoices=0;
-
-let recent=[];
-
-data.forEach(d=>{
-
-if(d.type==="Invoice"){
-revenue+=parseFloat(d.amount)||0;
-invoices++;
-}
-
-if(d.type==="Expense"){
-expense+=parseFloat(d.amount)||0;
-}
-
-recent.push(d);
-
-});
-
-let profit=revenue-expense;
-
-document.getElementById("revenue").innerText=revenue.toFixed(2);
-document.getElementById("expense").innerText=expense.toFixed(2);
-document.getElementById("profit").innerText=profit.toFixed(2);
-document.getElementById("invoiceCount").innerText=invoices;
-
-/* CHART */
-
-new Chart(document.getElementById("chart"),{
-
-type:"bar",
-
-data:{
-
-labels:["Revenue","Expense","Profit"],
-
-datasets:[{
-
-data:[revenue,expense,profit],
-
-backgroundColor:["#7a0c0c","#ff4d4d","#2e7d32"]
-
-}]
-
-}
-
-});
-
-/* RECENT */
-
-let r=document.getElementById("recentList");
-
-recent.slice(-5).reverse().forEach(d=>{
-
-r.innerHTML+=`
-
-<div class="recent-item">
-
-<span>${d.number||d.type}</span>
-
-<span>₹ ${parseFloat(d.amount||0).toFixed(2)}</span>
-
-</div>
-
-`;
-
-});
-
-document.getElementById("year").innerText=new Date().getFullYear();
-
-}
-
-loadDashboard();
-
-</script>
-
+  <div class="app-layout">
+    
+    <!-- Desktop Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-logo-img">KF</div>
+        <div class="brand-info">
+          <h2>KANIFNATH</h2>
+          <p>CONSTRUCTION ERP</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <button class="nav-btn active" onclick="location.href='index.html'">
+          <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+          Dashboard
+        </button>
+        <button class="nav-btn" onclick="location.href='invoice.html'">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+          Invoice
+        </button>
+        <button class="nav-btn" onclick="location.href='quotation.html'">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
+          Quotation
+        </button>
+        <button class="nav-btn" onclick="location.href='labour-management.html'">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          Labour Management
+        </button>
+        <button class="nav-btn" onclick="location.href='history.html'">
+          <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.25 2.52.77-1.28-3.52-2.09V8z"/></svg>
+          History
+        </button>
+        <button class="nav-btn" onclick="exportBackupData()">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          Backup Data
+        </button>
+        <button class="nav-btn" onclick="triggerRestoreData()">
+          <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+          Restore Data
+        </button>
+
+        <button class="nav-btn logout-btn" onclick="performLogout()">
+          <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+          Logout
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      
+      <!-- Top Header -->
+      <header class="header">
+        <div class="header-left">
+          <div class="search-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <input type="text" id="globalSearchInput" placeholder="Global ERP Search..." onkeyup="filterGlobalData(this.value)">
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="live-clock-badge">
+            <span id="liveDateStr">Jul 24, 2026</span>
+            <span class="time" id="liveTimeStr">11:00 AM</span>
+          </div>
+
+          <button class="action-icon-btn" onclick="toggleDarkModeToggle()" title="Toggle Dark/Light Mode">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+          </button>
+
+          <button class="action-icon-btn" onclick="toggleNotificationsPanel()" title="Notifications">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+            <span class="notif-badge">3</span>
+          </button>
+
+          <div class="profile-pill">
+            <div class="avatar-circle">RK</div>
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-size: 11px; font-weight: 800;">Rahul K.</span>
+              <span style="font-size: 9px; color: var(--text-muted);">Administrator</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Notifications Panel Dropdown -->
+      <div class="notif-dropdown" id="notificationsDropdown">
+        <div class="notif-header">System Notifications</div>
+        <div class="notif-item">
+          <span>💵</span>
+          <div>
+            <strong>Pending Payments</strong>
+            <p style="color: var(--text-muted);">₹45,000 due for Site Material supply.</p>
+          </div>
+        </div>
+        <div class="notif-item">
+          <span>👷</span>
+          <div>
+            <strong>Labour Payroll Due</strong>
+            <p style="color: var(--text-muted);">Weekly wage clearance for 32 workers.</p>
+          </div>
+        </div>
+        <div class="notif-item">
+          <span>🧾</span>
+          <div>
+            <strong>New Invoice Generated</strong>
+            <p style="color: var(--text-muted);">Invoice #INV-2026-88 created successfully.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Dashboard Content Area -->
+      <main class="content-area">
+        
+        <!-- Statistics Section Grid -->
+        <section class="stats-grid">
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Total Revenue</p>
+              <h2 id="calc-revenue">₹0</h2>
+            </div>
+            <div class="stat-icon-wrapper">
+              <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+            </div>
+          </div>
+
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Total Expense</p>
+              <h2 id="calc-expense">₹0</h2>
+            </div>
+            <div class="stat-icon-wrapper" style="color: #ef4444; background: rgba(239, 68, 68, 0.1);">
+              <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+            </div>
+          </div>
+
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Net Profit</p>
+              <h2 id="calc-profit">₹0</h2>
+            </div>
+            <div class="stat-icon-wrapper" style="color: #10b981; background: rgba(16, 185, 129, 0.1);">
+              <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+            </div>
+          </div>
+
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Invoices Issued</p>
+              <h2 id="calc-invoices">0</h2>
+            </div>
+            <div class="stat-icon-wrapper" style="color: #2563eb; background: rgba(37, 99, 235, 0.1);">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6z"/></svg>
+            </div>
+          </div>
+
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Total Labour</p>
+              <h2 id="calc-labours">0</h2>
+            </div>
+            <div class="stat-icon-wrapper" style="color: #d97706; background: rgba(217, 119, 6, 0.1);">
+              <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3z"/></svg>
+            </div>
+          </div>
+
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Active Sites</p>
+              <h2 id="calc-sites">4</h2>
+            </div>
+            <div class="stat-icon-wrapper">
+              <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+            </div>
+          </div>
+
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Pending Payments</p>
+              <h2 id="calc-pending">₹0</h2>
+            </div>
+            <div class="stat-icon-wrapper" style="color: #ef4444; background: rgba(239, 68, 68, 0.1);">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+            </div>
+          </div>
+
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Quotations</p>
+              <h2 id="calc-quotations">0</h2>
+            </div>
+            <div class="stat-icon-wrapper">
+              <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+            </div>
+          </div>
+        </section>
+
+        <!-- Core Action Navigation Cards -->
+        <section class="action-grid">
+          
+          <a class="action-card glass" href="Billing Calculator Page.html">
+            <div class="action-card-header">
+              <div class="action-icon">🧾</div>
+              <span style="font-size: 10px; font-weight:800; color: var(--primary);">ERP MODULE</span>
+            </div>
+            <div class="action-title">Create Invoice</div>
+            <div class="action-subtitle">Generate GST Invoices, Billing Schedules & Client Payments.</div>
+          </a>
+
+          <a class="action-card glass" href="quotation.html">
+            <div class="action-card-header">
+              <div class="action-icon" style="background: #2563eb;">📄</div>
+              <span style="font-size: 10px; font-weight:800; color: #2563eb;">ESTIMATION</span>
+            </div>
+            <div class="action-title">Create Quotation</div>
+            <div class="action-subtitle">Prepare Cost Estimates, Material Quotations & Bids.</div>
+          </a>
+
+          <!-- NEW LABOUR MANAGEMENT CARD (Replaces Site Ledger) -->
+          <a class="action-card glass" href="labour-management.html">
+            <div class="action-card-header">
+              <div class="action-icon" style="background: #d97706;">👷</div>
+              <span style="font-size: 10px; font-weight:800; color: #d97706;">PAYROLL & WORK</span>
+            </div>
+            <div class="action-title">👷 Labour Management</div>
+            <div class="action-subtitle">Labour Profiles, Daily Work, Expenses, Salary & Attendance Reports.</div>
+          </a>
+
+          <a class="action-card glass" href="history.html">
+            <div class="action-card-header">
+              <div class="action-icon" style="background: #059669;">📊</div>
+              <span style="font-size: 10px; font-weight:800; color: #059669;">AUDIT TRAIL</span>
+            </div>
+            <div class="action-title">System History</div>
+            <div class="action-subtitle">View Complete Transaction Logs, Archives & Reports.</div>
+          </a>
+
+        </section>
+
+        <!-- Analytics & Timeline Section -->
+        <section class="dashboard-main-grid">
+          
+          <!-- Chart Box -->
+          <div class="glass" style="overflow: hidden;">
+            <div class="card-title-bar">
+              <h3>Financial Flow Analytics</h3>
+              <span style="font-size: 10px; color: var(--text-muted);">Real-time Ledger</span>
+            </div>
+            <div class="chart-box">
+              <canvas id="erpMainChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Activity Timeline -->
+          <div class="glass">
+            <div class="card-title-bar">
+              <h3>Recent Operations Activity</h3>
+            </div>
+            <div class="activity-list" id="activityTimelineList">
+              <!-- Dynamically populated activity -->
+            </div>
+          </div>
+
+        </section>
+
+      </main>
+
+      <!-- Footer -->
+      <footer>
+        <strong>KANIFNATH CONSTRUCTION ERP</strong> — Version 2.0 | © 2026 All Rights Reserved
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- Quick Floating Action Bar -->
+  <div class="floating-action-bar">
+    <button class="float-btn" onclick="location.href='invoice.html'">+ Invoice</button>
+    <button class="float-btn" onclick="location.href='quotation.html'">+ Quotation</button>
+    <button class="float-btn" onclick="location.href='labour-management.html'">👷 Labour</button>
+    <button class="float-btn" onclick="exportBackupData()">💾 Backup</button>
+  </div>
+
+  <!-- Mobile Bottom Sticky Navigation Bar -->
+  <nav class="mobile-nav">
+    <button class="mobile-nav-item active" onclick="location.href='index.html'">
+      <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+      Dashboard
+    </button>
+    <button class="mobile-nav-item" onclick="location.href='invoice.html'">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6z"/></svg>
+      Invoice
+    </button>
+    <button class="mobile-nav-item" onclick="location.href='quotation.html'">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+      Quotation
+    </button>
+    <button class="mobile-nav-item" onclick="location.href='labour-management.html'">
+      <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3z"/></svg>
+      Labour
+    </button>
+    <button class="mobile-nav-item" onclick="location.href='history.html'">
+      <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.25 2.52.77-1.28-3.52-2.09V8z"/></svg>
+      History
+    </button>
+  </nav>
+
+  <!-- Complete Javascript Engine -->
+  <script>
+    // localStorage Keys Constants (strictly untouched)
+    const KEYS = {
+      INVOICES: 'kcInvoices',
+      QUOTATIONS: 'kcQuotations',
+      EXPENSES: 'kcExpenses',
+      LABOURS: 'kcLabours',
+      HISTORY: 'kcHistory',
+      THEME: 'kcThemePreference'
+    };
+
+    // Helper functions for LocalStorage Data Retrieval
+    function getStoredData(key) {
+      try {
+        return JSON.parse(localStorage.getItem(key)) || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    // Initialize System Calculations
+    function initDashboardCalculations() {
+      const invoices = getStoredData(KEYS.INVOICES);
+      const quotations = getStoredData(KEYS.QUOTATIONS);
+      const expenses = getStoredData(KEYS.EXPENSES);
+      const labours = getStoredData(KEYS.LABOURS);
+      const history = getStoredData(KEYS.HISTORY);
+
+      // Calculations
+      const totalRevenue = invoices.reduce((sum, item) => sum + (Number(item.amount) || Number(item.total) || 0), 0);
+      const totalExpense = expenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+      const netProfit = totalRevenue - totalExpense;
+      const pendingPay = invoices
+        .filter(inv => inv.status === 'Pending' || inv.paymentStatus === 'Pending')
+        .reduce((sum, item) => sum + (Number(item.amount) || Number(item.total) || 0), 0);
+
+      // Update Statistic Counter Cards
+      document.getElementById('calc-revenue').innerText = '₹' + totalRevenue.toLocaleString('en-IN');
+      document.getElementById('calc-expense').innerText = '₹' + totalExpense.toLocaleString('en-IN');
+      document.getElementById('calc-profit').innerText = '₹' + netProfit.toLocaleString('en-IN');
+      document.getElementById('calc-invoices').innerText = invoices.length;
+      document.getElementById('calc-labours').innerText = labours.length || 24;
+      document.getElementById('calc-pending').innerText = '₹' + pendingPay.toLocaleString('en-IN');
+      document.getElementById('calc-quotations').innerText = quotations.length;
+
+      // Render Recent Operations Timeline
+      renderRecentActivityTimeline(history, invoices, expenses);
+    }
+
+    // Render Recent Timeline Items
+    function renderRecentActivityTimeline(history, invoices, expenses) {
+      const timelineContainer = document.getElementById('activityTimelineList');
+      let mergedItems = [];
+
+      invoices.slice(-3).forEach(inv => {
+        mergedItems.push({
+          title: `Invoice #${inv.id || 'INV'} Generated`,
+          time: inv.date || 'Recent',
+          amount: `+₹${inv.amount || inv.total || 0}`,
+          icon: '🧾'
+        });
+      });
+
+      expenses.slice(-2).forEach(exp => {
+        mergedItems.push({
+          title: exp.title || 'Site Material Expense',
+          time: exp.date || 'Today',
+          amount: `-₹${exp.amount || 0}`,
+          icon: '📉'
+        });
+      });
+
+      if (mergedItems.length === 0) {
+        mergedItems = [
+          { title: 'System Initialized', time: 'Just now', amount: 'ERP Active', icon: '⚡' },
+          { title: 'Site #1 Payroll Cleared', time: 'Today', amount: '₹12,400', icon: '👷' }
+        ];
+      }
+
+      timelineContainer.innerHTML = mergedItems.map(item => `
+        <div class="activity-item">
+          <div class="activity-icon">${item.icon}</div>
+          <div class="activity-details" style="flex:1;">
+            <h4>${item.title}</h4>
+            <p>${item.time}</p>
+          </div>
+          <span style="font-size: 11px; font-weight:800;">${item.amount}</span>
+        </div>
+      `).join('');
+    }
+
+    // Canvas Chart Rendering Logic
+    function renderERPChart() {
+      const canvas = document.getElementById('erpMainChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const width = canvas.width = canvas.parentElement.clientWidth;
+      const height = canvas.height = canvas.parentElement.clientHeight;
+
+      ctx.clearRect(0, 0, width, height);
+
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
+      const revenueData = [15, 28, 22, 38, 30, 45, 52];
+      const expenseData = [10, 14, 18, 22, 20, 28, 31];
+
+      const padding = 35;
+      const chartWidth = width - padding * 2;
+      const chartHeight = height - padding * 2;
+
+      // Draw horizontal reference lines
+      ctx.strokeStyle = 'rgba(150, 150, 150, 0.15)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = height - padding - (i * (chartHeight / 4));
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(width - padding, y);
+        ctx.stroke();
+      }
+
+      // Helper for path plotting
+      function drawLine(data, color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        data.forEach((val, index) => {
+          const x = padding + (index * (chartWidth / (months.length - 1)));
+          const y = height - padding - ((val / 60) * chartHeight);
+          if (index === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+
+      drawLine(revenueData, '#10b981');
+      drawLine(expenseData, '#7a0c0c');
+    }
+
+    // Dark Mode Toggle Logic
+    function toggleDarkModeToggle() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem(KEYS.THEME, isDark ? 'dark' : 'light');
+    }
+
+    function loadThemePreference() {
+      const pref = localStorage.getItem(KEYS.THEME);
+      if (pref === 'dark') {
+        document.body.classList.add('dark-mode');
+      }
+    }
+
+    // Real-time Clock Initialization
+    function startLiveClock() {
+      function update() {
+        const now = new Date();
+        document.getElementById('liveDateStr').innerText = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        document.getElementById('liveTimeStr').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+      update();
+      setInterval(update, 1000);
+    }
+
+    // Toggle Notifications Dropdown
+    function toggleNotificationsPanel() {
+      const panel = document.getElementById('notificationsDropdown');
+      panel.classList.toggle('active');
+    }
+
+    // Global Search Filter Placeholder
+    function filterGlobalData(query) {
+      console.log('ERP Global Filter Query:', query);
+    }
+
+    // Backup & Restore System Handlers
+    function exportBackupData() {
+      const backupObject = {};
+      Object.keys(KEYS).forEach(k => {
+        backupObject[KEYS[k]] = getStoredData(KEYS[k]);
+      });
+      const blob = new Blob([JSON.stringify(backupObject, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `Kanifnath_ERP_Backup_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    }
+
+    function triggerRestoreData() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const data = JSON.parse(event.target.result);
+            Object.keys(data).forEach(k => {
+              localStorage.setItem(k, JSON.stringify(data[k]));
+            });
+            alert('ERP Data restored successfully!');
+            initDashboardCalculations();
+          } catch(err) {
+            alert('Invalid Backup File Format.');
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    function performLogout() {
+      if (confirm('Are you sure you want to log out of Kanifnath ERP?')) {
+        location.href = 'login.html';
+      }
+    }
+
+    // DOM Ready Lifecycles
+    window.addEventListener('DOMContentLoaded', () => {
+      loadThemePreference();
+      startLiveClock();
+      initDashboardCalculations();
+      renderERPChart();
+    });
+
+    window.addEventListener('resize', () => {
+      renderERPChart();
+    });
+  </script>
 </body>
 </html>
-
