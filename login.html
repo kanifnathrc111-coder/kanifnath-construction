@@ -119,12 +119,90 @@ font-size:11px;
 color:#888;
 }
 
+/* Firebase email/password gate - added, same visual language as the existing card */
+.auth-input{
+width:100%;
+box-sizing:border-box;
+padding:12px 14px;
+margin-bottom:12px;
+border-radius:10px;
+border:1px solid #2a3a7a;
+background:#0c1226;
+color:#fff;
+font-size:14px;
+}
+
+.auth-input:focus{
+outline:none;
+box-shadow:0 0 8px #00e5ff;
+}
+
+.auth-btn{
+width:100%;
+padding:13px;
+border-radius:10px;
+border:none;
+cursor:pointer;
+background:#00e5ff;
+color:#000;
+font-weight:700;
+letter-spacing:0.5px;
+margin-bottom:10px;
+}
+
+.auth-switch{
+font-size:12px;
+color:#9fb0ff;
+cursor:pointer;
+text-decoration:underline;
+}
+
+.auth-error{
+color:#ff5c5c;
+margin-bottom:12px;
+font-size:13px;
+display:none;
+}
+
+.hidden{
+display:none !important;
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="card" id="authCard">
+
+<img src="LOGOKF.jpg" class="logo">
+
+<div class="title">
+KANIFNATH CONTROL PANEL
+</div>
+
+<div class="title" style="font-size:13px;margin-bottom:18px;" id="authSubtitle">
+Sign in to continue
+</div>
+
+<div class="auth-error" id="authError">Invalid email or password</div>
+
+<input type="email" class="auth-input" id="authEmail" placeholder="Email">
+<input type="password" class="auth-input" id="authPassword" placeholder="Password">
+
+<button class="auth-btn" id="authSubmitBtn" onclick="handleAuthSubmit()">Sign In</button>
+
+<div class="auth-switch" id="authSwitchLink" onclick="toggleAuthMode()">
+New here? Create an account
+</div>
+
+<div class="footer">
+© <span id="year1"></span> Kanifnath Construction
+</div>
+
+</div>
+
+<div class="card hidden" id="pinCard">
 
 <img src="LOGOKF.jpg" class="logo">
 
@@ -166,9 +244,73 @@ Invalid PIN
 
 </div>
 
+<script type="module">
+import {
+  auth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
+} from "./firebase.js";
+
+let authMode = "signin"; // or "signup"
+
+window.toggleAuthMode = function(){
+  authMode = authMode === "signin" ? "signup" : "signin";
+  document.getElementById("authError").style.display = "none";
+  if(authMode === "signup"){
+    document.getElementById("authSubtitle").innerText = "Create your account";
+    document.getElementById("authSubmitBtn").innerText = "Create Account";
+    document.getElementById("authSwitchLink").innerText = "Already have an account? Sign in";
+  }else{
+    document.getElementById("authSubtitle").innerText = "Sign in to continue";
+    document.getElementById("authSubmitBtn").innerText = "Sign In";
+    document.getElementById("authSwitchLink").innerText = "New here? Create an account";
+  }
+};
+
+window.handleAuthSubmit = async function(){
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+  const errorEl = document.getElementById("authError");
+  errorEl.style.display = "none";
+
+  if(!email || !password){
+    errorEl.innerText = "Please enter email and password.";
+    errorEl.style.display = "block";
+    return;
+  }
+
+  try{
+    if(authMode === "signup"){
+      await createUserWithEmailAndPassword(auth, email, password);
+    }else{
+      await signInWithEmailAndPassword(auth, email, password);
+    }
+    // onAuthStateChanged below will reveal the PIN card
+  }catch(err){
+    errorEl.innerText = err.message || "Authentication failed.";
+    errorEl.style.display = "block";
+  }
+};
+
+onAuthStateChanged(auth, (user) => {
+  const authCard = document.getElementById("authCard");
+  const pinCard = document.getElementById("pinCard");
+  if(user){
+    authCard.classList.add("hidden");
+    pinCard.classList.remove("hidden");
+  }else{
+    authCard.classList.remove("hidden");
+    pinCard.classList.add("hidden");
+  }
+});
+</script>
+
 <script>
 
 document.getElementById("year").innerText =
+new Date().getFullYear();
+document.getElementById("year1").innerText =
 new Date().getFullYear();
 
 let correctPin="7841";
