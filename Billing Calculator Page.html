@@ -5,6 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KANIFNATH CONSTRUCTION - TAX INVOICE</title>
+<script type="module">
+  import { auth, onAuthStateChanged } from "./firebase.js";
+  onAuthStateChanged(auth, (user) => {
+    if (!user) window.location.href = "login.html";
+  });
+</script>
 
 <style>
 @page { size:A4; margin:18mm; }
@@ -312,10 +318,20 @@ Authorized Signatory
 
 </div>
 
+<script type="module">
+import { db, doc, getDoc, collection, addDoc, getNextCounterValue } from "./firebase.js";
+window.__addInvoiceDoc = (data) => addDoc(collection(db, "documents"), data);
+window.__reserveInvoiceNumber = () => getNextCounterValue("invoice");
+
+// Peek the current counter (display only - not incremented yet)
+getDoc(doc(db, "counters", "invoice")).then((snap) => {
+  const current = snap.exists() ? (Number(snap.data().value) || 0) : 0;
+  document.getElementById("invNo").innerText = "KC-" + String(current + 1).padStart(4, '0');
+});
+</script>
+
 <script>
 
-let invoiceCounter=parseInt(localStorage.getItem("kcInvoiceCounter"))||1;
-document.getElementById("invNo").innerText="KC-"+String(invoiceCounter).padStart(4,'0');
 document.getElementById("invDate").innerText=new Date().toLocaleDateString();
 
 addRow();
@@ -414,24 +430,31 @@ badge.style.color="#a30000";
 }
 }
 
-function saveInvoice(){
+async function saveInvoice(){
 let client=document.getElementById("clientName").value.trim();
 if(client===""){alert("Enter Client Name");return;}
 let total=parseFloat(document.getElementById("final").innerText)||0;
-let data=JSON.parse(localStorage.getItem("kcDocs"))||[];
-data.push({
-type:"Invoice",
-number:document.getElementById("invNo").innerText,
-date:new Date().toISOString().split('T')[0],
-client:client,
-amount:total,
-status:document.getElementById("statusSelect").value,
-dueDate:document.getElementById("dueDate").value
-});
-localStorage.setItem("kcDocs",JSON.stringify(data));
-localStorage.setItem("kcInvoiceCounter",invoiceCounter+1);
-alert("Invoice Saved Successfully!");
-location.reload();
+
+try{
+  const reservedNumber = await window.__reserveInvoiceNumber();
+  const invNo = "KC-"+String(reservedNumber).padStart(4,'0');
+  document.getElementById("invNo").innerText = invNo;
+
+  await window.__addInvoiceDoc({
+    type:"Invoice",
+    number:invNo,
+    date:new Date().toISOString().split('T')[0],
+    client:client,
+    amount:total,
+    status:document.getElementById("statusSelect").value,
+    dueDate:document.getElementById("dueDate").value
+  });
+
+  alert("Invoice Saved Successfully!");
+  location.reload();
+}catch(err){
+  alert("Could not save invoice: "+err.message);
+}
 }
 
 function shareWhatsApp(){
