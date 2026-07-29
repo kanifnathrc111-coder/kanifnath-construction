@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Kanifnath Construction - Enterprise ERP Dashboard</title>
+  <script type="module">
+    import { auth, onAuthStateChanged } from "./firebase.js";
+    onAuthStateChanged(auth, (user) => {
+      if (!user) window.location.href = "login.html";
+    });
+  </script>
   <style>
     :root {
       --primary: #7a0c0c;
@@ -1007,11 +1013,11 @@
 
   <!-- Mobile Bottom Sticky Navigation Bar -->
   <nav class="mobile-nav">
-    <button class="mobile-nav-item active" onclick="location.href='Billing Calculator Page.html'">
+    <button class="mobile-nav-item active" onclick="location.href='index.html'">
       <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
       Dashboard
     </button>
-    <button class="mobile-nav-item" onclick="location.href='invoice.html'">
+    <button class="mobile-nav-item" onclick="location.href='Billing Calculator Page.html'">
       <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6z"/></svg>
       Invoice
     </button>
@@ -1030,34 +1036,76 @@
   </nav>
 
   <!-- Complete Javascript Engine -->
+  <script type="module">
+    import { db, auth, collection, addDoc, onSnapshot, signOut } from "./firebase.js";
+
+    // Live in-memory mirrors of Firestore collections (kept in sync via onSnapshot)
+    let liveDocuments = [];       // Invoice / Quotation / Payment / Labour docs (documents collection)
+    let liveLabours = [];         // labours collection
+    let liveLabourExpenses = [];  // labourExpenses collection
+
+    function recalcFromLiveData() {
+      const invoices = liveDocuments.filter(d => d.type === 'Invoice');
+      const quotations = liveDocuments.filter(d => d.type === 'Quotation');
+      const expenses = liveLabourExpenses;
+      const labours = liveLabours;
+      const history = liveDocuments;
+
+      window.__dashboardCalc(invoices, quotations, expenses, labours, history);
+    }
+
+    onSnapshot(collection(db, "documents"), (snap) => {
+      liveDocuments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      recalcFromLiveData();
+    });
+
+    onSnapshot(collection(db, "labours"), (snap) => {
+      liveLabours = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      recalcFromLiveData();
+    });
+
+    onSnapshot(collection(db, "labourExpenses"), (snap) => {
+      liveLabourExpenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      recalcFromLiveData();
+    });
+
+    // Exposed for the Backup feature (kept working, now reads from Firestore mirrors)
+    window.__getLiveCollections = function () {
+      return {
+        documents: liveDocuments,
+        labours: liveLabours,
+        labourExpenses: liveLabourExpenses
+      };
+    };
+
+    // Restore: pushes each record from a backup JSON back into Firestore
+    window.__restoreToFirestore = async function (data) {
+      const collectionMap = {
+        documents: 'documents',
+        labours: 'labours',
+        labourExpenses: 'labourExpenses'
+      };
+      for (const key of Object.keys(collectionMap)) {
+        const records = Array.isArray(data[key]) ? data[key] : [];
+        for (const record of records) {
+          const { id, ...rest } = record;
+          await addDoc(collection(db, collectionMap[key]), rest);
+        }
+      }
+    };
+
+    window.__firebaseSignOut = function () {
+      return signOut(auth);
+    };
+  </script>
   <script>
-    // localStorage Keys Constants (strictly untouched)
+    // Theme preference key stays in localStorage as instructed - everything else now lives in Firestore.
     const KEYS = {
-      INVOICES: 'kcInvoices',
-      QUOTATIONS: 'kcQuotations',
-      EXPENSES: 'kcExpenses',
-      LABOURS: 'kcLabours',
-      HISTORY: 'kcHistory',
       THEME: 'kcThemePreference'
     };
 
-    // Helper functions for LocalStorage Data Retrieval
-    function getStoredData(key) {
-      try {
-        return JSON.parse(localStorage.getItem(key)) || [];
-      } catch (e) {
-        return [];
-      }
-    }
-
-    // Initialize System Calculations
-    function initDashboardCalculations() {
-      const invoices = getStoredData(KEYS.INVOICES);
-      const quotations = getStoredData(KEYS.QUOTATIONS);
-      const expenses = getStoredData(KEYS.EXPENSES);
-      const labours = getStoredData(KEYS.LABOURS);
-      const history = getStoredData(KEYS.HISTORY);
-
+    // Initialize System Calculations (now fed by Firestore realtime data, calculations unchanged)
+    window.__dashboardCalc = function initDashboardCalculations(invoices, quotations, expenses, labours, history) {
       // Calculations
       const totalRevenue = invoices.reduce((sum, item) => sum + (Number(item.amount) || Number(item.total) || 0), 0);
       const totalExpense = expenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
@@ -1077,7 +1125,7 @@
 
       // Render Recent Operations Timeline
       renderRecentActivityTimeline(history, invoices, expenses);
-    }
+    };
 
     // Render Recent Timeline Items
     function renderRecentActivityTimeline(history, invoices, expenses) {
@@ -1205,12 +1253,9 @@
       console.log('ERP Global Filter Query:', query);
     }
 
-    // Backup & Restore System Handlers
+    // Backup & Restore System Handlers (now backed by Firestore instead of localStorage)
     function exportBackupData() {
-      const backupObject = {};
-      Object.keys(KEYS).forEach(k => {
-        backupObject[KEYS[k]] = getStoredData(KEYS[k]);
-      });
+      const backupObject = window.__getLiveCollections();
       const blob = new Blob([JSON.stringify(backupObject, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -1225,14 +1270,11 @@
       input.onchange = (e) => {
         const file = e.target.files[0];
         const reader = new FileReader();
-        reader.onload = (event) => {
+        reader.onload = async (event) => {
           try {
             const data = JSON.parse(event.target.result);
-            Object.keys(data).forEach(k => {
-              localStorage.setItem(k, JSON.stringify(data[k]));
-            });
+            await window.__restoreToFirestore(data);
             alert('ERP Data restored successfully!');
-            initDashboardCalculations();
           } catch(err) {
             alert('Invalid Backup File Format.');
           }
@@ -1244,7 +1286,9 @@
 
     function performLogout() {
       if (confirm('Are you sure you want to log out of Kanifnath ERP?')) {
-        location.href = 'login.html';
+        window.__firebaseSignOut().finally(() => {
+          location.href = 'login.html';
+        });
       }
     }
 
@@ -1252,7 +1296,6 @@
     window.addEventListener('DOMContentLoaded', () => {
       loadThemePreference();
       startLiveClock();
-      initDashboardCalculations();
       renderERPChart();
     });
 
