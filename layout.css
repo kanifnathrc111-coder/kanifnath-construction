@@ -1,0 +1,214 @@
+/* ==========================================================================
+   LAYOUT.CSS — KANIFNATH CONSTRUCTION ERP
+   App shell: header, sidebar/main layout, and the shared page-navigation
+   (Back / Dashboard / breadcrumb) component used on every internal page.
+   ========================================================================== */
+
+/* ---- Primary App Header (Labour, History, Invoice, Quotation) ---- */
+header.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 0.75rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.brand-logo-container {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    min-width: 0;
+}
+
+.brand-logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    background: #fff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+}
+
+.brand-details {
+    min-width: 0;
+}
+
+.brand-details h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.brand-details p {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.8);
+    letter-spacing: 1px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* ---- Reusable Page Navigation (Back / Dashboard / Breadcrumb) ----
+   Sits directly under the coloured app-header on every internal page.
+   Same markup/classes everywhere so the experience is identical across
+   Billing, Quotation, History, Labour Management, etc. */
+.page-nav {
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0.6rem 2rem;
+    background: var(--surface-light);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.page-nav-left {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+    flex-wrap: wrap;
+}
+
+.page-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.8rem;
+    background: var(--bg-light);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    white-space: nowrap;
+    min-height: 40px;
+}
+
+.page-nav-btn:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    transform: translateY(-1px);
+}
+
+.page-nav-btn.dashboard {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+.page-nav-btn.dashboard:hover {
+    background: var(--primary-light);
+}
+
+.breadcrumb {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.breadcrumb .crumb-current {
+    color: var(--primary);
+}
+
+.breadcrumb i {
+    font-size: 0.65rem;
+    color: var(--border-color);
+}
+
+/* ---- App Container & Sidebar/Main Layout (Labour Management) ---- */
+.app-container {
+    display: flex;
+    flex: 1;
+    padding: 1.5rem;
+    gap: 1.5rem;
+    max-width: 1800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.sidebar {
+    width: 380px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0;
+}
+
+/* ---- Responsive layout rules kept alongside their component ---- */
+@media (max-width: 1024px) {
+    .app-container {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+    }
+}
+
+@media (max-width: 640px) {
+    header.app-header {
+        padding: 0.75rem 1rem;
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .page-nav {
+        padding: 0.6rem 0.85rem;
+    }
+    .breadcrumb {
+        display: none;
+    }
+    .app-container {
+        padding: 0.75rem;
+    }
+    .hide-mobile {
+        display: none;
+    }
+}

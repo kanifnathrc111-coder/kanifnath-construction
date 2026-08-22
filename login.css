@@ -1,0 +1,166 @@
+/* ==========================================================================
+   LOGIN.CSS — Login page
+   Page-specific styling for the standalone auth screen.
+   ========================================================================== */
+
+
+body{
+margin:0;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+font-family:Segoe UI,Arial;
+background:#0b0f1a;
+color:#fff;
+overflow:hidden;
+}
+
+/* animated background */
+
+body::before{
+content:"";
+position:absolute;
+width:1200px;
+height:1200px;
+background:conic-gradient(#00e5ff,#5c6cff,#00e5ff);
+filter:blur(200px);
+animation:spin 25s linear infinite;
+opacity:0.25;
+z-index:-1;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+
+/* card */
+
+.card{
+width:370px;
+padding:45px;
+border-radius:20px;
+text-align:center;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(20px);
+box-shadow:0 20px 50px rgba(0,0,0,0.6);
+}
+
+/* logo */
+
+.logo{
+width:90px;
+margin-bottom:10px;
+}
+
+/* title */
+
+.title{
+font-size:18px;
+letter-spacing:2px;
+margin-bottom:25px;
+color:#d7dcff;
+}
+
+/* pin display */
+
+.pin-display{
+background:#0c1226;
+padding:14px;
+border-radius:12px;
+margin-bottom:22px;
+font-size:26px;
+letter-spacing:10px;
+border:1px solid #2a3a7a;
+}
+
+/* keypad */
+
+.pin-pad{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:12px;
+}
+
+.pin-btn{
+background:#172041;
+padding:16px;
+border-radius:12px;
+cursor:pointer;
+font-size:18px;
+transition:0.2s;
+}
+
+.pin-btn:hover{
+box-shadow:0 0 12px #00e5ff;
+}
+
+.pin-btn:active{
+transform:scale(0.9);
+background:#00e5ff;
+color:#000;
+}
+
+.error{
+color:#ff5c5c;
+margin-top:15px;
+font-size:13px;
+display:none;
+}
+
+.footer{
+margin-top:25px;
+font-size:11px;
+color:#888;
+}
+
+/* Firebase email/password gate - added, same visual language as the existing card */
+.auth-input{
+width:100%;
+box-sizing:border-box;
+padding:12px 14px;
+margin-bottom:12px;
+border-radius:10px;
+border:1px solid #2a3a7a;
+background:#0c1226;
+color:#fff;
+font-size:14px;
+}
+
+.auth-input:focus{
+outline:none;
+box-shadow:0 0 8px #00e5ff;
+}
+
+.auth-btn{
+width:100%;
+padding:13px;
+border-radius:10px;
+border:none;
+cursor:pointer;
+background:#00e5ff;
+color:#000;
+font-weight:700;
+letter-spacing:0.5px;
+margin-bottom:10px;
+}
+
+.auth-switch{
+font-size:12px;
+color:#9fb0ff;
+cursor:pointer;
+text-decoration:underline;
+}
+
+.auth-error{
+color:#ff5c5c;
+margin-bottom:12px;
+font-size:13px;
+display:none;
+}
+
+.hidden{
+display:none !important;
+}
+

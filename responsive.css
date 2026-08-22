@@ -1,0 +1,46 @@
+/* ==========================================================================
+   RESPONSIVE.CSS — KANIFNATH CONSTRUCTION ERP
+   Cross-cutting mobile rules. Loaded last so it can act as the final
+   safety net on top of the component-level breakpoints defined alongside
+   each component (layout.css, components.css, forms.css, tables.css).
+   ========================================================================== */
+
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+img, table, .card, .modal-container {
+    max-width: 100%;
+}
+
+@media (max-width: 640px) {
+    .page-nav-btn span.btn-label {
+        display: inline;
+    }
+
+    .btn {
+        font-size: 0.8rem;
+        padding: 0.55rem 0.9rem;
+    }
+
+    .modal-container {
+        width: 94%;
+    }
+
+    /* Prevent any leftover fixed-width containers from forcing horizontal
+       scroll on small phones. */
+    * {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 400px) {
+    .brand-details h1 {
+        font-size: 1.1rem;
+    }
+    .brand-logo {
+        width: 42px;
+        height: 42px;
+    }
+}
