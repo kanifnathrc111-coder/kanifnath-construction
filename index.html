@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kanifnath Construction - Enterprise ERP Dashboard</title>
+  <link rel="icon" type="image/png" href="icon-1922.png">
+  <link rel="manifest" href="manifest.json">
+  <script type="module">
+    import { auth, onAuthStateChanged } from "./firebase.js";
+    onAuthStateChanged(auth, (user) => {
+      if (!user) window.location.href = "login.html";
+    });
+  </script>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/print.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <div class="app-layout">
+    
+    <!-- Desktop Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="icon-1922.png" alt="Kanifnath Construction" class="brand-logo-img">
+        <div class="brand-info">
+          <h2>KANIFNATH</h2>
+          <p>CONSTRUCTION ERP</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <button class="nav-btn active" onclick="location.href='index.html'">
+          <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+          Dashboard
+        </button>
+        <button class="nav-btn" onclick="location.href='Billing Calculator Page.html'">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+          Invoice
+        </button>
+        <button class="nav-btn" onclick="location.href='quotation.html'">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
+          Quotation
+        </button>
+        <button class="nav-btn" onclick="location.href='labour-management.html'">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          Labour Management
+        </button>
+        <button class="nav-btn" onclick="location.href='history.html'">
+          <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.25 2.52.77-1.28-3.52-2.09V8z"/></svg>
+          History
+        </button>
+        <button class="nav-btn" onclick="exportBackupData()">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          Backup Data
+        </button>
+        <button class="nav-btn" onclick="triggerRestoreData()">
+          <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+          Restore Data
+        </button>
+
+        <button class="nav-btn logout-btn" onclick="performLogout()">
+          <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+          Logout
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      
+      <!-- Top Header -->
+      <header class="header">
+        <div class="header-left">
+          <div class="search-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <input type="text" id="globalSearchInput" placeholder="Global ERP Search..." onkeyup="filterGlobalData(this.value)">
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="live-clock-badge">
+            <span id="liveDateStr">Jul 24, 2026</span>
+            <span class="time" id="liveTimeStr">11:00 AM</span>
+          </div>
+
+          <button class="action-icon-btn" onclick="toggleDarkModeToggle()" title="Toggle Dark/Light Mode">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+          </button>
+
+          <button class="action-icon-btn" onclick="toggleNotificationsPanel()" title="Notifications">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+            <span class="notif-badge">3</span>
+          </button>
+
+          <div class="profile-pill">
+            <div class="avatar-circle">RK</div>
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-size: 11px; font-weight: 800;">Rahul K.</span>
+              <span style="font-size: 9px; color: var(--text-muted);">Administrator</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Notifications Panel Dropdown -->
+      <div class="notif-dropdown" id="notificationsDropdown">
+        <div class="notif-header">System Notifications</div>
+        <div class="notif-item">
+          <span>💵</span>
+          <div>
+            <strong>Pending Payments</strong>
+            <p style="color: var(--text-muted);">₹45,000 due for Site Material supply.</p>
+          </div>
+        </div>
+        <div class="notif-item">
+          <span>👷</span>
+          <div>
+            <strong>Labour Payroll Due</strong>
+            <p style="color: var(--text-muted);">Weekly wage clearance for 32 workers.</p>
+          </div>
+        </div>
+        <div class="notif-item">
+          <span>🧾</span>
+          <div>
+            <strong>New Invoice Generated</strong>
+            <p style="color: var(--text-muted);">Invoice #INV-2026-88 created successfully.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Dashboard Content Area -->
+      <main class="content-area">
+        
+        <!-- Statistics Section Grid -->
+        <section class="stats-grid">
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Total Revenue</p>
+              <h2 id="calc-revenue">₹0</h2>
+            </div>
+            <div class="stat-icon-wrapper">
+              <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+            </div>
+          </div>
+
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Total Expense</p>
+              <h2 id="calc-expense">₹0</h2>
+            </div>
+            <div class="stat-icon-wrapper" style="color: #ef4444; background: rgba(239, 68, 68, 0.1);">
+              <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+            </div>
+          </div>
+
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Net Profit</p>
+              <h2 id="calc-profit">₹0</h2>
+            </div>
+            <div class="stat-icon-wrapper" style="color: #10b981; background: rgba(16, 185, 129, 0.1);">
+              <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+            </div>
+          </div>
+
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Invoices Issued</p>
+              <h2 id="calc-invoices">0</h2>
+            </div>
+            <div class="stat-icon-wrapper" style="color: #2563eb; background: rgba(37, 99, 235, 0.1);">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6z"/></svg>
+            </div>
+          </div>
+
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Total Labour</p>
+              <h2 id="calc-labours">0</h2>
+            </div>
+            <div class="stat-icon-wrapper" style="color: #d97706; background: rgba(217, 119, 6, 0.1);">
+              <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3z"/></svg>
+            </div>
+          </div>
+
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Active Sites</p>
+              <h2 id="calc-sites">4</h2>
+            </div>
+            <div class="stat-icon-wrapper">
+              <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+            </div>
+          </div>
+
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Pending Payments</p>
+              <h2 id="calc-pending">₹0</h2>
+            </div>
+            <div class="stat-icon-wrapper" style="color: #ef4444; background: rgba(239, 68, 68, 0.1);">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+            </div>
+          </div>
+
+          <div class="stat-card glass">
+            <div class="stat-info">
+              <p>Quotations</p>
+              <h2 id="calc-quotations">0</h2>
+            </div>
+            <div class="stat-icon-wrapper">
+              <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+            </div>
+          </div>
+        </section>
+
+        <!-- Core Action Navigation Cards -->
+        <section class="action-grid">
+          
+          <a class="action-card glass" href="Billing Calculator Page.html">
+            <div class="action-card-header">
+              <div class="action-icon">🧾</div>
+              <span style="font-size: 10px; font-weight:800; color: var(--primary);">ERP MODULE</span>
+            </div>
+            <div class="action-title">Create Invoice</div>
+            <div class="action-subtitle">Generate GST Invoices, Billing Schedules & Client Payments.</div>
+          </a>
+
+          <a class="action-card glass" href="quotation.html">
+            <div class="action-card-header">
+              <div class="action-icon" style="background: #2563eb;">📄</div>
+              <span style="font-size: 10px; font-weight:800; color: #2563eb;">ESTIMATION</span>
+            </div>
+            <div class="action-title">Create Quotation</div>
+            <div class="action-subtitle">Prepare Cost Estimates, Material Quotations & Bids.</div>
+          </a>
+
+          <!-- NEW LABOUR MANAGEMENT CARD (Replaces Site Ledger) -->
+          <a class="action-card glass" href="labour-management.html">
+            <div class="action-card-header">
+              <div class="action-icon" style="background: #d97706;">👷</div>
+              <span style="font-size: 10px; font-weight:800; color: #d97706;">PAYROLL & WORK</span>
+            </div>
+            <div class="action-title">👷 Labour Management</div>
+            <div class="action-subtitle">Labour Profiles, Daily Work, Expenses, Salary & Attendance Reports.</div>
+          </a>
+
+          <a class="action-card glass" href="history.html">
+            <div class="action-card-header">
+              <div class="action-icon" style="background: #059669;">📊</div>
+              <span style="font-size: 10px; font-weight:800; color: #059669;">AUDIT TRAIL</span>
+            </div>
+            <div class="action-title">System History</div>
+            <div class="action-subtitle">View Complete Transaction Logs, Archives & Reports.</div>
+          </a>
+
+        </section>
+
+        <!-- Analytics & Timeline Section -->
+        <section class="dashboard-main-grid">
+          
+          <!-- Chart Box -->
+          <div class="glass" style="overflow: hidden;">
+            <div class="card-title-bar">
+              <h3>Financial Flow Analytics</h3>
+              <span style="font-size: 10px; color: var(--text-muted);">Real-time Ledger</span>
+            </div>
+            <div class="chart-box">
+              <canvas id="erpMainChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Activity Timeline -->
+          <div class="glass">
+            <div class="card-title-bar">
+              <h3>Recent Operations Activity</h3>
+            </div>
+            <div class="activity-list" id="activityTimelineList">
+              <!-- Dynamically populated activity -->
+            </div>
+          </div>
+
+        </section>
+
+      </main>
+
+      <!-- Footer -->
+      <footer>
+        <strong>KANIFNATH CONSTRUCTION ERP</strong> — Version 2.0 | © 2026 All Rights Reserved
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- Quick Floating Action Bar -->
+  <div class="floating-action-bar">
+    <button class="float-btn" onclick="location.href='Billing Calculator Page.html'">+ Invoice</button>
+    <button class="float-btn" onclick="location.href='quotation.html'">+ Quotation</button>
+    <button class="float-btn" onclick="location.href='labour-management.html'">👷 Labour</button>
+    <button class="float-btn" onclick="exportBackupData()">💾 Backup</button>
+  </div>
+
+  <!-- Mobile Bottom Sticky Navigation Bar -->
+  <nav class="mobile-nav">
+    <button class="mobile-nav-item active" onclick="location.href='index.html'">
+      <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+      Dashboard
+    </button>
+    <button class="mobile-nav-item" onclick="location.href='Billing Calculator Page.html'">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6z"/></svg>
+      Invoice
+    </button>
+    <button class="mobile-nav-item" onclick="location.href='quotation.html'">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+      Quotation
+    </button>
+    <button class="mobile-nav-item" onclick="location.href='labour-management.html'">
+      <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3z"/></svg>
+      Labour
+    </button>
+    <button class="mobile-nav-item" onclick="location.href='history.html'">
+      <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.25 2.52.77-1.28-3.52-2.09V8z"/></svg>
+      History
+    </button>
+  </nav>
+
+  <!-- Complete Javascript Engine -->
+  <script type="module">
+    import { db, auth, collection, addDoc, doc, setDoc, onSnapshot, signOut } from "./firebase.js";
+
+    // Live in-memory mirrors of Firestore collections (kept in sync via onSnapshot)
+    let liveDocuments = [];        // Invoice / Quotation docs (documents collection)
+    let liveLabours = [];          // labours collection
+    let liveLabourExpenses = [];   // labourExpenses collection
+    let liveLabourPayments = [];   // labourPayments collection
+    let liveLabourWorks = [];      // labourWorks collection
+
+    function recalcFromLiveData() {
+      const invoices = liveDocuments.filter(d => d.type === 'Invoice');
+      const quotations = liveDocuments.filter(d => d.type === 'Quotation');
+      // Real cash outflow = expenses claimed by labour AND actual salary payments made,
+      // not just labourExpenses alone (that was undercounting true outflow / overstating profit).
+      const expenses = liveLabourExpenses.concat(liveLabourPayments);
+      const labours = liveLabours;
+      const history = liveDocuments;
+
+      window.__dashboardCalc(invoices, quotations, expenses, labours, history);
+    }
+
+    onSnapshot(collection(db, "documents"), (snap) => {
+      liveDocuments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      recalcFromLiveData();
+    });
+
+    onSnapshot(collection(db, "labours"), (snap) => {
+      liveLabours = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      recalcFromLiveData();
+    });
+
+    onSnapshot(collection(db, "labourExpenses"), (snap) => {
+      liveLabourExpenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      recalcFromLiveData();
+    });
+
+    onSnapshot(collection(db, "labourPayments"), (snap) => {
+      liveLabourPayments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      recalcFromLiveData();
+    });
+
+    onSnapshot(collection(db, "labourWorks"), (snap) => {
+      liveLabourWorks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      recalcFromLiveData();
+    });
+
+    // Exposed for the Backup feature (kept working, now reads from Firestore mirrors)
+    window.__getLiveCollections = function () {
+      return {
+        documents: liveDocuments,
+        labours: liveLabours,
+        labourExpenses: liveLabourExpenses,
+        labourPayments: liveLabourPayments,
+        labourWorks: liveLabourWorks
+      };
+    };
+
+    // Restore: pushes each record from a backup JSON back into Firestore.
+    // Labour-related collections MUST keep their original document IDs (setDoc),
+    // not fresh auto-IDs (addDoc) - labourExpenses/labourPayments/labourWorks
+    // store a labourId field that points at a labours/{id} document. Restoring
+    // labours with new auto-IDs would silently orphan every linked record.
+    window.__restoreToFirestore = async function (data) {
+      const idKeyedCollections = ['labours', 'labourExpenses', 'labourPayments', 'labourWorks'];
+
+      for (const key of idKeyedCollections) {
+        const records = Array.isArray(data[key]) ? data[key] : [];
+        for (const record of records) {
+          if (!record.id) continue;
+          const { id, ...rest } = record;
+          await setDoc(doc(db, key, id), rest);
+        }
+      }
+
+      // "documents" (invoices/quotations) aren't referenced by ID elsewhere, so
+      // a fresh auto-ID on restore is safe here.
+      const documentRecords = Array.isArray(data.documents) ? data.documents : [];
+      for (const record of documentRecords) {
+        const { id, ...rest } = record;
+        await addDoc(collection(db, 'documents'), rest);
+      }
+    };
+
+    window.__firebaseSignOut = function () {
+      return signOut(auth);
+    };
+  </script>
+  <script>
+    // Theme preference key stays in localStorage as instructed - everything else now lives in Firestore.
+    const KEYS = {
+      THEME: 'kcThemePreference'
+    };
+
+    // Initialize System Calculations (now fed by Firestore realtime data, calculations unchanged)
+    window.__dashboardCalc = function initDashboardCalculations(invoices, quotations, expenses, labours, history) {
+      // Calculations
+      const totalRevenue = invoices.reduce((sum, item) => sum + (Number(item.amount) || Number(item.total) || 0), 0);
+      const totalExpense = expenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+      const netProfit = totalRevenue - totalExpense;
+      const pendingPay = invoices
+        .filter(inv => inv.status === 'Pending' || inv.paymentStatus === 'Pending')
+        .reduce((sum, item) => sum + (Number(item.amount) || Number(item.total) || 0), 0);
+
+      // Update Statistic Counter Cards
+      document.getElementById('calc-revenue').innerText = '₹' + totalRevenue.toLocaleString('en-IN');
+      document.getElementById('calc-expense').innerText = '₹' + totalExpense.toLocaleString('en-IN');
+      document.getElementById('calc-profit').innerText = '₹' + netProfit.toLocaleString('en-IN');
+      document.getElementById('calc-invoices').innerText = invoices.length;
+      document.getElementById('calc-labours').innerText = labours.length;
+      document.getElementById('calc-pending').innerText = '₹' + pendingPay.toLocaleString('en-IN');
+      document.getElementById('calc-quotations').innerText = quotations.length;
+
+      // Render Recent Operations Timeline
+      renderRecentActivityTimeline(history, invoices, expenses);
+
+      // Cache real data for the chart so resize can redraw without recomputing
+      window.__lastChartInvoices = invoices;
+      window.__lastChartExpenses = expenses;
+      renderERPChart(invoices, expenses);
+    };
+
+    // Render Recent Timeline Items
+    function renderRecentActivityTimeline(history, invoices, expenses) {
+      const timelineContainer = document.getElementById('activityTimelineList');
+      let mergedItems = [];
+
+      invoices.slice(-3).forEach(inv => {
+        mergedItems.push({
+          title: `Invoice ${inv.number || '#' + inv.id} Generated`,
+          time: inv.date || '-',
+          amount: `+₹${Number(inv.amount || inv.total || 0).toLocaleString('en-IN')}`,
+          icon: '🧾'
+        });
+      });
+
+      expenses.slice(-2).forEach(exp => {
+        mergedItems.push({
+          title: exp.type || exp.mode || 'Labour Expense',
+          time: exp.date || '-',
+          amount: `-₹${Number(exp.amount || 0).toLocaleString('en-IN')}`,
+          icon: '📉'
+        });
+      });
+
+      if (mergedItems.length === 0) {
+        timelineContainer.innerHTML = `
+          <div class="activity-item" style="opacity:0.6;">
+            <div class="activity-details" style="flex:1; text-align:center; padding: 10px 0;">
+              <p>No activity recorded yet. Create an invoice, quotation, or labour entry to see it here.</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      timelineContainer.innerHTML = mergedItems.map(item => `
+        <div class="activity-item">
+          <div class="activity-icon">${item.icon}</div>
+          <div class="activity-details" style="flex:1;">
+            <h4>${item.title}</h4>
+            <p>${item.time}</p>
+          </div>
+          <span style="font-size: 11px; font-weight:800;">${item.amount}</span>
+        </div>
+      `).join('');
+    }
+
+    // Canvas Chart Rendering Logic - now driven by real invoice/expense data,
+    // grouped by month, instead of hardcoded placeholder numbers.
+    function renderERPChart(invoicesArg, expensesArg) {
+      const canvas = document.getElementById('erpMainChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const width = canvas.width = canvas.parentElement.clientWidth;
+      const height = canvas.height = canvas.parentElement.clientHeight;
+
+      ctx.clearRect(0, 0, width, height);
+
+      const invoices = invoicesArg || window.__lastChartInvoices || [];
+      const expenses = expensesArg || window.__lastChartExpenses || [];
+
+      // Build the last 7 calendar months (oldest -> newest) as buckets.
+      const now = new Date();
+      const months = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        months.push({ key: `${d.getFullYear()}-${d.getMonth()}`, label: d.toLocaleDateString('en-US', { month: 'short' }) });
+      }
+
+      function bucketSums(records) {
+        const sums = months.map(() => 0);
+        records.forEach(r => {
+          if (!r.date) return;
+          const d = new Date(r.date);
+          if (isNaN(d)) return;
+          const key = `${d.getFullYear()}-${d.getMonth()}`;
+          const idx = months.findIndex(m => m.key === key);
+          if (idx !== -1) sums[idx] += Number(r.amount || r.total || 0);
+        });
+        return sums;
+      }
+
+      const revenueData = bucketSums(invoices);
+      const expenseData = bucketSums(expenses);
+      const maxVal = Math.max(1, ...revenueData, ...expenseData);
+      const hasAnyData = revenueData.some(v => v > 0) || expenseData.some(v => v > 0);
+
+      const padding = 35;
+      const chartWidth = width - padding * 2;
+      const chartHeight = height - padding * 2;
+
+      // Draw horizontal reference lines
+      ctx.strokeStyle = 'rgba(150, 150, 150, 0.15)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = height - padding - (i * (chartHeight / 4));
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(width - padding, y);
+        ctx.stroke();
+      }
+
+      if (!hasAnyData) {
+        ctx.fillStyle = 'rgba(100, 116, 139, 0.6)';
+        ctx.font = '13px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('No revenue/expense data yet', width / 2, height / 2);
+        return;
+      }
+
+      // Helper for path plotting
+      function drawLine(data, color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        data.forEach((val, index) => {
+          const x = padding + (index * (chartWidth / (months.length - 1)));
+          const y = height - padding - ((val / maxVal) * chartHeight);
+          if (index === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+
+      drawLine(revenueData, '#10b981');
+      drawLine(expenseData, '#7a0c0c');
+    }
+
+    // Dark Mode Toggle Logic
+    function toggleDarkModeToggle() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem(KEYS.THEME, isDark ? 'dark' : 'light');
+    }
+
+    function loadThemePreference() {
+      const pref = localStorage.getItem(KEYS.THEME);
+      if (pref === 'dark') {
+        document.body.classList.add('dark-mode');
+      }
+    }
+
+    // Real-time Clock Initialization
+    function startLiveClock() {
+      function update() {
+        const now = new Date();
+        document.getElementById('liveDateStr').innerText = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        document.getElementById('liveTimeStr').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+      update();
+      setInterval(update, 1000);
+    }
+
+    // Toggle Notifications Dropdown
+    function toggleNotificationsPanel() {
+      const panel = document.getElementById('notificationsDropdown');
+      panel.classList.toggle('active');
+    }
+
+    // Global Search Filter Placeholder
+    function filterGlobalData(query) {
+      console.log('ERP Global Filter Query:', query);
+    }
+
+    // Backup & Restore System Handlers (now backed by Firestore instead of localStorage)
+    function exportBackupData() {
+      const backupObject = window.__getLiveCollections();
+      const blob = new Blob([JSON.stringify(backupObject, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `Kanifnath_ERP_Backup_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    }
+
+    function triggerRestoreData() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          try {
+            const data = JSON.parse(event.target.result);
+            await window.__restoreToFirestore(data);
+            alert('ERP Data restored successfully!');
+          } catch(err) {
+            alert('Invalid Backup File Format.');
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    function performLogout() {
+      if (confirm('Are you sure you want to log out of Kanifnath ERP?')) {
+        window.__firebaseSignOut().finally(() => {
+          location.href = 'login.html';
+        });
+      }
+    }
+
+    // DOM Ready Lifecycles
+    window.addEventListener('DOMContentLoaded', () => {
+      loadThemePreference();
+      startLiveClock();
+      renderERPChart();
+    });
+
+    window.addEventListener('resize', () => {
+      renderERPChart();
+    });
+  </script>
+</body>
+</html>

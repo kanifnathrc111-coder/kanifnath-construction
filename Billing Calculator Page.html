@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KANIFNATH CONSTRUCTION - TAX INVOICE</title>
+<link rel="icon" type="image/png" href="icon-1922.png">
+<script type="module">
+  import { auth, onAuthStateChanged } from "./firebase.js";
+  onAuthStateChanged(auth, (user) => {
+    if (!user) window.location.href = "login.html";
+  });
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/tables.css">
+<link rel="stylesheet" href="css/invoice.css">
+<link rel="stylesheet" href="css/print.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+
+<body>
+
+<!-- Header Section -->
+<header class="glass-header app-header no-print">
+    <div class="brand-logo-container">
+        <img src="icon-1922.png" alt="KF Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/52/7a0c0c/ffffff?text=KF'">
+        <div class="brand-details">
+            <h1><i class="fa-solid fa-file-invoice-dollar"></i> KANIFNATH CONSTRUCTION</h1>
+            <p>Billing &amp; Tax Invoice</p>
+        </div>
+    </div>
+</header>
+
+<!-- Page Navigation: Back / Dashboard / Breadcrumb -->
+<nav class="page-nav no-print">
+    <div class="page-nav-left">
+        <a class="page-nav-btn" href="javascript:void(0)" onclick="if(document.referrer && document.referrer.indexOf(location.host)!==-1){history.back()}else{location.href='index.html'}">
+            <i class="fa-solid fa-arrow-left"></i> <span class="btn-label">Back</span>
+        </a>
+        <a class="page-nav-btn dashboard" href="index.html">
+            <i class="fa-solid fa-gauge"></i> <span class="btn-label">Dashboard</span>
+        </a>
+    </div>
+    <div class="breadcrumb">
+        <a href="index.html">Dashboard</a> <i class="fa-solid fa-chevron-right"></i> <span class="crumb-current">Billing / Invoice</span>
+    </div>
+</nav>
+
+<!-- Toolbar -->
+<div class="doc-toolbar no-print">
+    <button class="btn btn-primary" onclick="addRow()"><i class="fa-solid fa-plus"></i> Add Item</button>
+    <button class="btn btn-outline" onclick="toggleLWH()"><i class="fa-solid fa-ruler-combined"></i> Toggle L/W/H</button>
+    <button class="btn btn-outline" onclick="toggleTerms()"><i class="fa-solid fa-file-lines"></i> Terms</button>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" onclick="printInvoice()"><i class="fa-solid fa-print"></i> Print / Save PDF</button>
+    <button class="btn btn-outline" onclick="shareWhatsApp()"><i class="fa-brands fa-whatsapp"></i> <span class="hide-mobile">Share</span></button>
+    <button class="btn btn-primary" id="saveInvoiceBtn" onclick="saveInvoice()"><i class="fa-solid fa-floppy-disk"></i> Save Invoice</button>
+</div>
+
+<!-- ============ SCREEN EDITING WORKSPACE ============ -->
+<div class="doc-shell no-print">
+
+    <!-- Company Header + Invoice Meta -->
+    <div class="doc-card invoice-header-card">
+        <div class="invoice-brand">
+            <img src="icon-1922.png" alt="Kanifnath Construction">
+            <div>
+                <div class="invoice-brand-name">KANIFNATH CONSTRUCTION</div>
+                <div class="invoice-brand-tag">Labour Supplier &amp; Developer's</div>
+                <div class="invoice-doc-badge">TAX INVOICE</div>
+            </div>
+        </div>
+        <div class="invoice-contact">
+            Kalewadi, Tal. Daund, Dist. Pune - 413801<br>
+            Mob: 9763739384 / 9325503934<br>
+            Email: kanifnathr.c111@gmail.com<br>
+            <strong>GSTIN: 27DHBPC7233L1ZB</strong>
+        </div>
+    </div>
+
+    <!-- Invoice # / Date / Due / Status + Client Info -->
+    <div class="doc-card">
+        <div class="doc-info-grid">
+            <div>
+                <div class="doc-card-title"><i class="fa-solid fa-hashtag"></i> Invoice Details</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Invoice No</label>
+                        <div class="form-control" style="background:var(--bg-light);" id="invNo">KC-0001</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Invoice Date</label>
+                        <div class="form-control" style="background:var(--bg-light);" id="invDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Due Date</label>
+                        <input type="date" id="dueDate" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="statusSelect" class="form-control" onchange="updateStatusBadge()">
+                            <option>Pending</option>
+                            <option>Paid</option>
+                        </select>
+                        <span id="statusBadge" class="status-badge pending">Pending</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="doc-card-title"><i class="fa-solid fa-address-card"></i> Client Information</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Client Name</label>
+                        <input type="text" id="clientName" class="form-control" placeholder="Client / company name">
+                    </div>
+                    <div class="form-group">
+                        <label>Project / Site</label>
+                        <input type="text" id="siteLocation" class="form-control" placeholder="Project or site location">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="clientAddress" class="form-control" placeholder="Client address">
+                    </div>
+                    <div class="form-group">
+                        <label>Contact No.</label>
+                        <input type="text" id="clientContact" class="form-control" placeholder="Client phone number">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Table -->
+    <div class="doc-card">
+        <div class="doc-card-title"><i class="fa-solid fa-list-check"></i> Item Details</div>
+        <div class="doc-table-scroll">
+            <table class="doc-item-table">
+                <thead>
+                    <tr>
+                        <th style="width:36px;">Sr</th>
+                        <th class="lwh col-lwh">L</th>
+                        <th class="lwh col-lwh">W</th>
+                        <th class="lwh col-lwh">H</th>
+                        <th class="text-left">Description</th>
+                        <th style="width:70px;">Qty</th>
+                        <th style="width:80px;">Rate</th>
+                        <th style="width:100px;">Amount</th>
+                        <th class="col-action">-</th>
+                    </tr>
+                </thead>
+                <tbody id="body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Financial Summary -->
+    <div class="doc-card invoice-summary-card">
+        <div class="doc-card-title"><i class="fa-solid fa-calculator"></i> Financial Summary</div>
+        <div class="summary-row"><span>Subtotal</span><span>₹ <span id="subtotal">0.00</span></span></div>
+        <div class="summary-row"><span>GST %</span><input type="number" id="gst" value="18" oninput="calculate()"></div>
+        <div class="summary-row"><span>GST Amount</span><span>₹ <span id="gstAmount">0.00</span></span></div>
+        <div class="summary-row"><span>Advance</span><input type="number" id="advance" value="0" oninput="calculate()"></div>
+        <div class="summary-row grand-total"><span>Balance</span><span>₹ <span id="final">0.00</span></span></div>
+        <div class="amount-words-box"><strong>Amount in Words:</strong> <span id="amountWords">Rupees Zero Only</span></div>
+    </div>
+
+    <!-- Terms & Conditions (toggleable) -->
+    <div class="doc-card invoice-terms-card" id="termsSection">
+        <div class="doc-card-title"><i class="fa-solid fa-file-contract"></i> Terms &amp; Conditions</div>
+        <textarea id="termsText" class="form-control">1. GST Extra as applicable.
+2. 50% Advance before starting work.
+3. Balance payable after completion.
+4. Water &amp; Electricity by Client.</textarea>
+    </div>
+
+    <!-- Payment Info / Footer / Signature -->
+    <div class="doc-card invoice-footer-card">
+        <div class="bank-block">
+            <strong>Payment Information</strong><br>
+            Bank: AXIS BANK<br>
+            A/C No: 925020056308477<br>
+            IFSC: UTIB0001952
+        </div>
+        <div class="thanks">Thank you for your valuable business<br>and continued support.</div>
+        <div class="sign-block">
+            For Kanifnath Construction<br><br>
+            <span class="signature-name">Rahul</span><br>
+            Authorized Signatory
+        </div>
+    </div>
+</div>
+
+<!-- ============ PRINT-ONLY DOCUMENT (built by JS just before printing) ============ -->
+<div id="print-invoice-doc"></div>
+
+<script type="module">
+import { db, doc, getDoc, collection, addDoc, getNextCounterValue } from "./firebase.js";
+window.__addInvoiceDoc = (data) => addDoc(collection(db, "documents"), data);
+window.__reserveInvoiceNumber = () => getNextCounterValue("invoice");
+
+// Peek the current counter (display only - not incremented yet)
+getDoc(doc(db, "counters", "invoice")).then((snap) => {
+  const current = snap.exists() ? (Number(snap.data().value) || 0) : 0;
+  document.getElementById("invNo").innerText = "KC-" + String(current + 1).padStart(4, '0');
+});
+</script>
+
+<script>
+
+document.getElementById("invDate").innerText = new Date().toLocaleDateString();
+
+addRow();
+
+function addRow(){
+let row=document.getElementById("body").insertRow();
+row.innerHTML=`
+<td></td>
+<td class="lwh"><input type="number" class="l"></td>
+<td class="lwh"><input type="number" class="w"></td>
+<td class="lwh"><input type="number" class="h"></td>
+<td class="cell-desc"><textarea rows="1" placeholder="Work description"></textarea></td>
+<td><input type="number" class="qty" value="1"></td>
+<td><input type="number" class="rate" value="0"></td>
+<td><input type="number" class="amt" value="0" readonly></td>
+<td><button class="btn btn-danger btn-tbl" onclick="removeRow(this)"><i class="fa-solid fa-xmark"></i></button></td>`;
+
+row.querySelectorAll(".l,.w,.h").forEach(i=>{
+i.addEventListener("input",()=>updateFromLWH(row));
+});
+
+row.querySelectorAll(".qty,.rate").forEach(i=>{
+i.addEventListener("input",()=>updateAmount(row));
+});
+
+renumber();
+}
+
+function updateFromLWH(row){
+let l=parseFloat(row.querySelector(".l").value)||0;
+let w=parseFloat(row.querySelector(".w").value)||0;
+let h=parseFloat(row.querySelector(".h").value)||0;
+
+let qty=l*w*h;
+row.querySelector(".qty").value=qty.toFixed(2);
+
+updateAmount(row);
+}
+
+function updateAmount(row){
+let qty=parseFloat(row.querySelector(".qty").value)||0;
+let rate=parseFloat(row.querySelector(".rate").value)||0;
+
+row.querySelector(".amt").value=(qty*rate).toFixed(2);
+calculate();
+}
+
+function calculate(){
+let subtotal=0;
+document.querySelectorAll(".amt").forEach(a=>{
+subtotal+=parseFloat(a.value)||0;
+});
+let gst=parseFloat(document.getElementById("gst").value)||0;
+let adv=parseFloat(document.getElementById("advance").value)||0;
+let gstAmt=subtotal*gst/100;
+let final=subtotal+gstAmt-adv;
+if(final<0) final=0;
+
+document.getElementById("subtotal").innerText=subtotal.toFixed(2);
+document.getElementById("gstAmount").innerText=gstAmt.toFixed(2);
+document.getElementById("final").innerText=final.toFixed(2);
+document.getElementById("amountWords").innerText="Rupees "+numberToWords(Math.floor(final))+" Only";
+}
+
+function renumber(){
+document.querySelectorAll("#body tr").forEach((r,i)=>{ r.cells[0].innerText=i+1;});
+}
+
+function removeRow(btn){
+btn.closest("tr").remove();
+renumber();
+calculate();
+}
+
+function toggleLWH(){
+document.querySelectorAll(".lwh").forEach(el=>{
+el.style.display=el.style.display==="none"?"table-cell":"none";
+});
+}
+
+function toggleTerms(){
+document.getElementById("termsSection").classList.toggle("open");
+}
+
+function updateStatusBadge(){
+let status=document.getElementById("statusSelect").value;
+let badge=document.getElementById("statusBadge");
+badge.innerText=status;
+badge.className="status-badge "+(status==="Paid"?"paid":"pending");
+}
+
+function collectInvoiceItems(){
+let items=[];
+document.querySelectorAll("#body tr").forEach(row=>{
+  items.push({
+    l:parseFloat(row.querySelector(".l")?.value)||0,
+    w:parseFloat(row.querySelector(".w")?.value)||0,
+    h:parseFloat(row.querySelector(".h")?.value)||0,
+    description:row.querySelector("textarea")?.value||"",
+    qty:parseFloat(row.querySelector(".qty")?.value)||0,
+    rate:parseFloat(row.querySelector(".rate")?.value)||0,
+    amount:parseFloat(row.querySelector(".amt")?.value)||0
+  });
+});
+return items;
+}
+
+async function saveInvoice(){
+let client=document.getElementById("clientName").value.trim();
+if(client===""){alert("Enter Client Name");return;}
+let total=parseFloat(document.getElementById("final").innerText)||0;
+
+const saveBtn=document.getElementById("saveInvoiceBtn");
+if(saveBtn){ saveBtn.disabled=true; saveBtn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Saving...'; }
+
+try{
+  const reservedNumber = await window.__reserveInvoiceNumber();
+  const invNo = "KC-"+String(reservedNumber).padStart(4,'0');
+  document.getElementById("invNo").innerText = invNo;
+
+  await window.__addInvoiceDoc({
+    type:"Invoice",
+    number:invNo,
+    date:new Date().toISOString().split('T')[0],
+    client:client,
+    site:document.getElementById("siteLocation").value.trim(),
+    clientAddress:document.getElementById("clientAddress").value.trim(),
+    clientContact:document.getElementById("clientContact").value.trim(),
+    items:collectInvoiceItems(),
+    subtotal:parseFloat(document.getElementById("subtotal").innerText)||0,
+    gstPercent:parseFloat(document.getElementById("gst").value)||0,
+    gstAmount:parseFloat(document.getElementById("gstAmount").innerText)||0,
+    advance:parseFloat(document.getElementById("advance").value)||0,
+    amount:total,
+    status:document.getElementById("statusSelect").value,
+    dueDate:document.getElementById("dueDate").value,
+    createdAt:new Date().toISOString()
+  });
+
+  alert("Invoice Saved Successfully!");
+  location.reload();
+}catch(err){
+  alert("Could not save invoice: "+err.message);
+  if(saveBtn){ saveBtn.disabled=false; saveBtn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Save Invoice'; }
+}
+}
+
+function shareWhatsApp(){
+let msg=`Invoice No: ${document.getElementById("invNo").innerText}
+Client: ${document.getElementById("clientName").value}
+Total: ₹ ${document.getElementById("final").innerText}
+- Kanifnath Construction`;
+window.open("https://wa.me/?text="+encodeURIComponent(msg));
+}
+
+function numberToWords(num){
+const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
+"Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+const b=["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+if(num<20) return a[num];
+if(num<100) return b[Math.floor(num/10)]+" "+a[num%10];
+if(num<1000) return a[Math.floor(num/100)]+" Hundred "+numberToWords(num%100);
+if(num<100000) return numberToWords(Math.floor(num/1000))+" Thousand "+numberToWords(num%1000);
+if(num<10000000) return numberToWords(Math.floor(num/100000))+" Lakh "+numberToWords(num%100000);
+return numberToWords(Math.floor(num/10000000))+" Crore "+numberToWords(num%10000000);
+}
+
+function escapeHtml(str){
+return String(str==null?"":str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ================================================================
+   PRINT — builds a dedicated, lightweight A4 document (not a
+   screenshot of the app UI) into #print-invoice-doc, then waits for
+   the logo image + layout paint before calling window.print(). This
+   is what keeps mobile print/PDF fast and reliable on Android Chrome.
+   ================================================================ */
+function buildPrintInvoice(){
+  const gst = parseFloat(document.getElementById("gst").value) || 0;
+  const items = collectInvoiceItems();
+  const rows = items.map((it,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td class="desc">${escapeHtml(it.description)}${(it.l||it.w||it.h)?`<br><span style="color:#94a3b8;font-size:7.5pt;">L:${it.l} × W:${it.w} × H:${it.h}</span>`:''}</td>
+      <td class="num">${it.qty.toFixed(2)}</td>
+      <td class="num">${it.rate.toFixed(2)}</td>
+      <td class="num">${it.amount.toFixed(2)}</td>
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:#94a3b8;">No items added</td></tr>';
+
+  const status = document.getElementById("statusSelect").value;
+  const terms = document.getElementById("termsText").value.trim();
+
+  document.getElementById("print-invoice-doc").innerHTML = `
+    <div class="print-doc-watermark">KANIFNATH CONSTRUCTION</div>
+
+    <div class="print-doc-header">
+      <div class="print-doc-brand">
+        <img id="print-invoice-logo" class="print-doc-logo" src="icon-1922.png">
+        <div>
+          <div class="print-doc-company-name">Kanifnath Construction</div>
+          <div class="print-doc-company-tag">Labour Supplier &amp; Developer's</div>
+        </div>
+      </div>
+      <div class="print-doc-contact">
+        Kalewadi, Tal. Daund, Dist. Pune - 413801<br>
+        Mob: 9763739384 / 9325503934<br>
+        Email: kanifnathr.c111@gmail.com<br>
+        <strong>GSTIN: 27DHBPC7233L1ZB</strong>
+      </div>
+    </div>
+
+    <div class="print-doc-title-bar"><span class="doc-name">Tax Invoice</span></div>
+
+    <div class="print-doc-meta-grid">
+      <div class="print-doc-meta-box">
+        <div class="box-label">Bill To</div>
+        <div class="meta-line"><strong>${escapeHtml(document.getElementById("clientName").value || '-')}</strong></div>
+        <div class="meta-line">${escapeHtml(document.getElementById("siteLocation").value || '')}</div>
+        <div class="meta-line">${escapeHtml(document.getElementById("clientAddress").value || '')}</div>
+        <div class="meta-line">${escapeHtml(document.getElementById("clientContact").value || '')}</div>
+      </div>
+      <div class="print-doc-meta-box">
+        <div class="box-label">Invoice Details</div>
+        <div class="meta-line">Invoice No: <strong>${escapeHtml(document.getElementById("invNo").innerText)}</strong></div>
+        <div class="meta-line">Date: <strong>${escapeHtml(document.getElementById("invDate").innerText)}</strong></div>
+        <div class="meta-line">Due Date: <strong>${escapeHtml(document.getElementById("dueDate").value || '-')}</strong></div>
+        <div class="meta-line">Status: <strong>${escapeHtml(status)}</strong></div>
+      </div>
+    </div>
+
+    <table class="print-doc-table">
+      <thead>
+        <tr><th style="width:28px;">Sr</th><th class="text-left">Description</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+
+    <div class="print-doc-summary-wrap">
+      <div class="print-doc-summary">
+        <div class="row"><span>Subtotal</span><span>₹ ${document.getElementById("subtotal").innerText}</span></div>
+        <div class="row"><span>GST (${gst}%)</span><span>₹ ${document.getElementById("gstAmount").innerText}</span></div>
+        <div class="row"><span>Advance Paid</span><span>₹ ${document.getElementById("advance").value || '0'}</span></div>
+        <div class="row grand"><span>Balance Due</span><span>₹ ${document.getElementById("final").innerText}</span></div>
+      </div>
+    </div>
+
+    <div class="print-doc-words"><strong>Amount in Words:</strong> ${escapeHtml(document.getElementById("amountWords").innerText)}</div>
+
+    <div class="print-doc-payment">
+      <div class="pay-box">
+        <strong>Payment Information</strong><br>
+        Bank: AXIS BANK &nbsp;|&nbsp; A/C No: 925020056308477 &nbsp;|&nbsp; IFSC: UTIB0001952
+      </div>
+    </div>
+
+    ${terms ? `<div class="print-doc-section"><div class="section-title">Terms &amp; Conditions</div>${escapeHtml(terms).replace(/\n/g,'<br>')}</div>` : ''}
+
+    <div class="print-doc-signature-row">
+      <div class="thanks">Thank you for your valuable business and continued support.</div>
+      <div class="sign-block">
+        For Kanifnath Construction
+        <div class="sign-line"></div>
+        Authorized Signatory
+      </div>
+    </div>
+
+    <div class="print-doc-footer">This is a computer generated invoice — Kanifnath Construction</div>
+  `;
+}
+
+// Mobile-safe print trigger: waits for the freshly-built print document to
+// lay out (and its logo image to load) before invoking window.print().
+// Calling print() in the same tick as the innerHTML update is what causes
+// blank/partial PDFs and print-preview freezes on Android Chrome.
+function printWhenReady(){
+  const photo = document.getElementById('print-invoice-logo');
+  const triggerPrint = () => {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      window.print();
+    }));
+  };
+  if (photo && !photo.complete) {
+    let done = false;
+    const finish = () => { if (!done) { done = true; triggerPrint(); } };
+    photo.addEventListener('load', finish, { once: true });
+    photo.addEventListener('error', finish, { once: true });
+    setTimeout(finish, 1500);
+  } else {
+    triggerPrint();
+  }
+}
+
+function printInvoice(){
+  buildPrintInvoice();
+  printWhenReady();
+}
+
+</script>
+</body>
+</html>
