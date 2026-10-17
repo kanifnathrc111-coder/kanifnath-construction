@@ -2,516 +2,335 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KANIFNATH CONSTRUCTION - TAX INVOICE</title>
-<link rel="icon" type="image/png" href="icon-1922.png">
-<script type="module">
-  import { auth, onAuthStateChanged } from "./firebase.js";
-  onAuthStateChanged(auth, (user) => {
-    if (!user) window.location.href = "login.html";
-  });
-</script>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<link rel="stylesheet" href="global.css">
-<link rel="stylesheet" href="layout.css">
-<link rel="stylesheet" href="components.css">
-<link rel="stylesheet" href="forms.css">
-<link rel="stylesheet" href="tables.css">
-<link rel="stylesheet" href="invoice.css">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Invoice - Kanifnath Construction ERP</title>
+<meta name="theme-color" content="#850D0D">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-1922.png">
+<link rel="apple-touch-icon" href="icon-1922.png">
+<link rel="stylesheet" href="assets/app.css">
 <link rel="stylesheet" href="print.css">
-<link rel="stylesheet" href="responsive.css">
 </head>
-
 <body>
+<main id="page-content" class="hidden px-3 sm:px-6 py-4 sm:py-6 max-w-5xl mx-auto w-full space-y-4">
 
-<!-- Header Section -->
-<header class="glass-header app-header no-print">
-    <div class="brand-logo-container">
-        <img src="icon-1922.png" alt="KF Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/52/7a0c0c/ffffff?text=KF'">
-        <div class="brand-details">
-            <h1><i class="fa-solid fa-file-invoice-dollar"></i> KANIFNATH CONSTRUCTION</h1>
-            <p>Billing &amp; Tax Invoice</p>
+  <div id="load-state" class="hidden card p-6 text-center text-sm"></div>
+
+  <div id="editor" class="space-y-4">
+    <!-- Mode banner -->
+    <div id="mode-banner" class="flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0"><span id="mode-badge" class="badge badge-blue whitespace-nowrap shrink-0">New invoice</span><span id="mode-note" class="text-xs text-muted truncate"></span></div>
+      <a id="new-link" href="Billing Calculator Page.html" class="hidden btn btn-outline btn-sm"><i data-icon="plus" data-cls="w-4 h-4"></i>New invoice</a>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="card p-2 sm:p-3 flex flex-wrap items-center gap-2" role="toolbar" aria-label="Invoice actions">
+      <button type="button" id="btn-add" class="btn btn-primary btn-sm"><i data-icon="plus" data-cls="w-4 h-4"></i>Add item</button>
+      <button type="button" id="btn-lwh" class="btn btn-outline btn-sm" aria-pressed="true"><i data-icon="ruler" data-cls="w-4 h-4"></i>L/W/H</button>
+      <button type="button" id="btn-terms" class="btn btn-outline btn-sm" aria-expanded="false" aria-controls="terms-card"><i data-icon="file" data-cls="w-4 h-4"></i>Terms</button>
+      <div class="flex-1"></div>
+      <button type="button" id="btn-print" class="btn btn-outline btn-sm"><i data-icon="print" data-cls="w-4 h-4"></i><span class="hidden sm:inline">Print / PDF</span><span class="sm:hidden">Print</span></button>
+      <button type="button" id="btn-share" class="btn btn-outline btn-sm"><i data-icon="share" data-cls="w-4 h-4"></i><span class="hidden sm:inline">Share</span></button>
+      <button type="button" id="btn-delete" class="hidden btn btn-danger-soft btn-sm"><i data-icon="trash" data-cls="w-4 h-4"></i><span class="hidden sm:inline">Delete</span></button>
+      <button type="button" id="btn-save" class="btn btn-primary btn-sm"><i data-icon="save" data-cls="w-4 h-4"></i><span id="save-label">Save invoice</span></button>
+    </div>
+
+    <!-- Company header -->
+    <section class="card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <img data-logo src="icon-1922.png" alt="Kanifnath Construction logo" class="w-16 h-16 rounded-xl border border-line object-cover bg-white">
+        <div><div class="text-lg font-extrabold text-brand tracking-wide">KANIFNATH CONSTRUCTION</div>
+          <div class="text-xs text-muted font-semibold">Labour Supplier &amp; Developer's</div>
+          <span class="badge badge-red mt-1">TAX INVOICE</span></div>
+      </div>
+      <div class="text-xs text-muted leading-relaxed sm:text-right">Kalewadi, Tal. Daund, Dist. Pune - 413801<br>Mob: 9763739384 / 9325503934<br>Email: kanifnathr.c111@gmail.com<br><strong class="text-ink">GSTIN: 27DHBPC7233L1ZB</strong></div>
+    </section>
+
+    <!-- Details + client -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="card p-4 sm:p-5">
+        <div class="card-title"><i data-icon="file" data-cls="w-4 h-4"></i>Invoice details</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><span class="label">Invoice no.</span><div id="invNo" class="input flex items-center bg-subtle font-semibold">KC-0001</div></div>
+          <div><span class="label">Invoice date</span><div id="invDate" class="input flex items-center bg-subtle"></div></div>
+          <div><label class="label" for="dueDate">Due date</label><input id="dueDate" type="date" class="input"></div>
+          <div><label class="label" for="statusSelect">Status</label>
+            <div class="flex flex-wrap items-center gap-2"><select id="statusSelect" class="input flex-1 min-w-[7rem]"><option>Pending</option><option>Paid</option></select><span id="statusBadge" class="badge badge-amber">Pending</span></div></div>
         </div>
-    </div>
-</header>
-
-<!-- Page Navigation: Back / Dashboard / Breadcrumb -->
-<nav class="page-nav no-print">
-    <div class="page-nav-left">
-        <a class="page-nav-btn" href="javascript:void(0)" onclick="if(document.referrer && document.referrer.indexOf(location.host)!==-1){history.back()}else{location.href='index.html'}">
-            <i class="fa-solid fa-arrow-left"></i> <span class="btn-label">Back</span>
-        </a>
-        <a class="page-nav-btn dashboard" href="index.html">
-            <i class="fa-solid fa-gauge"></i> <span class="btn-label">Dashboard</span>
-        </a>
-    </div>
-    <div class="breadcrumb">
-        <a href="index.html">Dashboard</a> <i class="fa-solid fa-chevron-right"></i> <span class="crumb-current">Billing / Invoice</span>
-    </div>
-</nav>
-
-<!-- Toolbar -->
-<div class="doc-toolbar no-print">
-    <button class="btn btn-primary" onclick="addRow()"><i class="fa-solid fa-plus"></i> Add Item</button>
-    <button class="btn btn-outline" onclick="toggleLWH()"><i class="fa-solid fa-ruler-combined"></i> Toggle L/W/H</button>
-    <button class="btn btn-outline" onclick="toggleTerms()"><i class="fa-solid fa-file-lines"></i> Terms</button>
-    <div class="spacer"></div>
-    <button class="btn btn-outline" onclick="printInvoice()"><i class="fa-solid fa-print"></i> Print / Save PDF</button>
-    <button class="btn btn-outline" onclick="shareWhatsApp()"><i class="fa-brands fa-whatsapp"></i> <span class="hide-mobile">Share</span></button>
-    <button class="btn btn-primary" id="saveInvoiceBtn" onclick="saveInvoice()"><i class="fa-solid fa-floppy-disk"></i> Save Invoice</button>
-</div>
-
-<!-- ============ SCREEN EDITING WORKSPACE ============ -->
-<div class="doc-shell no-print">
-
-    <!-- Company Header + Invoice Meta -->
-    <div class="doc-card invoice-header-card">
-        <div class="invoice-brand">
-            <img src="icon-1922.png" alt="Kanifnath Construction">
-            <div>
-                <div class="invoice-brand-name">KANIFNATH CONSTRUCTION</div>
-                <div class="invoice-brand-tag">Labour Supplier &amp; Developer's</div>
-                <div class="invoice-doc-badge">TAX INVOICE</div>
-            </div>
+      </div>
+      <div class="card p-4 sm:p-5">
+        <div class="card-title"><i data-icon="users" data-cls="w-4 h-4"></i>Client information</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div><label class="label" for="clientName">Client name *</label><input id="clientName" class="input" placeholder="Client / company name" autocomplete="off" aria-describedby="clientErr"><div id="clientErr" class="field-error hidden">Client name is required.</div></div>
+          <div><label class="label" for="siteLocation">Project / site</label><input id="siteLocation" class="input" placeholder="Project or site location" autocomplete="off"></div>
+          <div><label class="label" for="clientAddress">Address</label><input id="clientAddress" class="input" placeholder="Client address" autocomplete="off"></div>
+          <div><label class="label" for="clientContact">Contact no.</label><input id="clientContact" class="input" inputmode="tel" placeholder="Client phone number" autocomplete="off"></div>
         </div>
-        <div class="invoice-contact">
-            Kalewadi, Tal. Daund, Dist. Pune - 413801<br>
-            Mob: 9763739384 / 9325503934<br>
-            Email: kanifnathr.c111@gmail.com<br>
-            <strong>GSTIN: 27DHBPC7233L1ZB</strong>
-        </div>
-    </div>
+      </div>
+    </section>
 
-    <!-- Invoice # / Date / Due / Status + Client Info -->
-    <div class="doc-card">
-        <div class="doc-info-grid">
-            <div>
-                <div class="doc-card-title"><i class="fa-solid fa-hashtag"></i> Invoice Details</div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Invoice No</label>
-                        <div class="form-control" style="background:var(--bg-light);" id="invNo">KC-0001</div>
-                    </div>
-                    <div class="form-group">
-                        <label>Invoice Date</label>
-                        <div class="form-control" style="background:var(--bg-light);" id="invDate"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>Due Date</label>
-                        <input type="date" id="dueDate" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select id="statusSelect" class="form-control" onchange="updateStatusBadge()">
-                            <option>Pending</option>
-                            <option>Paid</option>
-                        </select>
-                        <span id="statusBadge" class="status-badge pending">Pending</span>
-                    </div>
-                </div>
-            </div>
+    <!-- Items -->
+    <section class="card p-4 sm:p-5">
+      <div class="card-title"><i data-icon="invoice" data-cls="w-4 h-4"></i>Item details</div>
+      <div id="items-head" class="hidden xl:grid gap-2 px-1 pb-2 text-[11px] font-bold uppercase tracking-wide text-muted"></div>
+      <div id="items" class="space-y-3 xl:space-y-2"></div>
+      <button type="button" id="btn-add2" class="btn btn-outline w-full mt-3"><i data-icon="plus" data-cls="w-4 h-4"></i>Add another item</button>
+    </section>
 
-            <div>
-                <div class="doc-card-title"><i class="fa-solid fa-address-card"></i> Client Information</div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Client Name</label>
-                        <input type="text" id="clientName" class="form-control" placeholder="Client / company name">
-                    </div>
-                    <div class="form-group">
-                        <label>Project / Site</label>
-                        <input type="text" id="siteLocation" class="form-control" placeholder="Project or site location">
-                    </div>
-                    <div class="form-group">
-                        <label>Address</label>
-                        <input type="text" id="clientAddress" class="form-control" placeholder="Client address">
-                    </div>
-                    <div class="form-group">
-                        <label>Contact No.</label>
-                        <input type="text" id="clientContact" class="form-control" placeholder="Client phone number">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Summary -->
+    <section class="card p-4 sm:p-5 sm:max-w-md sm:ml-auto w-full">
+      <div class="card-title"><i data-icon="rupee" data-cls="w-4 h-4"></i>Financial summary</div>
+      <dl class="space-y-2 text-sm">
+        <div class="flex justify-between"><dt>Subtotal</dt><dd class="num font-semibold">&#8377; <span id="subtotal">0.00</span></dd></div>
+        <div class="flex justify-between items-center"><dt><label for="gst">GST %</label></dt><dd><input id="gst" type="number" min="0" step="any" inputmode="decimal" value="18" class="input !min-h-[44px] w-24 text-right"></dd></div>
+        <div class="flex justify-between"><dt>GST amount</dt><dd class="num font-semibold">&#8377; <span id="gstAmount">0.00</span></dd></div>
+        <div class="flex justify-between items-center"><dt><label for="advance">Advance</label></dt><dd><input id="advance" type="number" min="0" step="any" inputmode="decimal" value="0" class="input !min-h-[44px] w-32 text-right" aria-describedby="advanceErr"></dd></div>
+        <div id="advanceErr" role="alert" class="hidden field-error text-right !mt-0"></div>
+        <div class="flex justify-between items-center pt-3 border-t border-line text-base font-extrabold text-brand"><dt>Balance</dt><dd class="num text-xl">&#8377; <span id="final">0.00</span></dd></div>
+      </dl>
+      <p class="mt-3 text-xs bg-subtle rounded-xl p-3"><strong>Amount in words:</strong> <span id="amountWords">Rupees Zero Only</span></p>
+    </section>
 
-    <!-- Item Table -->
-    <div class="doc-card">
-        <div class="doc-card-title"><i class="fa-solid fa-list-check"></i> Item Details</div>
-        <div class="doc-table-scroll">
-            <table class="doc-item-table">
-                <thead>
-                    <tr>
-                        <th style="width:36px;">Sr</th>
-                        <th class="lwh col-lwh">L</th>
-                        <th class="lwh col-lwh">W</th>
-                        <th class="lwh col-lwh">H</th>
-                        <th class="text-left">Description</th>
-                        <th style="width:70px;">Qty</th>
-                        <th style="width:80px;">Rate</th>
-                        <th style="width:100px;">Amount</th>
-                        <th class="col-action">-</th>
-                    </tr>
-                </thead>
-                <tbody id="body"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Financial Summary -->
-    <div class="doc-card invoice-summary-card">
-        <div class="doc-card-title"><i class="fa-solid fa-calculator"></i> Financial Summary</div>
-        <div class="summary-row"><span>Subtotal</span><span>₹ <span id="subtotal">0.00</span></span></div>
-        <div class="summary-row"><span>GST %</span><input type="number" id="gst" value="18" oninput="calculate()"></div>
-        <div class="summary-row"><span>GST Amount</span><span>₹ <span id="gstAmount">0.00</span></span></div>
-        <div class="summary-row"><span>Advance</span><input type="number" id="advance" value="0" oninput="calculate()"></div>
-        <div class="summary-row grand-total"><span>Balance</span><span>₹ <span id="final">0.00</span></span></div>
-        <div class="amount-words-box"><strong>Amount in Words:</strong> <span id="amountWords">Rupees Zero Only</span></div>
-    </div>
-
-    <!-- Terms & Conditions (toggleable) -->
-    <div class="doc-card invoice-terms-card" id="termsSection">
-        <div class="doc-card-title"><i class="fa-solid fa-file-contract"></i> Terms &amp; Conditions</div>
-        <textarea id="termsText" class="form-control">1. GST Extra as applicable.
+    <!-- Terms -->
+    <section id="terms-card" class="card p-4 sm:p-5 hidden">
+      <div class="card-title"><i data-icon="file" data-cls="w-4 h-4"></i>Terms &amp; conditions</div>
+      <label class="sr-only" for="termsText">Terms and conditions</label>
+      <textarea id="termsText" class="input" rows="5">1. GST Extra as applicable.
 2. 50% Advance before starting work.
 3. Balance payable after completion.
 4. Water &amp; Electricity by Client.</textarea>
-    </div>
+    </section>
 
-    <!-- Payment Info / Footer / Signature -->
-    <div class="doc-card invoice-footer-card">
-        <div class="bank-block">
-            <strong>Payment Information</strong><br>
-            Bank: AXIS BANK<br>
-            A/C No: 925020056308477<br>
-            IFSC: UTIB0001952
-        </div>
-        <div class="thanks">Thank you for your valuable business<br>and continued support.</div>
-        <div class="sign-block">
-            For Kanifnath Construction<br><br>
-            <span class="signature-name">Rahul</span><br>
-            Authorized Signatory
-        </div>
-    </div>
-</div>
+    <section class="card p-4 sm:p-5 grid sm:grid-cols-3 gap-4 text-xs text-muted">
+      <div><strong class="text-ink">Payment information</strong><br>Bank: AXIS BANK<br>A/C No: 925020056308477<br>IFSC: UTIB0001952</div>
+      <div class="sm:text-center">Thank you for your valuable business<br>and continued support.</div>
+      <div class="sm:text-right">For Kanifnath Construction<br><br>Authorized Signatory</div>
+    </section>
+  </div>
+</main>
 
-<!-- ============ PRINT-ONLY DOCUMENT (built by JS just before printing) ============ -->
 <div id="print-invoice-doc"></div>
 
 <script type="module">
-import { db, doc, getDoc, collection, addDoc, getNextCounterValue } from "./firebase.js";
-window.__addInvoiceDoc = (data) => addDoc(collection(db, "documents"), data);
-window.__reserveInvoiceNumber = () => getNextCounterValue("invoice");
+import { invoiceTotals, toPaise } from "./js/finance.js";
+import { requireAuth, mountShell, esc, num, money, rupeesInWords, fmtDate, todayISO, toast, errMsg, confirmDialog, hydrateIcons, icon } from "./js/common.js";
+import { db, doc, getDoc, collection, addDoc, updateDoc, deleteDoc, getNextCounterValue } from "./firebase.js";
 
-// Peek the current counter (display only - not incremented yet)
-getDoc(doc(db, "counters", "invoice")).then((snap) => {
-  const current = snap.exists() ? (Number(snap.data().value) || 0) : 0;
-  document.getElementById("invNo").innerText = "KC-" + String(current + 1).padStart(4, '0');
+await requireAuth();
+mountShell({ active: "invoice", title: "Invoice" });
+hydrateIcons();
+
+const $ = (id) => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+let editingId = params.get("id") || null;
+let original = null;          // loaded document (edit mode)
+let dirty = false, saving = false, lwhOn = true;
+
+/* ---------- Item rows ---------- */
+const COLS_LWH = "xl:grid-cols-[2rem_4.5rem_4.5rem_4.5rem_minmax(0,1fr)_5.5rem_6rem_7rem_2.5rem]";
+const COLS_NO = "xl:grid-cols-[2rem_minmax(0,1fr)_5.5rem_6rem_7rem_2.5rem]";
+function layoutHead() {
+  const h = $("items-head");
+  h.className = "hidden xl:grid gap-2 px-1 pb-2 text-[11px] font-bold uppercase tracking-wide text-muted " + (lwhOn ? COLS_LWH : COLS_NO);
+  h.innerHTML = `<span>Sr</span>${lwhOn ? "<span>L</span><span>W</span><span>H</span>" : ""}<span>Description</span><span class="text-right">Qty</span><span class="text-right">Rate</span><span class="text-right">Amount</span><span></span>`;
+}
+function rowHtml(it = {}) {
+  const v = (x, d = "") => esc(x === undefined || x === null ? d : x);
+  return `<div data-row class="rounded-xl border border-line bg-subtle/50 xl:bg-transparent xl:border-0 p-3 xl:p-0 grid grid-cols-3 gap-2 items-start xl:items-center ${lwhOn ? COLS_LWH : COLS_NO} animate-fade-up">
+    <div class="order-0 col-span-2 xl:col-span-1 text-sm font-bold text-muted" data-sr></div>
+    <div class="order-0 xl:order-last justify-self-end"><button type="button" data-del class="btn btn-danger-soft btn-sm btn-icon" aria-label="Remove item">${icon("trash", "w-4 h-4")}</button></div>
+    ${["l", "w", "h"].map((k) => `<div data-lwh class="order-2 xl:order-none ${lwhOn ? "" : "hidden"}"><label class="label xl:hidden">${k.toUpperCase()}</label><input type="number" min="0" step="any" inputmode="decimal" class="input ${k} xl:!min-h-[40px]" aria-label="${k.toUpperCase()}" value="${v(it[k])}"></div>`).join("")}
+    <div class="order-1 col-span-3 xl:col-span-1 xl:order-none"><label class="label xl:hidden">Description</label><textarea rows="2" class="input desc xl:!min-h-[40px] xl:!py-2" placeholder="Work description" aria-label="Work description">${esc(v(it.description ?? it.desc))}</textarea></div>
+    <div class="order-3 xl:order-none"><label class="label xl:hidden">Qty</label><input type="number" min="0" step="any" inputmode="decimal" class="input qty xl:text-right xl:!min-h-[40px]" aria-label="Quantity" value="${v(it.qty, 1)}"></div>
+    <div class="order-3 xl:order-none"><label class="label xl:hidden">Rate</label><input type="number" min="0" step="any" inputmode="decimal" class="input rate xl:text-right xl:!min-h-[40px]" aria-label="Rate" value="${v(it.rate, 0)}"></div>
+    <div class="order-3 xl:order-none"><label class="label xl:hidden">Amount</label><input type="number" class="input amt xl:text-right xl:!min-h-[40px] font-semibold" aria-label="Amount" value="${v(it.amount, 0)}" readonly tabindex="-1"></div>
+  </div>`;
+}
+function addRow(it) {
+  $("items").insertAdjacentHTML("beforeend", rowHtml(it));
+  renumber(); hydrateIcons($("items"));
+}
+function renumber() { [...$("items").children].forEach((r, i) => { r.querySelector("[data-sr]").textContent = i + 1; }); }
+function rebuildRows() { const items = collectItems(); $("items").innerHTML = ""; items.forEach(addRow); layoutHead(); }
+
+/* ---------- Calculations (unchanged logic) ---------- */
+function updateFromLWH(row) {
+  const l = parseFloat(row.querySelector(".l").value) || 0, w = parseFloat(row.querySelector(".w").value) || 0, h = parseFloat(row.querySelector(".h").value) || 0;
+  row.querySelector(".qty").value = (l * w * h).toFixed(2);
+  updateAmount(row);
+}
+function updateAmount(row) {
+  const qty = parseFloat(row.querySelector(".qty").value) || 0, rate = parseFloat(row.querySelector(".rate").value) || 0;
+  row.querySelector(".amt").value = (toPaise(Math.max(0, qty) * Math.max(0, rate)) / 100).toFixed(2);
+  calculate();
+}
+function calculate() {
+  let subtotal = 0;
+  document.querySelectorAll("#items .amt").forEach((a) => { subtotal += parseFloat(a.value) || 0; });
+  const gst = parseFloat($("gst").value) || 0, adv = parseFloat($("advance").value) || 0;
+  const t = invoiceTotals(subtotal, gst, adv);
+  subtotal = t.subtotal; const gstAmt = t.gstAmount, final = t.final;
+  $("subtotal").textContent = subtotal.toFixed(2); $("gstAmount").textContent = gstAmt.toFixed(2); $("final").textContent = final.toFixed(2);
+  $("amountWords").textContent = rupeesInWords(final);
+  // Never hide a bad advance by silently clamping: show why the balance is not what was typed and block saving.
+  const grand = Math.round((t.subtotal + t.gstAmount) * 100) / 100;
+  let msg = "";
+  if (adv < 0) msg = "Advance cannot be negative.";
+  else if (gst < 0 || gst > 100) msg = "GST % must be between 0 and 100.";
+  else if (adv > grand + 0.004) msg = `Advance (\u20B9 ${adv.toFixed(2)}) is more than the invoice total (\u20B9 ${grand.toFixed(2)}). Reduce the advance, or record the excess as a refund/credit separately.`;
+  const box = $("advanceErr"); box.textContent = msg; box.classList.toggle("hidden", !msg);
+  $("advance").classList.toggle("input-invalid", !!msg); $("advance").setAttribute("aria-invalid", String(!!msg));
+  return !msg;
+}
+function collectItems() {
+  return [...$("items").children].map((row) => ({
+    l: parseFloat(row.querySelector(".l").value) || 0, w: parseFloat(row.querySelector(".w").value) || 0, h: parseFloat(row.querySelector(".h").value) || 0,
+    description: row.querySelector(".desc").value || "", qty: parseFloat(row.querySelector(".qty").value) || 0,
+    rate: parseFloat(row.querySelector(".rate").value) || 0, amount: parseFloat(row.querySelector(".amt").value) || 0,
+  }));
+}
+
+/* ---------- Events ---------- */
+$("items").addEventListener("input", (e) => {
+  const row = e.target.closest("[data-row]"); if (!row) return; dirty = true;
+  if (e.target.matches(".l,.w,.h")) updateFromLWH(row); else if (e.target.matches(".qty,.rate")) updateAmount(row);
 });
-</script>
-
-<script>
-
-document.getElementById("invDate").innerText = new Date().toLocaleDateString();
-
-addRow();
-
-function addRow(){
-let row=document.getElementById("body").insertRow();
-row.innerHTML=`
-<td></td>
-<td class="lwh"><input type="number" class="l"></td>
-<td class="lwh"><input type="number" class="w"></td>
-<td class="lwh"><input type="number" class="h"></td>
-<td class="cell-desc"><textarea rows="1" placeholder="Work description"></textarea></td>
-<td><input type="number" class="qty" value="1"></td>
-<td><input type="number" class="rate" value="0"></td>
-<td><input type="number" class="amt" value="0" readonly></td>
-<td><button class="btn btn-danger btn-tbl" onclick="removeRow(this)"><i class="fa-solid fa-xmark"></i></button></td>`;
-
-row.querySelectorAll(".l,.w,.h").forEach(i=>{
-i.addEventListener("input",()=>updateFromLWH(row));
+$("items").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-del]"); if (!b) return;
+  b.closest("[data-row]").remove(); renumber(); calculate(); dirty = true;
+  if (!$("items").children.length) addRow();
 });
+["gst", "advance"].forEach((id) => $(id).addEventListener("input", () => { dirty = true; calculate(); }));
+["clientName", "siteLocation", "clientAddress", "clientContact", "dueDate", "termsText"].forEach((id) => $(id).addEventListener("input", () => { dirty = true; if (id === "clientName") setInvalid(false); }));
+$("statusSelect").addEventListener("change", () => { dirty = true; updateStatusBadge(); });
+$("btn-add").addEventListener("click", () => { addRow(); dirty = true; $("items").lastElementChild.querySelector(".desc").focus(); });
+$("btn-add2").addEventListener("click", () => $("btn-add").click());
+$("btn-lwh").addEventListener("click", () => { lwhOn = !lwhOn; $("btn-lwh").setAttribute("aria-pressed", String(lwhOn)); rebuildRows(); });
+$("btn-terms").addEventListener("click", () => { const c = $("terms-card"); const open = c.classList.toggle("hidden") === false; $("btn-terms").setAttribute("aria-expanded", String(open)); if (open) c.scrollIntoView({ behavior: "smooth", block: "center" }); });
+function updateStatusBadge() { const s = $("statusSelect").value; $("statusBadge").textContent = s; $("statusBadge").className = "badge " + (s === "Paid" ? "badge-green" : "badge-amber"); }
+function setInvalid(on) { $("clientName").classList.toggle("input-invalid", on); $("clientErr").classList.toggle("hidden", !on); }
+window.addEventListener("beforeunload", (e) => { if (dirty && !saving) { e.preventDefault(); e.returnValue = ""; } });
 
-row.querySelectorAll(".qty,.rate").forEach(i=>{
-i.addEventListener("input",()=>updateAmount(row));
-});
-
-renumber();
+/* ---------- Mode / load ---------- */
+function setMode() {
+  const edit = !!editingId;
+  $("mode-badge").textContent = edit ? "Editing " + (original ? original.number : "") : "New invoice";
+  $("mode-badge").className = "badge whitespace-nowrap shrink-0 " + (edit ? "badge-amber" : "badge-blue");
+  $("mode-note").textContent = edit ? "Changes update this saved invoice; the invoice number stays the same." : "Invoice number is assigned when you save.";
+  $("save-label").textContent = edit ? "Save changes" : "Save invoice";
+  $("btn-delete").classList.toggle("hidden", !edit); $("new-link").classList.toggle("hidden", !edit);
 }
-
-function updateFromLWH(row){
-let l=parseFloat(row.querySelector(".l").value)||0;
-let w=parseFloat(row.querySelector(".w").value)||0;
-let h=parseFloat(row.querySelector(".h").value)||0;
-
-let qty=l*w*h;
-row.querySelector(".qty").value=qty.toFixed(2);
-
-updateAmount(row);
+function fill(d) {
+  $("invNo").textContent = d.number || ""; $("invDate").textContent = fmtDate(d.date);
+  $("clientName").value = d.client || ""; $("siteLocation").value = d.site || ""; $("clientAddress").value = d.clientAddress || ""; $("clientContact").value = d.clientContact || "";
+  $("dueDate").value = d.dueDate || ""; $("statusSelect").value = d.status === "Paid" ? "Paid" : "Pending"; updateStatusBadge();
+  $("gst").value = d.gstPercent != null ? d.gstPercent : 18; $("advance").value = d.advance != null ? d.advance : 0;
+  if (d.terms != null && d.terms !== "") $("termsText").value = d.terms;
+  $("items").innerHTML = ""; (Array.isArray(d.items) && d.items.length ? d.items : [{}]).forEach(addRow); calculate();
 }
-
-function updateAmount(row){
-let qty=parseFloat(row.querySelector(".qty").value)||0;
-let rate=parseFloat(row.querySelector(".rate").value)||0;
-
-row.querySelector(".amt").value=(qty*rate).toFixed(2);
-calculate();
-}
-
-function calculate(){
-let subtotal=0;
-document.querySelectorAll(".amt").forEach(a=>{
-subtotal+=parseFloat(a.value)||0;
-});
-let gst=parseFloat(document.getElementById("gst").value)||0;
-let adv=parseFloat(document.getElementById("advance").value)||0;
-let gstAmt=subtotal*gst/100;
-let final=subtotal+gstAmt-adv;
-if(final<0) final=0;
-
-document.getElementById("subtotal").innerText=subtotal.toFixed(2);
-document.getElementById("gstAmount").innerText=gstAmt.toFixed(2);
-document.getElementById("final").innerText=final.toFixed(2);
-document.getElementById("amountWords").innerText="Rupees "+numberToWords(Math.floor(final))+" Only";
-}
-
-function renumber(){
-document.querySelectorAll("#body tr").forEach((r,i)=>{ r.cells[0].innerText=i+1;});
-}
-
-function removeRow(btn){
-btn.closest("tr").remove();
-renumber();
-calculate();
-}
-
-function toggleLWH(){
-document.querySelectorAll(".lwh").forEach(el=>{
-el.style.display=el.style.display==="none"?"table-cell":"none";
-});
-}
-
-function toggleTerms(){
-document.getElementById("termsSection").classList.toggle("open");
-}
-
-function updateStatusBadge(){
-let status=document.getElementById("statusSelect").value;
-let badge=document.getElementById("statusBadge");
-badge.innerText=status;
-badge.className="status-badge "+(status==="Paid"?"paid":"pending");
-}
-
-function collectInvoiceItems(){
-let items=[];
-document.querySelectorAll("#body tr").forEach(row=>{
-  items.push({
-    l:parseFloat(row.querySelector(".l")?.value)||0,
-    w:parseFloat(row.querySelector(".w")?.value)||0,
-    h:parseFloat(row.querySelector(".h")?.value)||0,
-    description:row.querySelector("textarea")?.value||"",
-    qty:parseFloat(row.querySelector(".qty")?.value)||0,
-    rate:parseFloat(row.querySelector(".rate")?.value)||0,
-    amount:parseFloat(row.querySelector(".amt")?.value)||0
-  });
-});
-return items;
-}
-
-async function saveInvoice(){
-let client=document.getElementById("clientName").value.trim();
-if(client===""){alert("Enter Client Name");return;}
-let total=parseFloat(document.getElementById("final").innerText)||0;
-
-const saveBtn=document.getElementById("saveInvoiceBtn");
-if(saveBtn){ saveBtn.disabled=true; saveBtn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Saving...'; }
-
-try{
-  const reservedNumber = await window.__reserveInvoiceNumber();
-  const invNo = "KC-"+String(reservedNumber).padStart(4,'0');
-  document.getElementById("invNo").innerText = invNo;
-
-  await window.__addInvoiceDoc({
-    type:"Invoice",
-    number:invNo,
-    date:new Date().toISOString().split('T')[0],
-    client:client,
-    site:document.getElementById("siteLocation").value.trim(),
-    clientAddress:document.getElementById("clientAddress").value.trim(),
-    clientContact:document.getElementById("clientContact").value.trim(),
-    items:collectInvoiceItems(),
-    subtotal:parseFloat(document.getElementById("subtotal").innerText)||0,
-    gstPercent:parseFloat(document.getElementById("gst").value)||0,
-    gstAmount:parseFloat(document.getElementById("gstAmount").innerText)||0,
-    advance:parseFloat(document.getElementById("advance").value)||0,
-    amount:total,
-    status:document.getElementById("statusSelect").value,
-    dueDate:document.getElementById("dueDate").value,
-    createdAt:new Date().toISOString()
-  });
-
-  alert("Invoice Saved Successfully!");
-  location.reload();
-}catch(err){
-  alert("Could not save invoice: "+err.message);
-  if(saveBtn){ saveBtn.disabled=false; saveBtn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Save Invoice'; }
-}
-}
-
-function shareWhatsApp(){
-let msg=`Invoice No: ${document.getElementById("invNo").innerText}
-Client: ${document.getElementById("clientName").value}
-Total: ₹ ${document.getElementById("final").innerText}
-- Kanifnath Construction`;
-window.open("https://wa.me/?text="+encodeURIComponent(msg));
-}
-
-function numberToWords(num){
-const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
-"Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
-const b=["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
-if(num<20) return a[num];
-if(num<100) return b[Math.floor(num/10)]+" "+a[num%10];
-if(num<1000) return a[Math.floor(num/100)]+" Hundred "+numberToWords(num%100);
-if(num<100000) return numberToWords(Math.floor(num/1000))+" Thousand "+numberToWords(num%1000);
-if(num<10000000) return numberToWords(Math.floor(num/100000))+" Lakh "+numberToWords(num%100000);
-return numberToWords(Math.floor(num/10000000))+" Crore "+numberToWords(num%10000000);
-}
-
-function escapeHtml(str){
-return String(str==null?"":str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ================================================================
-   PRINT — builds a dedicated, lightweight A4 document (not a
-   screenshot of the app UI) into #print-invoice-doc, then waits for
-   the logo image + layout paint before calling window.print(). This
-   is what keeps mobile print/PDF fast and reliable on Android Chrome.
-   ================================================================ */
-function buildPrintInvoice(){
-  const gst = parseFloat(document.getElementById("gst").value) || 0;
-  const items = collectInvoiceItems();
-  const rows = items.map((it,i)=>`
-    <tr>
-      <td>${i+1}</td>
-      <td class="desc">${escapeHtml(it.description)}${(it.l||it.w||it.h)?`<br><span style="color:#94a3b8;font-size:7.5pt;">L:${it.l} × W:${it.w} × H:${it.h}</span>`:''}</td>
-      <td class="num">${it.qty.toFixed(2)}</td>
-      <td class="num">${it.rate.toFixed(2)}</td>
-      <td class="num">${it.amount.toFixed(2)}</td>
-    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:#94a3b8;">No items added</td></tr>';
-
-  const status = document.getElementById("statusSelect").value;
-  const terms = document.getElementById("termsText").value.trim();
-
-  document.getElementById("print-invoice-doc").innerHTML = `
-    <div class="print-doc-watermark">KANIFNATH CONSTRUCTION</div>
-
-    <div class="print-doc-header">
-      <div class="print-doc-brand">
-        <img id="print-invoice-logo" class="print-doc-logo" src="icon-1922.png">
-        <div>
-          <div class="print-doc-company-name">Kanifnath Construction</div>
-          <div class="print-doc-company-tag">Labour Supplier &amp; Developer's</div>
-        </div>
-      </div>
-      <div class="print-doc-contact">
-        Kalewadi, Tal. Daund, Dist. Pune - 413801<br>
-        Mob: 9763739384 / 9325503934<br>
-        Email: kanifnathr.c111@gmail.com<br>
-        <strong>GSTIN: 27DHBPC7233L1ZB</strong>
-      </div>
-    </div>
-
-    <div class="print-doc-title-bar"><span class="doc-name">Tax Invoice</span></div>
-
-    <div class="print-doc-meta-grid">
-      <div class="print-doc-meta-box">
-        <div class="box-label">Bill To</div>
-        <div class="meta-line"><strong>${escapeHtml(document.getElementById("clientName").value || '-')}</strong></div>
-        <div class="meta-line">${escapeHtml(document.getElementById("siteLocation").value || '')}</div>
-        <div class="meta-line">${escapeHtml(document.getElementById("clientAddress").value || '')}</div>
-        <div class="meta-line">${escapeHtml(document.getElementById("clientContact").value || '')}</div>
-      </div>
-      <div class="print-doc-meta-box">
-        <div class="box-label">Invoice Details</div>
-        <div class="meta-line">Invoice No: <strong>${escapeHtml(document.getElementById("invNo").innerText)}</strong></div>
-        <div class="meta-line">Date: <strong>${escapeHtml(document.getElementById("invDate").innerText)}</strong></div>
-        <div class="meta-line">Due Date: <strong>${escapeHtml(document.getElementById("dueDate").value || '-')}</strong></div>
-        <div class="meta-line">Status: <strong>${escapeHtml(status)}</strong></div>
-      </div>
-    </div>
-
-    <table class="print-doc-table">
-      <thead>
-        <tr><th style="width:28px;">Sr</th><th class="text-left">Description</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>
-
-    <div class="print-doc-summary-wrap">
-      <div class="print-doc-summary">
-        <div class="row"><span>Subtotal</span><span>₹ ${document.getElementById("subtotal").innerText}</span></div>
-        <div class="row"><span>GST (${gst}%)</span><span>₹ ${document.getElementById("gstAmount").innerText}</span></div>
-        <div class="row"><span>Advance Paid</span><span>₹ ${document.getElementById("advance").value || '0'}</span></div>
-        <div class="row grand"><span>Balance Due</span><span>₹ ${document.getElementById("final").innerText}</span></div>
-      </div>
-    </div>
-
-    <div class="print-doc-words"><strong>Amount in Words:</strong> ${escapeHtml(document.getElementById("amountWords").innerText)}</div>
-
-    <div class="print-doc-payment">
-      <div class="pay-box">
-        <strong>Payment Information</strong><br>
-        Bank: AXIS BANK &nbsp;|&nbsp; A/C No: 925020056308477 &nbsp;|&nbsp; IFSC: UTIB0001952
-      </div>
-    </div>
-
-    ${terms ? `<div class="print-doc-section"><div class="section-title">Terms &amp; Conditions</div>${escapeHtml(terms).replace(/\n/g,'<br>')}</div>` : ''}
-
-    <div class="print-doc-signature-row">
-      <div class="thanks">Thank you for your valuable business and continued support.</div>
-      <div class="sign-block">
-        For Kanifnath Construction
-        <div class="sign-line"></div>
-        Authorized Signatory
-      </div>
-    </div>
-
-    <div class="print-doc-footer">This is a computer generated invoice — Kanifnath Construction</div>
-  `;
-}
-
-// Mobile-safe print trigger: waits for the freshly-built print document to
-// lay out (and its logo image to load) before invoking window.print().
-// Calling print() in the same tick as the innerHTML update is what causes
-// blank/partial PDFs and print-preview freezes on Android Chrome.
-function printWhenReady(){
-  const photo = document.getElementById('print-invoice-logo');
-  const triggerPrint = () => {
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      window.print();
-    }));
-  };
-  if (photo && !photo.complete) {
-    let done = false;
-    const finish = () => { if (!done) { done = true; triggerPrint(); } };
-    photo.addEventListener('load', finish, { once: true });
-    photo.addEventListener('error', finish, { once: true });
-    setTimeout(finish, 1500);
-  } else {
-    triggerPrint();
+async function init() {
+  layoutHead();
+  if (!editingId) {
+    $("invDate").textContent = fmtDate(todayISO()); addRow(); calculate(); setMode();
+    try { const snap = await getDoc(doc(db, "counters", "invoice")); const cur = snap.exists() ? (Number(snap.data().value) || 0) : 0; $("invNo").textContent = "KC-" + String(cur + 1).padStart(4, "0"); } catch (e) { $("invNo").textContent = "KC-----"; }
+    return;
+  }
+  $("editor").classList.add("hidden"); $("load-state").classList.remove("hidden");
+  $("load-state").innerHTML = `<div class="skeleton h-6 w-1/2 mx-auto mb-3"></div><div class="skeleton h-32"></div>`;
+  try {
+    const snap = await getDoc(doc(db, "documents", editingId));
+    if (!snap.exists() || snap.data().type !== "Invoice") throw Object.assign(new Error("This invoice could not be found. It may have been deleted."), { notFound: true });
+    original = { ...snap.data(), id: snap.id }; setMode(); fill(original);
+    $("load-state").classList.add("hidden"); $("editor").classList.remove("hidden");
+    if (params.get("print") === "1") setTimeout(printInvoice, 300);
+  } catch (err) {
+    $("load-state").innerHTML = `<div class="py-6 flex flex-col items-center gap-3">${icon("alert", "w-8 h-8 text-red-600")}<p class="font-semibold">${esc(err.notFound ? err.message : "Could not load invoice: " + errMsg(err))}</p><div class="flex gap-2"><a class="btn btn-primary btn-sm" href="history.html">Back to history</a><a class="btn btn-outline btn-sm" href="Billing Calculator Page.html">New invoice</a></div></div>`;
   }
 }
 
-function printInvoice(){
-  buildPrintInvoice();
-  printWhenReady();
+/* ---------- Save / delete ---------- */
+function payload() {
+  return {
+    client: $("clientName").value.trim(), site: $("siteLocation").value.trim(), clientAddress: $("clientAddress").value.trim(), clientContact: $("clientContact").value.trim(),
+    items: collectItems(), subtotal: parseFloat($("subtotal").textContent) || 0, gstPercent: parseFloat($("gst").value) || 0,
+    gstAmount: parseFloat($("gstAmount").textContent) || 0, advance: parseFloat($("advance").value) || 0,
+    amount: parseFloat($("final").textContent) || 0,          // stored as BALANCE after advance (existing behaviour)
+    status: $("statusSelect").value, dueDate: $("dueDate").value, terms: $("termsText").value,
+  };
 }
+async function save() {
+  if (saving) return;
+  if (!$("clientName").value.trim()) { setInvalid(true); $("clientName").focus(); toast("Enter the client name.", "error"); return; }
+  if (!calculate()) { $("advance").focus(); toast($("advanceErr").textContent, "error", 6000); return; }
+  saving = true; const btn = $("btn-save"); btn.disabled = true; $("save-label").textContent = "Saving...";
+  try {
+    if (editingId) {
+      await updateDoc(doc(db, "documents", editingId), { ...payload(), updatedAt: new Date().toISOString() });
+      original = { ...original, ...payload() };
+      toast("Invoice updated.", "success");
+    } else {
+      const n = await getNextCounterValue("invoice"); const invNo = "KC-" + String(n).padStart(4, "0");
+      const date = todayISO();
+      const ref = await addDoc(collection(db, "documents"), { type: "Invoice", number: invNo, date, ...payload(), createdAt: new Date().toISOString() });
+      editingId = ref.id; original = { id: ref.id, number: invNo, date, ...payload() };
+      $("invNo").textContent = invNo;
+      history.replaceState(null, "", "?id=" + encodeURIComponent(ref.id));   // refresh now reopens THIS invoice instead of a blank form
+      toast("Invoice " + invNo + " saved.", "success");
+    }
+    dirty = false; setMode();
+  } catch (err) { toast("Could not save invoice: " + errMsg(err), "error", 6000); }
+  finally { saving = false; btn.disabled = false; $("save-label").textContent = editingId ? "Save changes" : "Save invoice"; }
+}
+$("btn-save").addEventListener("click", save);
+$("btn-delete").addEventListener("click", async () => {
+  if (!editingId) return;
+  const ok = await confirmDialog({ title: "Delete invoice?", message: `Delete ${original ? original.number : "this invoice"} permanently? This cannot be undone.`, confirmText: "Delete", danger: true });
+  if (!ok) return;
+  try { await deleteDoc(doc(db, "documents", editingId)); dirty = false; toast("Invoice deleted.", "success"); setTimeout(() => { location.href = "history.html"; }, 600); }
+  catch (err) { toast("Delete failed: " + errMsg(err), "error"); }
+});
+$("btn-share").addEventListener("click", () => {
+  const msg = `Invoice No: ${$("invNo").textContent}\nClient: ${$("clientName").value}\nTotal: \u20B9 ${$("final").textContent}\n- Kanifnath Construction`;
+  window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank", "noopener");
+});
 
+/* ---------- Print: dedicated light A4 document (no screenshots/canvas) ---------- */
+function buildPrint() {
+  const gst = parseFloat($("gst").value) || 0, items = collectItems();
+  const rows = items.map((it, i) => `<tr><td>${i + 1}</td><td class="desc">${esc(it.description)}${(it.l || it.w || it.h) ? `<br><span style="color:#94a3b8;font-size:7.5pt;">L:${it.l} &times; W:${it.w} &times; H:${it.h}</span>` : ""}</td><td class="num">${it.qty.toFixed(2)}</td><td class="num">${it.rate.toFixed(2)}</td><td class="num">${it.amount.toFixed(2)}</td></tr>`).join("") || '<tr><td colspan="5" style="text-align:center;color:#94a3b8;">No items added</td></tr>';
+  const terms = $("termsText").value.trim();
+  const dateIso = original && original.date ? original.date : todayISO();
+  $("print-invoice-doc").innerHTML = `
+    <div class="print-doc-watermark">KANIFNATH CONSTRUCTION</div>
+    <div class="print-doc-header"><div class="print-doc-brand"><img id="print-invoice-logo" data-logo class="print-doc-logo" src="icon-1922.png" alt="">
+      <div><div class="print-doc-company-name">Kanifnath Construction</div><div class="print-doc-company-tag">Labour Supplier &amp; Developer's</div></div></div>
+      <div class="print-doc-contact">Kalewadi, Tal. Daund, Dist. Pune - 413801<br>Mob: 9763739384 / 9325503934<br>Email: kanifnathr.c111@gmail.com<br><strong>GSTIN: 27DHBPC7233L1ZB</strong></div></div>
+    <div class="print-doc-title-bar"><span class="doc-name">Tax Invoice</span></div>
+    <div class="print-doc-meta-grid">
+      <div class="print-doc-meta-box"><div class="box-label">Bill To</div><div class="meta-line"><strong>${esc($("clientName").value || "-")}</strong></div><div class="meta-line">${esc($("siteLocation").value)}</div><div class="meta-line">${esc($("clientAddress").value)}</div><div class="meta-line">${esc($("clientContact").value)}</div></div>
+      <div class="print-doc-meta-box"><div class="box-label">Invoice Details</div><div class="meta-line">Invoice No: <strong>${esc($("invNo").textContent)}</strong></div><div class="meta-line">Date: <strong>${esc(fmtDate(dateIso))}</strong></div><div class="meta-line">Due Date: <strong>${esc($("dueDate").value ? fmtDate($("dueDate").value) : "-")}</strong></div><div class="meta-line">Status: <strong>${esc($("statusSelect").value)}</strong></div></div></div>
+    <table class="print-doc-table"><thead><tr><th style="width:28px;">Sr</th><th class="text-left">Description</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="print-doc-summary-wrap"><div class="print-doc-summary">
+      <div class="row"><span>Subtotal</span><span>&#8377; ${esc($("subtotal").textContent)}</span></div>
+      <div class="row"><span>GST (${gst}%)</span><span>&#8377; ${esc($("gstAmount").textContent)}</span></div>
+      <div class="row"><span>Advance Paid</span><span>&#8377; ${esc($("advance").value || "0")}</span></div>
+      <div class="row grand"><span>Balance Due</span><span>&#8377; ${esc($("final").textContent)}</span></div></div></div>
+    <div class="print-doc-words"><strong>Amount in Words:</strong> ${esc($("amountWords").textContent)}</div>
+    <div class="print-doc-payment"><div class="pay-box"><strong>Payment Information</strong><br>Bank: AXIS BANK &nbsp;|&nbsp; A/C No: 925020056308477 &nbsp;|&nbsp; IFSC: UTIB0001952</div></div>
+    ${terms ? `<div class="print-doc-section"><div class="section-title">Terms &amp; Conditions</div>${esc(terms).replace(/\n/g, "<br>")}</div>` : ""}
+    <div class="print-doc-signature-row"><div class="thanks">Thank you for your valuable business and continued support.</div>
+      <div class="sign-block">For Kanifnath Construction<div class="sign-line"></div>Authorized Signatory</div></div>
+    <div class="print-doc-footer">This is a computer generated invoice &mdash; Kanifnath Construction</div>`;
+}
+function printInvoice() {
+  buildPrint();
+  const logo = $("print-invoice-logo");
+  const go = () => requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+  if (logo && !logo.complete) { let done = false; const fin = () => { if (!done) { done = true; go(); } }; logo.addEventListener("load", fin, { once: true }); logo.addEventListener("error", () => setTimeout(fin, 50), { once: true }); setTimeout(fin, 1500); } else go();
+}
+$("btn-print").addEventListener("click", printInvoice);
+
+init();
 </script>
 </body>
 </html>
