@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dashboard - Kanifnath Construction ERP</title>
+<meta name="theme-color" content="#850D0D">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-1922.png">
+<link rel="apple-touch-icon" href="icon-1922.png">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+<main id="page-content" class="hidden px-3 sm:px-6 py-4 sm:py-6 max-w-[1500px] mx-auto w-full space-y-4 sm:space-y-6">
+
+  <!-- Global search -->
+  <div class="relative">
+    <label for="gsearch" class="sr-only">Search invoices, quotations and labour</label>
+    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted"><i data-icon="search"></i></span>
+    <input id="gsearch" type="search" class="input pl-10" placeholder="Search invoice no, client, site or labour name..." autocomplete="off">
+    <div id="gresults" class="hidden absolute z-30 left-0 right-0 mt-2 card max-h-80 overflow-y-auto p-1" role="listbox"></div>
+  </div>
+
+  <!-- Filters -->
+  <section class="card p-3 sm:p-4" aria-label="Dashboard filters">
+    <div class="grid grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto] gap-3 items-end">
+      <div class="col-span-2 sm:col-span-1"><label class="label" for="f-period">Period</label>
+        <select id="f-period" class="input">
+          <option value="all">All time</option><option value="month">This month</option><option value="30">Last 30 days</option>
+          <option value="fy">This financial year</option><option value="custom">Custom range</option></select></div>
+      <div><label class="label" for="f-from">From</label><input id="f-from" type="date" class="input" disabled></div>
+      <div><label class="label" for="f-to">To</label><input id="f-to" type="date" class="input" disabled></div>
+      <div class="col-span-2 sm:col-span-1"><label class="label" for="f-site">Project / Site</label>
+        <select id="f-site" class="input"><option value="">All sites</option></select></div>
+      <button id="f-reset" type="button" class="btn btn-outline col-span-2 lg:col-span-1"><i data-icon="refresh" data-cls="w-4 h-4"></i>Reset</button>
+    </div>
+    <p id="f-note" class="mt-2 text-[11px] text-muted"></p>
+  </section>
+
+  <div id="error-box" class="hidden card border-red-300 p-4 text-sm text-red-700" role="alert"></div>
+
+  <!-- KPIs -->
+  <section aria-label="Key figures">
+    <div id="kpis" class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4"></div>
+  </section>
+
+  <!-- Collection progress + quick actions -->
+  <section class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+    <div class="card p-4 sm:p-5 xl:col-span-2">
+      <div class="card-title"><i data-icon="trendUp" data-cls="w-4 h-4"></i>Invoice collection</div>
+      <div id="collection" class="space-y-4"></div>
+    </div>
+    <div class="card p-4 sm:p-5">
+      <div class="card-title"><i data-icon="plus" data-cls="w-4 h-4"></i>Quick actions</div>
+      <div class="grid grid-cols-2 gap-2">
+        <a class="btn btn-primary" href="Billing Calculator Page.html"><i data-icon="plus" data-cls="w-4 h-4"></i>Invoice</a>
+        <a class="btn btn-outline" href="quotation.html"><i data-icon="plus" data-cls="w-4 h-4"></i>Quotation</a>
+        <a class="btn btn-outline" href="labour-management.html"><i data-icon="users" data-cls="w-4 h-4"></i>Labour</a>
+        <a class="btn btn-outline" href="history.html"><i data-icon="history" data-cls="w-4 h-4"></i>History</a>
+        <button id="btn-backup" type="button" class="btn btn-outline"><i data-icon="download" data-cls="w-4 h-4"></i>Backup</button>
+        <button id="btn-restore" type="button" class="btn btn-outline"><i data-icon="upload" data-cls="w-4 h-4"></i>Restore</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Charts -->
+  <section class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+    <div class="card p-4 sm:p-5 xl:col-span-2">
+      <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+        <div class="card-title !mb-0"><i data-icon="dashboard" data-cls="w-4 h-4"></i>Monthly revenue vs paid out</div>
+        <div class="flex items-center gap-3 text-[11px] font-semibold text-muted"><span class="inline-flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm bg-brand inline-block"></i>Invoiced</span><span class="inline-flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm bg-slate-400 inline-block"></i>Paid out</span></div>
+      </div>
+      <div id="chart-months" class="min-h-[220px]"></div>
+    </div>
+    <div class="card p-4 sm:p-5">
+      <div class="card-title"><i data-icon="wallet" data-cls="w-4 h-4"></i>Labour paid out by type</div>
+      <div id="chart-breakdown" class="min-h-[220px]"></div>
+    </div>
+  </section>
+
+  <!-- Sites -->
+  <section class="card p-4 sm:p-5">
+    <div class="card-title"><i data-icon="building" data-cls="w-4 h-4"></i>Project / site summary</div>
+    <div id="sites"></div>
+  </section>
+
+  <!-- Recent -->
+  <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="card p-4 sm:p-5 lg:col-span-1">
+      <div class="card-title"><i data-icon="alert" data-cls="w-4 h-4"></i>Alerts</div>
+      <div id="alerts"></div>
+    </div>
+    <div class="card p-4 sm:p-5 lg:col-span-2">
+      <div class="card-title"><i data-icon="rupee" data-cls="w-4 h-4"></i>Recent transactions</div>
+      <div id="recent-tx"></div>
+    </div>
+    <div class="card p-4 sm:p-5 lg:col-span-3">
+      <div class="card-title"><i data-icon="file" data-cls="w-4 h-4"></i>Recent documents</div>
+      <div id="recent-docs"></div>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+import { requireAuth, mountShell, esc, money, moneyShort, fmtDate, todayISO, siteKey, icon, hydrateIcons, toast, errMsg, showModal, confirmDialog, downloadFile, expenseLabel, debounce } from "./js/common.js";
+import { subscribe, buildBackup, restoreFromFile, tsMillis } from "./js/data.js";
+import { computeFinance, invoiceTotal, invoiceStatus, invoicePending, invoiceReceived, isOverdue } from "./js/finance.js";
+
+await requireAuth();
+mountShell({ active: "dashboard", title: "Dashboard" });
+hydrateIcons();
+
+const $ = (id) => document.getElementById(id);
+const today = todayISO();
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let state = { documents: [], labours: [], expenses: [], payments: [], works: [] };
+let ready = new Set(); let failed = false;
+const ALL = ["documents", "labours", "expenses", "payments", "works"];
+
+/* ---------- Filters ---------- */
+function range() {
+  const p = $("f-period").value; const d = new Date();
+  const iso = (x) => new Date(x.getTime() - x.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  if (p === "month") return { from: iso(new Date(d.getFullYear(), d.getMonth(), 1)), to: today };
+  if (p === "30") { const s = new Date(d); s.setDate(s.getDate() - 29); return { from: iso(s), to: today }; }
+  if (p === "fy") { const y = d.getMonth() >= 3 ? d.getFullYear() : d.getFullYear() - 1; return { from: `${y}-04-01`, to: `${y + 1}-03-31` }; }
+  if (p === "custom") return { from: $("f-from").value, to: $("f-to").value };
+  return { from: "", to: "" };
+}
+function populateSites() {
+  const cur = $("f-site").value; const seen = new Map();
+  const add = (s) => { const k = siteKey(s); if (k && !seen.has(k)) seen.set(k, String(s).trim()); };
+  state.documents.forEach((d) => add(d.site)); state.labours.forEach((l) => add(l.site)); state.works.forEach((w) => add(w.site));
+  const opts = [...seen.entries()].sort((a, b) => a[1].localeCompare(b[1]));
+  $("f-site").innerHTML = '<option value="">All sites</option>' + opts.map(([k, n]) => `<option value="${esc(k)}">${esc(n)}</option>`).join("");
+  $("f-site").value = seen.has(cur) ? cur : "";
+}
+["f-period", "f-from", "f-to", "f-site"].forEach((id) => $(id).addEventListener("change", () => {
+  const custom = $("f-period").value === "custom";
+  $("f-from").disabled = $("f-to").disabled = !custom;
+  render();
+}));
+$("f-reset").addEventListener("click", () => { $("f-period").value = "all"; $("f-from").value = $("f-to").value = ""; $("f-from").disabled = $("f-to").disabled = true; $("f-site").value = ""; render(); });
+
+/* ---------- Render helpers ---------- */
+const skeleton = (n, h = "h-24") => Array.from({ length: n }, () => `<div class="skeleton ${h}"></div>`).join("");
+const empty = (msg, ic = "info") => `<div class="py-8 text-center text-sm text-muted flex flex-col items-center gap-2">${icon(ic, "w-6 h-6 opacity-60")}<span>${esc(msg)}</span></div>`;
+
+function animateNumbers(root) {
+  root.querySelectorAll("[data-count]").forEach((el) => {
+    const to = Number(el.dataset.count) || 0, kind = el.dataset.kind || "money";
+    const fmt = (v) => kind === "int" ? Math.round(v).toLocaleString("en-IN") : moneyShort(v);
+    if (reduce || !to) { el.textContent = fmt(to); return; }
+    const t0 = performance.now(), dur = 600;
+    const tick = (t) => { const p = Math.min(1, (t - t0) / dur); el.textContent = fmt(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  });
+}
+function kpiCard({ label, value, kind = "money", ic, tone = "brand", sub = "", href }) {
+  const tones = { brand: "bg-brand-soft text-brand", green: "bg-emerald-100 text-emerald-700", amber: "bg-amber-100 text-amber-700", red: "bg-red-100 text-red-700", blue: "bg-blue-100 text-blue-700", slate: "bg-slate-200 text-slate-700" };
+  const tag = href ? "a" : "div";
+  return `<${tag} ${href ? `href="${href}"` : ""} class="card card-hover p-3 sm:p-4 block">
+    <div class="flex items-start justify-between gap-2"><span class="text-[11px] font-bold uppercase tracking-wide text-muted">${esc(label)}</span>
+    <span class="w-8 h-8 rounded-xl grid place-items-center ${tones[tone]}">${icon(ic, "w-4 h-4")}</span></div>
+    <div class="mt-2 text-xl sm:text-2xl font-extrabold num ${value < 0 ? "text-red-600" : ""}" data-count="${value}" data-kind="${kind}">0</div>
+    <div class="mt-0.5 text-[11px] text-muted truncate">${esc(sub)}</div></${tag}>`;
+}
+
+function renderKpis(r) {
+  const k = r.kpi;
+  $("kpis").innerHTML = [
+    kpiCard({ label: "Revenue (invoiced)", value: k.revenue, ic: "rupee", tone: "brand", sub: `${k.invoiceCount} invoice${k.invoiceCount === 1 ? "" : "s"} · incl. GST` }),
+    kpiCard({ label: "Received", value: k.received, ic: "check", tone: "green", sub: "Invoiced minus pending" }),
+    kpiCard({ label: "Pending amount", value: k.pending, ic: "alert", tone: "amber", sub: k.overdue.length ? `${k.overdue.length} overdue` : "Balance on Pending invoices" }),
+    kpiCard({ label: "Expenses (paid out)", value: k.paidOut, ic: "wallet", tone: "red", sub: "Labour expenses + payments" }),
+    kpiCard({ label: "Estimated profit", value: k.profit, ic: k.profit >= 0 ? "trendUp" : "trendDown", tone: k.profit >= 0 ? "green" : "red", sub: "Excl. materials & other costs" }),
+    kpiCard({ label: "Labour cost (earned)", value: k.labourEarned, ic: "hardhat", tone: "blue", sub: `Payable: ${moneyShort(k.labourPayable)}` }),
+    kpiCard({ label: "Projects / sites", value: k.siteCount, kind: "int", ic: "building", tone: "slate", sub: `${k.activeSites} with active labour` }),
+    kpiCard({ label: "Labour", value: k.labourCount, kind: "int", ic: "users", tone: "slate", sub: `${k.activeLabours} active`, href: "labour-management.html" }),
+    kpiCard({ label: "Quotations", value: k.quotationCount, kind: "int", ic: "quote", tone: "blue", sub: `Value ${moneyShort(k.quotationValue)}`, href: "history.html" }),
+    kpiCard({ label: "Cash position", value: k.cashPosition, ic: "wallet", tone: k.cashPosition >= 0 ? "green" : "red", sub: "Received - paid out" }),
+  ].join("");
+  animateNumbers($("kpis"));
+  hydrateIcons($("kpis"));
+}
+
+function renderCollection(r) {
+  const k = r.kpi; const pct = k.revenue > 0 ? Math.min(100, (k.received / k.revenue) * 100) : 0;
+  if (!k.revenue) { $("collection").innerHTML = empty("No invoices in this period / site."); return; }
+  const bar = (label, val, color) => `<div><div class="flex justify-between text-xs font-semibold mb-1"><span>${label}</span><span class="num">${money(val)}</span></div>
+    <div class="h-2.5 rounded-full bg-subtle overflow-hidden"><div class="h-full rounded-full ${color} origin-left animate-growx" style="width:${k.revenue ? Math.min(100, (val / k.revenue) * 100) : 0}%"></div></div></div>`;
+  $("collection").innerHTML = `<div class="flex items-end justify-between"><div><div class="text-3xl font-extrabold num">${pct.toFixed(0)}%</div><div class="text-xs text-muted">of invoiced amount received</div></div>
+    <div class="text-right text-xs text-muted">Invoiced<div class="text-sm font-bold text-ink num">${money(k.revenue)}</div></div></div>
+    ${bar("Received", k.received, "bg-emerald-500")}${bar("Pending", k.pending, "bg-amber-500")}${bar("Paid out to labour", k.paidOut, "bg-slate-400")}`;
+}
+
+function renderMonths(r) {
+  const max = Math.max(1, ...r.rev, ...r.out);
+  if (!r.rev.some(Boolean) && !r.out.some(Boolean)) { $("chart-months").innerHTML = empty("No transactions in this period.", "dashboard"); return; }
+  const mlabel = (k) => { const [y, m] = k.split("-"); return new Date(+y, +m - 1, 1).toLocaleDateString("en-IN", { month: "short" }) + (r.months.length > 6 ? " " + y.slice(2) : ""); };
+  const cols = r.months.map((m, i) => {
+    const h1 = (r.rev[i] / max) * 100, h2 = (r.out[i] / max) * 100;
+    return `<div class="flex-1 min-w-[34px] flex flex-col items-center gap-1" title="${esc(mlabel(m))}: Invoiced ${esc(money(r.rev[i]))} / Paid out ${esc(money(r.out[i]))}">
+      <div class="h-44 w-full flex items-end justify-center gap-1">
+        <div class="w-3 sm:w-5 rounded-t bg-brand origin-bottom animate-grow" style="height:${h1}%;min-height:${r.rev[i] ? 3 : 0}px"></div>
+        <div class="w-3 sm:w-5 rounded-t bg-slate-400 origin-bottom animate-grow" style="height:${h2}%;min-height:${r.out[i] ? 3 : 0}px"></div></div>
+      <span class="text-[10px] font-semibold text-muted whitespace-nowrap">${esc(mlabel(m))}</span></div>`;
+  }).join("");
+  $("chart-months").innerHTML = `<div class="flex gap-2"><div class="hidden sm:flex flex-col justify-between h-44 text-[10px] text-muted text-right pr-1"><span>${moneyShort(max)}</span><span>${moneyShort(max / 2)}</span><span>0</span></div>
+    <div class="flex-1 overflow-x-auto"><div class="flex gap-1 sm:gap-2 min-w-full" style="min-width:${r.months.length * 40}px">${cols}</div></div></div>`;
+}
+function renderBreakdown(r) {
+  if (!r.breakdown.length) { $("chart-breakdown").innerHTML = empty("No labour expenses or payments yet.", "wallet"); return; }
+  const total = r.breakdown.reduce((s, b) => s + b.value, 0);
+  const colors = ["bg-brand", "bg-blue-500", "bg-emerald-500", "bg-amber-500", "bg-violet-500", "bg-slate-400", "bg-pink-500"];
+  $("chart-breakdown").innerHTML = `<div class="space-y-3">${r.breakdown.slice(0, 7).map((b, i) => `<div>
+    <div class="flex justify-between text-xs font-semibold mb-1"><span class="truncate">${esc(b.label)}</span><span class="num">${money(b.value)} <span class="text-muted">(${((b.value / total) * 100).toFixed(0)}%)</span></span></div>
+    <div class="h-2.5 rounded-full bg-subtle overflow-hidden"><div class="h-full rounded-full ${colors[i % colors.length]} origin-left animate-growx" style="width:${(b.value / total) * 100}%"></div></div></div>`).join("")}</div>`;
+}
+function renderSites(r) {
+  if (!r.siteRows.length) { $("sites").innerHTML = empty("No projects / sites found. Sites appear here when invoices or labour records have a site name.", "building"); return; }
+  $("sites").innerHTML = `<div class="table-wrap"><table class="tbl"><thead><tr><th>Project / site</th><th>Client(s)</th><th class="text-right">Invoiced</th><th class="text-right">Received</th><th class="text-right">Pending</th><th class="text-right">Labour earned</th><th class="text-right">Paid out</th><th class="text-right">Est. profit</th><th class="text-right">Labour</th></tr></thead><tbody>
+    ${r.siteRows.map((s) => `<tr><td class="font-semibold">${esc(s.name)}</td><td class="text-muted max-w-[180px] truncate">${esc(s.clients.slice(0, 2).join(", ") || "-")}</td>
+    <td class="text-right num">${money(s.invoiced, false)}</td><td class="text-right num text-emerald-700">${money(s.received, false)}</td><td class="text-right num text-amber-700">${money(s.pending, false)}</td>
+    <td class="text-right num">${money(s.labourEarned, false)}</td><td class="text-right num">${money(s.paidOut, false)}</td><td class="text-right num font-bold ${s.profit < 0 ? "text-red-600" : ""}">${money(s.profit, false)}</td>
+    <td class="text-right">${s.activeLabours}/${s.labours}</td></tr>`).join("")}</tbody></table></div>
+    <p class="mt-2 text-[11px] text-muted">Sites are grouped by the site name typed on invoices and labour records (case and extra spaces ignored). Profit = invoiced - labour paid out.</p>`;
+}
+function renderAlerts(r) {
+  const od = r.kpi.overdue.slice(0, 5);
+  const pend = r.invoices.filter((d) => invoiceStatus(d) === "Pending").length;
+  let h = "";
+  if (od.length) h += od.map((d) => `<a href="Billing Calculator Page.html?id=${encodeURIComponent(d.id)}" class="flex items-center justify-between gap-2 p-2 rounded-xl hover:bg-subtle"><div class="min-w-0"><div class="text-sm font-semibold truncate">${esc(d.number || "Invoice")} &middot; ${esc(d.client || "-")}</div><div class="text-[11px] text-red-600">Overdue since ${fmtDate(d.dueDate)}</div></div><div class="text-sm font-bold num">${money(d.amount, false)}</div></a>`).join("");
+  h += `<div class="mt-2 p-2 text-xs text-muted">${pend} pending invoice${pend === 1 ? "" : "s"} in this view${r.kpi.overdue.length > 5 ? ` &middot; ${r.kpi.overdue.length} overdue in total` : ""}.</div>`;
+  $("alerts").innerHTML = od.length ? h : `<div class="py-5 text-center text-sm text-muted flex flex-col items-center gap-2">${icon("check", "w-6 h-6 text-emerald-600")}<span>No overdue invoices.</span></div>` + h;
+}
+function renderRecent(r) {
+  const labName = new Map(state.labours.map((l) => [l.id, l.name]));
+  const tx = [
+    ...r.invoices.map((d) => ({ date: d.date, ts: tsMillis(d.createdAt), label: `${d.number || "Invoice"} - ${d.client || "-"}`, kind: "Invoice", amount: invoiceTotal(d), dir: "in", status: invoiceStatus(d) })),
+    ...r.expenses.map((e) => ({ date: e.date, ts: tsMillis(e.createdAt), label: `${labName.get(e.labourId) || "Labour"} - ${expenseLabel(e.type)}`, kind: "Expense", amount: e.amount, dir: "out" })),
+    ...r.payments.map((p) => ({ date: p.date, ts: tsMillis(p.createdAt), label: `${labName.get(p.labourId) || "Labour"} - Payment`, kind: "Payment", amount: p.amount, dir: "out" })),
+  ].sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")) || b.ts - a.ts).slice(0, 8);
+  $("recent-tx").innerHTML = tx.length ? `<ul class="divide-y divide-line">${tx.map((t) => `<li class="flex items-center gap-3 py-2.5">
+    <span class="w-9 h-9 rounded-xl grid place-items-center shrink-0 ${t.dir === "in" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}">${icon(t.dir === "in" ? "trendUp" : "trendDown", "w-4 h-4")}</span>
+    <div class="min-w-0 flex-1"><div class="text-sm font-semibold truncate">${esc(t.label)}</div><div class="text-[11px] text-muted">${fmtDate(t.date)} &middot; ${t.kind}${t.status ? ` &middot; ${esc(t.status)}` : ""}</div></div>
+    <div class="text-sm font-bold num ${t.dir === "in" ? "text-emerald-700" : "text-red-600"}">${t.dir === "in" ? "+" : "-"}${money(t.amount, false)}</div></li>`).join("")}</ul>` : empty("No transactions in this period.", "rupee");
+  const docs = [...r.invoices, ...r.quotations].sort((a, b) => (tsMillis(b.createdAt) || Date.parse(b.date) || 0) - (tsMillis(a.createdAt) || Date.parse(a.date) || 0)).slice(0, 6);
+  $("recent-docs").innerHTML = docs.length ? `<div class="table-wrap"><table class="tbl"><thead><tr><th>Type</th><th>No.</th><th>Client</th><th>Site</th><th>Date</th><th class="text-right">Amount</th><th>Status</th></tr></thead><tbody>
+    ${docs.map((d) => { const inv = d.type === "Invoice"; const href = inv ? "Billing Calculator Page.html" : "quotation.html"; const st = invoiceStatus(d);
+      return `<tr><td><span class="badge ${inv ? "badge-blue" : "badge-gray"}">${esc(d.type)}</span></td><td><a class="font-semibold text-brand hover:underline" href="${href}?id=${encodeURIComponent(d.id)}">${esc(d.number || "-")}</a></td><td>${esc(d.client || "-")}</td><td class="text-muted">${esc(d.site || "-")}</td><td>${fmtDate(d.date)}</td><td class="text-right num">${money(inv ? invoiceTotal(d) : d.amount, false)}</td><td>${inv && st ? `<span class="badge ${st === "Paid" ? "badge-green" : "badge-amber"}">${esc(st)}</span>` : "-"}</td></tr>`; }).join("")}</tbody></table></div>` : empty("No invoices or quotations yet.", "file");
+}
+
+function render() {
+  if (failed) return;
+  const loaded = ALL.every((k) => ready.has(k));
+  if (!loaded) {
+    $("kpis").innerHTML = skeleton(8, "h-[92px]");
+    ["collection", "chart-months", "chart-breakdown", "sites", "alerts", "recent-tx", "recent-docs"].forEach((id) => { $(id).innerHTML = skeleton(2, "h-16 mb-2"); });
+    return;
+  }
+  const { from, to } = range(); const site = $("f-site").value;
+  const r = computeFinance(state, { from, to, site, today });
+  $("f-note").textContent = (from || to ? `Showing ${from ? fmtDate(from) : "start"} to ${to ? fmtDate(to) : "today"}` : "Showing all dates") + (site ? " for the selected site." : " for all sites.") + " Labour headcount is not date-filtered.";
+  renderKpis(r); renderCollection(r); renderMonths(r); renderBreakdown(r); renderSites(r); renderAlerts(r); renderRecent(r);
+  hydrateIcons();
+}
+
+/* ---------- Live data ---------- */
+render();
+subscribe(ALL, (s, rd) => { state = { ...s }; ready = new Set(rd); populateSites(); render(); }, (err) => {
+  failed = true; const b = $("error-box"); b.classList.remove("hidden");
+  b.innerHTML = `<strong>Could not load data.</strong> ${esc(errMsg(err))} <button type="button" class="btn btn-outline btn-sm ml-2" onclick="location.reload()">Retry</button>`;
+  $("kpis").innerHTML = ""; });
+
+/* ---------- Global search (invoices, quotations, labour) ---------- */
+const doSearch = debounce(() => {
+  const q = $("gsearch").value.trim().toLowerCase(); const box = $("gresults");
+  if (q.length < 2) { box.classList.add("hidden"); return; }
+  const hits = [];
+  state.documents.forEach((d) => { if ([d.number, d.client, d.site, d.project].some((x) => String(x || "").toLowerCase().includes(q))) hits.push({ t: d.type, title: `${d.number || "-"} - ${d.client || "-"}`, sub: `${d.site || ""} ${d.date ? "- " + fmtDate(d.date) : ""}`, href: (d.type === "Invoice" ? "Billing Calculator Page.html" : "quotation.html") + "?id=" + encodeURIComponent(d.id) }); });
+  state.labours.forEach((l) => { if ([l.name, l.id, l.site, l.mobile].some((x) => String(x || "").toLowerCase().includes(q))) hits.push({ t: "Labour", title: l.name || l.id, sub: `${l.site || ""} ${l.status ? "- " + l.status : ""}`, href: "labour-management.html?labour=" + encodeURIComponent(l.id) }); });
+  box.innerHTML = hits.length ? hits.slice(0, 10).map((h) => `<a role="option" href="${h.href}" class="flex items-center gap-3 p-2 rounded-xl hover:bg-subtle"><span class="badge badge-gray shrink-0">${esc(h.t)}</span><span class="min-w-0"><span class="block text-sm font-semibold truncate">${esc(h.title)}</span><span class="block text-[11px] text-muted truncate">${esc(h.sub)}</span></span></a>`).join("") : `<div class="p-3 text-sm text-muted">No matches.</div>`;
+  box.classList.remove("hidden");
+}, 150);
+$("gsearch").addEventListener("input", doSearch);
+document.addEventListener("click", (e) => { if (!e.target.closest("#gsearch,#gresults")) $("gresults").classList.add("hidden"); });
+$("gsearch").addEventListener("keydown", (e) => { if (e.key === "Escape") { $("gresults").classList.add("hidden"); $("gsearch").blur(); } });
+
+/* ---------- Backup / restore ---------- */
+$("btn-backup").addEventListener("click", () => {
+  if (!ALL.every((k) => ready.has(k))) { toast("Data is still loading - try again in a moment.", "warning"); return; }
+  downloadFile(`Kanifnath_ERP_Backup_${today}.json`, JSON.stringify(buildBackup(state), null, 2), "application/json");
+  toast("Backup downloaded.", "success");
+});
+$("btn-restore").addEventListener("click", () => {
+  if (!ALL.every((k) => ready.has(k))) { toast("Data is still loading - try again in a moment.", "warning"); return; }
+  const input = document.createElement("input"); input.type = "file"; input.accept = "application/json,.json";
+  input.onchange = () => { const file = input.files[0]; if (file) restoreFromFile(file, state, { confirmDialog, toast, errMsg }); };
+  input.click();
+});
+</script>
+</body>
+</html>

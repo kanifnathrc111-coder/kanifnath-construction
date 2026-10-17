@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Labour Management - Kanifnath Construction ERP</title>
+<meta name="theme-color" content="#850D0D">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-1922.png">
+<link rel="apple-touch-icon" href="icon-1922.png">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="print.css">
+</head>
+<body>
+<main id="page-content" class="hidden px-3 sm:px-6 py-4 sm:py-6 max-w-[1600px] mx-auto w-full space-y-4">
+
+  <!-- Toolbar: view switch + period filter + data tools -->
+  <section class="card p-3 sm:p-4 space-y-3" aria-label="Labour tools">
+    <div class="flex flex-wrap items-end gap-3">
+      <div class="inline-flex rounded-xl border border-line p-1 bg-subtle" role="tablist" aria-label="View">
+        <button type="button" role="tab" id="view-detail" class="btn btn-sm !min-h-[44px] btn-primary" aria-selected="true">Labour detail</button>
+        <button type="button" role="tab" id="view-overview" class="btn btn-sm !min-h-[44px] btn-ghost" aria-selected="false">All labour summary</button>
+      </div>
+      <div class="hidden sm:block flex-1"></div>
+      <div class="grid grid-cols-2 gap-3 w-full sm:w-auto">
+        <div><label class="label" for="p-from">From</label><input id="p-from" type="date" class="input !min-h-[40px] sm:w-40"></div>
+        <div><label class="label" for="p-to">To</label><input id="p-to" type="date" class="input !min-h-[40px] sm:w-40"></div></div>
+      <div class="flex gap-2 w-full sm:w-auto">
+        <button id="p-clear" type="button" class="btn btn-outline btn-sm flex-1 sm:flex-none"><i data-icon="refresh" data-cls="w-4 h-4"></i>Clear period</button>
+        <button id="btn-data" type="button" class="btn btn-outline btn-sm flex-1 sm:flex-none"><i data-icon="database" data-cls="w-4 h-4"></i>Backup</button></div>
+    </div>
+    <p id="period-note" class="hidden text-[11px] text-amber-700"></p>
+  </section>
+
+  <div id="error-box" class="hidden card border-red-300 p-4 text-sm text-red-700" role="alert"></div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-[18rem_minmax(0,1fr)] gap-4 items-start">
+
+    <!-- Labour list -->
+    <aside class="card p-3 sm:p-4 xl:sticky xl:top-20" aria-label="Select labour">
+      <div class="flex items-center justify-between mb-3"><div class="card-title !mb-0"><i data-icon="users" data-cls="w-4 h-4"></i>Select labour</div>
+        <button id="btn-new" type="button" class="btn btn-primary btn-sm"><i data-icon="plus" data-cls="w-4 h-4"></i>New</button></div>
+      <label class="sr-only" for="search-input">Search labour</label>
+      <input id="search-input" type="search" class="input mb-2" placeholder="Search by name or ID..." autocomplete="off">
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <div><label class="sr-only" for="filter-site">Site</label><select id="filter-site" class="input"><option value="">All sites</option></select></div>
+        <div><label class="sr-only" for="filter-status">Status</label><select id="filter-status" class="input"><option value="">All status</option><option>Active</option><option>Inactive</option></select></div>
+      </div>
+      <div id="labour-selector-list" class="space-y-1 max-h-72 xl:max-h-[calc(100vh-18rem)] overflow-y-auto pr-1" role="listbox" aria-label="Labour list"></div>
+    </aside>
+
+    <section class="min-w-0 space-y-4">
+
+      <!-- OVERVIEW -->
+      <div id="overview" class="hidden card p-3 sm:p-5">
+        <div class="card-title"><i data-icon="dashboard" data-cls="w-4 h-4"></i>All labour summary</div>
+        <div id="overview-body"></div>
+      </div>
+
+      <!-- DETAIL -->
+      <div id="detail" class="space-y-4">
+        <div id="detail-anchor"></div>
+
+        <!-- Profile -->
+        <form id="profile-form" class="card p-4 sm:p-5" novalidate>
+          <div class="flex items-center justify-between mb-3 gap-2">
+            <div class="card-title !mb-0"><i data-icon="hardhat" data-cls="w-4 h-4"></i><span id="profile-title">Labour profile</span></div>
+            <span id="profile-status-badge" class="badge badge-green">Active</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-[auto_minmax(0,1fr)] gap-4">
+            <div class="flex sm:flex-col items-center gap-3">
+              <img id="profile-photo-preview" alt="Labour photo" class="w-24 h-24 rounded-full object-cover border-2 border-brand/70 bg-subtle">
+              <label class="btn btn-outline btn-sm cursor-pointer"><i data-icon="camera" data-cls="w-4 h-4"></i>Photo<input id="photo-file-input" type="file" accept="image/*" class="sr-only"></label>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+              <div><label class="label" for="prof-id">Labour ID</label><input id="prof-id" class="input font-mono" readonly></div>
+              <div><label class="label" for="prof-name">Full name *</label><input id="prof-name" class="input" placeholder="Enter full name" autocomplete="off" required></div>
+              <div><label class="label" for="prof-mobile">Mobile *</label><input id="prof-mobile" type="tel" inputmode="tel" class="input" placeholder="10-digit mobile" autocomplete="off" required></div>
+              <div><label class="label" for="prof-site">Site *</label><input id="prof-site" class="input" placeholder="e.g. Site Alpha" autocomplete="off" list="site-list" required><datalist id="site-list"></datalist></div>
+              <div><label class="label" for="prof-date">Joined date *</label><input id="prof-date" type="date" class="input" required></div>
+              <div><label class="label" for="prof-rate">Base rate per m&sup3; (&#8377;)</label><input id="prof-rate" type="number" min="0" step="0.01" inputmode="decimal" class="input" placeholder="0.00"></div>
+              <div><label class="label" for="prof-status">Status</label><select id="prof-status" class="input"><option>Active</option><option>Inactive</option></select></div>
+            </div>
+          </div>
+          <p id="profile-error" class="hidden field-error mt-3" role="alert"></p>
+          <div class="mt-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+            <button type="button" id="btn-delete-labour" class="hidden btn btn-danger-soft"><i data-icon="trash" data-cls="w-4 h-4"></i>Delete labour</button>
+            <button type="submit" id="btn-save-profile" class="btn btn-primary"><i data-icon="save" data-cls="w-4 h-4"></i><span id="save-profile-label">Save profile</span></button>
+          </div>
+        </form>
+
+        <!-- Summary cards -->
+        <div id="summary" class="grid grid-cols-2 lg:grid-cols-5 gap-3"></div>
+
+        <!-- Tabs -->
+        <div class="card p-3 sm:p-5">
+          <div class="flex gap-1 overflow-x-auto border-b border-line mb-4 -mx-1 px-1" role="tablist" aria-label="Labour records">
+            <button type="button" role="tab" class="tab btn btn-sm btn-primary !min-h-[44px]" data-tab="work" aria-selected="true">Work entries</button>
+            <button type="button" role="tab" class="tab btn btn-sm btn-ghost !min-h-[44px]" data-tab="expenses" aria-selected="false">Expenses</button>
+            <button type="button" role="tab" class="tab btn btn-sm btn-ghost !min-h-[44px]" data-tab="payments" aria-selected="false">Payments</button>
+            <button type="button" role="tab" class="tab btn btn-sm btn-ghost !min-h-[44px]" data-tab="reports" aria-selected="false">Reports &amp; slips</button>
+          </div>
+
+          <div id="tab-work" role="tabpanel">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3"><h2 class="text-sm font-bold w-full sm:w-auto">Cubic metre work log</h2>
+              <div class="flex gap-2 w-full sm:w-auto"><button type="button" id="btn-csv" class="btn btn-outline btn-sm"><i data-icon="download" data-cls="w-4 h-4"></i>CSV</button>
+              <button type="button" id="btn-add-work" class="btn btn-primary btn-sm"><i data-icon="plus" data-cls="w-4 h-4"></i>Add work row</button></div></div>
+            <div id="work-head" class="hidden 2xl:grid gap-2 px-1 pb-2 text-[11px] font-bold uppercase tracking-wide text-muted 2xl:grid-cols-[9rem_9rem_minmax(0,1fr)_6rem_6rem_7rem_2.5rem]"><span>Date</span><span>Site</span><span>Description / structure</span><span class="text-right">m&sup3;</span><span class="text-right">Rate</span><span class="text-right">Amount</span><span></span></div>
+            <div id="work-list" class="space-y-3 2xl:space-y-2"></div>
+          </div>
+
+          <div id="tab-expenses" role="tabpanel" class="hidden">
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 p-3 rounded-xl bg-subtle border border-line mb-4">
+              <div><label class="label" for="exp-date">Date</label><input id="exp-date" type="date" class="input"></div>
+              <div><label class="label" for="exp-type">Type</label><select id="exp-type" class="input"><option value="Advance">Advance</option><option value="Bazar">Food</option><option value="Travel">Travel</option><option value="Medical">Medical</option><option value="home">Diesel</option><option value="kharchi">Room Rent</option><option value="Tools">Tools</option><option value="Other">Other</option></select></div>
+              <div><label class="label" for="exp-amount">Amount (&#8377;)</label><input id="exp-amount" type="number" min="0" step="0.01" inputmode="decimal" class="input" placeholder="0.00"></div>
+              <div class="col-span-2 lg:col-span-1"><label class="label" for="exp-remark">Remark</label><input id="exp-remark" class="input" placeholder="Optional notes"></div>
+              <div class="col-span-2 lg:col-span-1 flex items-end"><button type="button" id="btn-save-exp" class="btn btn-primary w-full"><i data-icon="plus" data-cls="w-4 h-4"></i>Save expense</button></div>
+            </div>
+            <div class="table-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Type</th><th>Remark</th><th class="text-right">Amount</th><th class="text-right">Action</th></tr></thead><tbody id="expense-tbody"></tbody></table></div>
+          </div>
+
+          <div id="tab-payments" role="tabpanel" class="hidden">
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 p-3 rounded-xl bg-subtle border border-line mb-4">
+              <div><label class="label" for="pay-date">Date</label><input id="pay-date" type="date" class="input"></div>
+              <div><label class="label" for="pay-mode">Mode</label><select id="pay-mode" class="input"><option value="Cash">Cash</option><option value="UPI">UPI / Online</option><option value="Bank">Bank Transfer</option></select></div>
+              <div><label class="label" for="pay-amount">Amount (&#8377;)</label><input id="pay-amount" type="number" min="0" step="0.01" inputmode="decimal" class="input" placeholder="0.00"></div>
+              <div class="col-span-2 lg:col-span-1"><label class="label" for="pay-remark">Remark / transaction ID</label><input id="pay-remark" class="input" placeholder="Optional details"></div>
+              <div class="col-span-2 lg:col-span-1 flex items-end"><button type="button" id="btn-save-pay" class="btn btn-success w-full"><i data-icon="check" data-cls="w-4 h-4"></i>Save payment</button></div>
+            </div>
+            <div class="table-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Mode</th><th>Remark</th><th class="text-right">Amount</th><th class="text-right">Action</th></tr></thead><tbody id="payment-tbody"></tbody></table></div>
+          </div>
+
+          <div id="tab-reports" role="tabpanel" class="hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div class="card p-4 text-center"><div class="mx-auto w-11 h-11 rounded-xl bg-brand-soft text-brand grid place-items-center"><i data-icon="file" data-cls="w-6 h-6"></i></div><h3 class="mt-2 font-bold text-sm">Labour statement</h3><p class="text-xs text-muted mb-3">Complete work log, expense and payment ledger.</p><button type="button" class="btn btn-primary btn-sm w-full" data-report="full"><i data-icon="print" data-cls="w-4 h-4"></i>Generate report</button></div>
+              <div class="card p-4 text-center"><div class="mx-auto w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 grid place-items-center"><i data-icon="wallet" data-cls="w-6 h-6"></i></div><h3 class="mt-2 font-bold text-sm">Salary settlement slip</h3><p class="text-xs text-muted mb-3">Salary calculation showing the final balance.</p><button type="button" class="btn btn-success btn-sm w-full" data-report="salary"><i data-icon="print" data-cls="w-4 h-4"></i>Salary slip</button></div>
+              <div class="card p-4 text-center"><div class="mx-auto w-11 h-11 rounded-xl bg-amber-100 text-amber-700 grid place-items-center"><i data-icon="rupee" data-cls="w-6 h-6"></i></div><h3 class="mt-2 font-bold text-sm">Expense summary slip</h3><p class="text-xs text-muted mb-3">All advances and itemised expenses.</p><button type="button" class="btn btn-outline btn-sm w-full" data-report="expense"><i data-icon="print" data-cls="w-4 h-4"></i>Expense slip</button></div>
+            </div>
+            <p class="mt-3 text-xs text-muted">Reports use the selected period (From / To) above, or all records when no period is set.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- Printable document (filled by JS just before printing; no screenshots/canvas) -->
+<div id="print-document"></div>
+
+<script type="module">
+import { requireAuth, mountShell, esc, num, money, fmtDate, todayISO, siteKey, toast, errMsg, confirmDialog, showModal, hydrateIcons, icon, csvCell, downloadFile, expenseLabel, numberToWords, amountInWords, debounce } from "./js/common.js";
+import { db, doc, setDoc, deleteDoc } from "./firebase.js";
+import { subscribe, buildBackup, restoreFromFile } from "./js/data.js";
+import { inRange } from "./js/finance.js";
+
+await requireAuth();
+mountShell({ active: "labour", title: "Labour Management" });
+hydrateIcons();
+
+const $ = (id) => document.getElementById(id);
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let state = { labours: [], expenses: [], payments: [], works: [] };
+let ready = new Set(), failed = false, selectedId = null, isNew = false, photo = "", view = "detail", firstLoad = true;
+const drafts = new Map();                 // work rows that exist only on screen until the user types something
+const timers = new Map();                 // per-row debounced autosave
+const ROW_COLS = "2xl:grid-cols-[9rem_9rem_minmax(0,1fr)_6rem_6rem_7rem_2.5rem]";
+
+/* ---------- Helpers ---------- */
+const initials = (n) => (String(n || "L").trim()[0] || "L").toUpperCase();
+const avatarSvg = (n, s = 96) => "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 96 96"><rect width="96" height="96" fill="#850D0D"/><text x="48" y="62" text-anchor="middle" font-family="Arial,sans-serif" font-size="44" font-weight="700" fill="#fff">${esc(initials(n))}</text></svg>`);
+const avatar = (l) => (l && l.photo) || avatarSvg(l && l.name);
+const byId = (id) => state.labours.find((l) => l.id === id);
+const period = () => ({ from: $("p-from").value, to: $("p-to").value });
+const mine = (arr, id) => arr.filter((x) => x.labourId === id);
+const inPeriod = (arr) => { const { from, to } = period(); return arr.filter((x) => inRange(x.date, from, to)); };
+const badgeFor = (s) => (s === "Active" ? "badge-green" : "badge-gray");
+const newId = (p) => p + Date.now() + Math.random().toString(36).slice(2, 6);
+function totalsFor(id) {
+  const works = inPeriod(mine(state.works, id)), exps = inPeriod(mine(state.expenses, id)), pays = inPeriod(mine(state.payments, id));
+  const m3 = works.reduce((s, w) => s + num(w.cubicMeter), 0), earned = works.reduce((s, w) => s + num(w.amount), 0);
+  const expense = exps.reduce((s, e) => s + num(e.amount), 0), paid = pays.reduce((s, p) => s + num(p.amount), 0);
+  return { works, exps, pays, m3, earned, expense, paid, balance: earned - expense - paid };   // existing rule: earned - expenses - payments
+}
+function setView(v) {
+  view = v;
+  $("overview").classList.toggle("hidden", v !== "overview"); $("detail").classList.toggle("hidden", v !== "detail");
+  [["view-detail", "detail"], ["view-overview", "overview"]].forEach(([id, k]) => { const b = $(id); b.className = "btn btn-sm !min-h-[44px] " + (k === v ? "btn-primary" : "btn-ghost"); b.setAttribute("aria-selected", String(k === v)); });
+  if (v === "overview") renderOverview();
+}
+$("view-detail").addEventListener("click", () => setView("detail")); $("view-overview").addEventListener("click", () => setView("overview"));
+
+/* ---------- Labour list ---------- */
+function filteredLabours() {
+  const q = $("search-input").value.trim().toLowerCase(), site = $("filter-site").value, st = $("filter-status").value;
+  return state.labours.filter((l) => (!q || String(l.name || "").toLowerCase().includes(q) || String(l.id || "").toLowerCase().includes(q)) && (!site || siteKey(l.site) === site) && (!st || l.status === st))
+    .sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
+}
+function populateSites() {
+  const cur = $("filter-site").value, seen = new Map();
+  state.labours.forEach((l) => { const k = siteKey(l.site); if (k && !seen.has(k)) seen.set(k, String(l.site).trim()); });
+  const sorted = [...seen.entries()].sort((a, b) => a[1].localeCompare(b[1]));
+  $("filter-site").innerHTML = '<option value="">All sites</option>' + sorted.map(([k, n]) => `<option value="${esc(k)}">${esc(n)}</option>`).join("");
+  $("filter-site").value = seen.has(cur) ? cur : "";
+  $("site-list").innerHTML = sorted.map(([, n]) => `<option value="${esc(n)}"></option>`).join("");
+}
+function renderList() {
+  const el = $("labour-selector-list");
+  if (!ready.has("labours")) { el.innerHTML = Array.from({ length: 4 }, () => '<div class="skeleton h-12"></div>').join(""); return; }
+  const list = filteredLabours();
+  if (!list.length) { el.innerHTML = `<div class="py-6 text-center text-sm text-muted">${state.labours.length ? "No labour matches the filters." : "No labour added yet. Tap New to add the first one."}</div>`; return; }
+  el.innerHTML = list.map((l) => `<button type="button" role="option" aria-selected="${l.id === selectedId}" data-pick="${esc(l.id)}" class="w-full text-left flex items-center gap-3 p-2 rounded-xl border transition duration-150 ${l.id === selectedId ? "border-brand bg-brand-soft" : "border-transparent hover:bg-subtle"}">
+      <img src="${esc(avatar(l))}" alt="" class="w-9 h-9 rounded-full object-cover shrink-0" loading="lazy">
+      <span class="min-w-0 flex-1"><span class="block text-sm font-semibold truncate">${esc(l.name)}</span><span class="block text-[11px] text-muted truncate">${esc(l.id)} | ${esc(l.site)}</span></span>
+      <span class="badge ${badgeFor(l.status)}">${esc(l.status || "-")}</span></button>`).join("");
+}
+$("labour-selector-list").addEventListener("click", (e) => { const b = e.target.closest("[data-pick]"); if (b) { selectLabour(b.dataset.pick, true); } });
+["search-input"].forEach((id) => $(id).addEventListener("input", debounce(renderList, 150)));
+["filter-site", "filter-status"].forEach((id) => $(id).addEventListener("change", () => { renderList(); if (view === "overview") renderOverview(); }));
+
+/* ---------- Select / new / profile ---------- */
+function fillProfile(l) {
+  $("prof-id").value = l.id; $("prof-name").value = l.name || ""; $("prof-mobile").value = l.mobile || ""; $("prof-site").value = l.site || "";
+  $("prof-date").value = l.joinedDate || todayISO(); $("prof-rate").value = l.defaultRate || ""; $("prof-status").value = l.status || "Active";
+  setBadge(l.status || "Active"); photo = l.photo || ""; $("profile-photo-preview").src = avatar(l);
+}
+function setBadge(s) { const b = $("profile-status-badge"); b.textContent = s; b.className = "badge " + badgeFor(s); }
+function selectLabour(id, scroll) {
+  const l = byId(id); if (!l) return;
+  selectedId = id; isNew = false; drafts.clear(); setView("detail"); fillProfile(l); clearProfileError();
+  $("profile-title").textContent = "Labour profile"; $("save-profile-label").textContent = "Save changes"; $("btn-delete-labour").classList.remove("hidden");
+  renderList(); renderRecords(true);
+  if (scroll && window.matchMedia("(max-width:1279px)").matches) $("detail-anchor").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+}
+function genLabourId() { let id; do { id = "KC-LAB-" + Math.floor(1000 + Math.random() * 9000); } while (byId(id)); return id; }
+function createNew(silent) {
+  selectedId = null; isNew = true; drafts.clear(); $("profile-form").reset(); photo = "";
+  $("prof-id").value = genLabourId(); $("prof-date").value = todayISO(); $("prof-status").value = "Active"; setBadge("Active");
+  $("profile-photo-preview").src = avatarSvg("L"); $("profile-title").textContent = "New labour profile"; $("save-profile-label").textContent = "Add labour"; $("btn-delete-labour").classList.add("hidden");
+  clearProfileError(); setView("detail"); renderList(); renderRecords(true);
+  if (!silent) { toast("New profile form ready.", "info"); $("prof-name").focus(); }
+}
+$("btn-new").addEventListener("click", () => createNew(false));
+function clearProfileError() { $("profile-error").classList.add("hidden"); ["prof-name", "prof-mobile", "prof-site", "prof-date"].forEach((i) => $(i).classList.remove("input-invalid")); }
+$("prof-status").addEventListener("change", () => setBadge($("prof-status").value));
+
+/* Photos are downscaled before they are stored in Firestore (documents have a 1 MB limit). */
+$("photo-file-input").addEventListener("change", (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  if (!/^image\//.test(f.type)) { toast("Please choose an image file.", "error"); return; }
+  const fr = new FileReader();
+  fr.onload = () => { const img = new Image(); img.onload = () => {
+      const max = 256, r = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement("canvas");
+      c.width = Math.round(img.width * r); c.height = Math.round(img.height * r); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      photo = c.toDataURL("image/jpeg", 0.8); $("profile-photo-preview").src = photo; };
+    img.onerror = () => toast("Could not read that image.", "error"); img.src = fr.result; };
+  fr.readAsDataURL(f); e.target.value = "";
+});
+$("profile-form").addEventListener("submit", async (e) => {
+  e.preventDefault(); clearProfileError();
+  const name = $("prof-name").value.trim(), mobile = $("prof-mobile").value.trim(), site = $("prof-site").value.trim(), joinedDate = $("prof-date").value;
+  const bad = [["prof-name", name], ["prof-mobile", mobile], ["prof-site", site], ["prof-date", joinedDate]].filter(([, v]) => !v);
+  if (bad.length) { bad.forEach(([i]) => $(i).classList.add("input-invalid")); $(bad[0][0]).focus(); const p = $("profile-error"); p.textContent = "Please fill name, mobile, site and joined date."; p.classList.remove("hidden"); return; }
+  const id = $("prof-id").value, obj = { id, name, mobile, site, joinedDate, defaultRate: parseFloat($("prof-rate").value) || 0, status: $("prof-status").value, photo };
+  const btn = $("btn-save-profile"); btn.disabled = true;
+  try { await setDoc(doc(db, "labours", id), obj); toast(isNew ? "New labour added." : "Labour profile updated.", "success"); selectedId = id; isNew = false;
+    $("save-profile-label").textContent = "Save changes"; $("btn-delete-labour").classList.remove("hidden"); $("profile-title").textContent = "Labour profile"; renderList(); renderRecords(); }
+  catch (err) { toast("Could not save profile: " + errMsg(err), "error", 6000); } finally { btn.disabled = false; }
+});
+$("btn-delete-labour").addEventListener("click", async () => {
+  if (!selectedId) return; const l = byId(selectedId); if (!l) return; const id = selectedId;
+  const w = mine(state.works, id), x = mine(state.expenses, id), p = mine(state.payments, id);
+  const ok = await confirmDialog({ title: "Delete labour?", danger: true, confirmText: "Delete everything", message: `${l.name} (${id}) and ALL linked records will be permanently deleted: ${w.length} work entries, ${x.length} expenses, ${p.length} payments. This cannot be undone. Tip: use a Backup first.` });
+  if (!ok) return;
+  try {
+    // child records first, profile last: if something fails midway the labour still exists and the delete can simply be retried
+    await Promise.all([...w.map((r) => deleteDoc(doc(db, "labourWorks", r.id))), ...x.map((r) => deleteDoc(doc(db, "labourExpenses", r.id))), ...p.map((r) => deleteDoc(doc(db, "labourPayments", r.id)))]);
+    await deleteDoc(doc(db, "labours", id)); toast("Labour record deleted.", "success"); selectedId = null;
+    const rest = filteredLabours().filter((q) => q.id !== id); if (rest.length) selectLabour(rest[0].id); else createNew(true);
+  } catch (err) { toast("Delete failed: " + errMsg(err), "error", 6000); }
+});
+
+/* ---------- Summary + records ---------- */
+function countUp(el, to) {
+  const fmt = (v) => money(v);
+  if (reduce) { el.textContent = fmt(to); return; }
+  const t0 = performance.now(); const tick = (t) => { const p = Math.min(1, (t - t0) / 400); el.textContent = fmt(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(tick); }; requestAnimationFrame(tick);
+}
+function renderSummary(t, animate) {
+  const cards = [["Total m\u00B3", t.m3, "blue", "ruler", false], ["Total earned", t.earned, "brand", "hardhat", true], ["Total expenses", t.expense, "red", "wallet", true], ["Total paid", t.paid, "green", "check", true], ["Remaining balance", t.balance, t.balance >= 0 ? "brand" : "red", "rupee", true]];
+  const tones = { blue: "bg-blue-100 text-blue-700", brand: "bg-brand-soft text-brand", red: "bg-red-100 text-red-700", green: "bg-emerald-100 text-emerald-700" };
+  $("summary").innerHTML = cards.map(([l, v, tone, ic, m], i) => `<div class="card p-3 ${i === 4 ? "col-span-2 lg:col-span-1" : ""}"><div class="flex items-start justify-between gap-2"><span class="text-[11px] font-bold uppercase tracking-wide text-muted">${l}</span><span class="w-8 h-8 rounded-xl grid place-items-center ${tones[tone]}">${icon(ic, "w-4 h-4")}</span></div>
+    <div class="mt-2 text-lg sm:text-xl font-extrabold num ${i === 4 && v < 0 ? "text-red-600" : ""}" data-val="${v}" data-m="${m ? 1 : 0}">${m ? money(v) : v.toFixed(2) + " m\u00B3"}</div></div>`).join("");
+  if (animate && !reduce) $("summary").querySelectorAll("[data-val]").forEach((el) => { if (el.dataset.m === "1") countUp(el, +el.dataset.val); });
+}
+function renderRecords(force) {
+  const disabled = !selectedId;
+  const note = $("period-note"), { from, to } = period();
+  note.classList.toggle("hidden", !(from || to)); note.textContent = (from || to) ? `Period filter active (${from ? fmtDate(from) : "start"} to ${to ? fmtDate(to) : "today"}): lists, totals and reports show only this period. New entries dated outside it will not be visible.` : "";
+  if (disabled) { renderSummary({ m3: 0, earned: 0, expense: 0, paid: 0, balance: 0 }, true); $("work-list").innerHTML = emptyMsg("Save the new labour profile first, then add work, expenses and payments."); $("expense-tbody").innerHTML = rowEmpty("Save the profile first"); $("payment-tbody").innerHTML = rowEmpty("Save the profile first"); return; }
+  const t = totalsFor(selectedId); const rebuilt = renderWork(t.works, force); renderSummary($("work-list").children.length ? liveWorkSummary() : t, force || rebuilt);
+  $("expense-tbody").innerHTML = t.exps.length ? t.exps.slice().sort((a, b) => String(b.date).localeCompare(String(a.date))).map((e) => `<tr><td class="whitespace-nowrap">${fmtDate(e.date)}</td><td><span class="badge badge-red">${esc(expenseLabel(e.type))}</span></td><td>${esc(e.remark || "-")}</td><td class="text-right num font-bold text-red-600">${money(e.amount, false)}</td><td class="text-right"><button type="button" class="btn btn-danger-soft btn-sm btn-icon" data-del-exp="${esc(e.id)}" aria-label="Delete expense">${icon("trash", "w-4 h-4")}</button></td></tr>`).join("") : rowEmpty("No expenses recorded");
+  $("payment-tbody").innerHTML = t.pays.length ? t.pays.slice().sort((a, b) => String(b.date).localeCompare(String(a.date))).map((p) => `<tr><td class="whitespace-nowrap">${fmtDate(p.date)}</td><td><span class="badge badge-green">${esc(p.mode || "-")}</span></td><td>${esc(p.remark || "-")}</td><td class="text-right num font-bold text-emerald-700">${money(p.amount, false)}</td><td class="text-right"><button type="button" class="btn btn-danger-soft btn-sm btn-icon" data-del-pay="${esc(p.id)}" aria-label="Delete payment">${icon("trash", "w-4 h-4")}</button></td></tr>`).join("") : rowEmpty("No payments recorded");
+}
+const rowEmpty = (m) => `<tr><td colspan="5" class="text-center text-muted py-6">${esc(m)}</td></tr>`;
+const emptyMsg = (m) => `<div class="py-8 text-center text-sm text-muted">${esc(m)}</div>`;
+
+/* ---------- Work rows (autosave, no re-render while typing) ---------- */
+function workRowHtml(w) {
+  const v = (x) => esc(x === undefined || x === null ? "" : x);
+  return `<div data-row data-id="${esc(w.id)}" class="rounded-xl border border-line bg-subtle/50 2xl:bg-transparent 2xl:border-0 p-3 2xl:p-0 grid grid-cols-6 gap-2 items-start 2xl:items-center ${ROW_COLS} animate-fade-up">
+    <div class="order-0 col-span-4 2xl:hidden text-xs font-bold text-muted">Work entry</div>
+    <div class="order-0 col-span-2 justify-self-end 2xl:col-span-1 2xl:order-last"><button type="button" data-del-work class="btn btn-danger-soft btn-sm btn-icon" aria-label="Remove work row">${icon("trash", "w-4 h-4")}</button></div>
+    <div class="col-span-6 sm:col-span-3 2xl:col-span-1 order-1"><label class="label 2xl:hidden">Date</label><input type="date" class="input w-date 2xl:!min-h-[40px]" aria-label="Date" value="${esc(w.date)}"></div>
+    <div class="col-span-6 sm:col-span-3 2xl:col-span-1 order-1"><label class="label 2xl:hidden">Site</label><input class="input w-site 2xl:!min-h-[40px]" aria-label="Site" placeholder="Site name" value="${esc(w.site)}"></div>
+    <div class="col-span-6 2xl:col-span-1 order-2"><label class="label 2xl:hidden">Description / structure</label><input class="input w-desc 2xl:!min-h-[40px]" aria-label="Description" placeholder="Description" value="${esc(w.description)}"></div>
+    <div class="col-span-2 2xl:col-span-1 order-3"><label class="label 2xl:hidden">m&sup3;</label><input type="number" min="0" step="0.01" inputmode="decimal" class="input w-m3 2xl:text-right 2xl:!min-h-[40px]" aria-label="Cubic metre" placeholder="0.00" value="${v(w.cubicMeter)}"></div>
+    <div class="col-span-2 2xl:col-span-1 order-3"><label class="label 2xl:hidden">Rate</label><input type="number" min="0" step="0.01" inputmode="decimal" class="input w-rate 2xl:text-right 2xl:!min-h-[40px]" aria-label="Rate" placeholder="0.00" value="${v(w.rate)}"></div>
+    <div class="col-span-2 2xl:col-span-1 order-3"><label class="label 2xl:hidden">Amount</label><div class="w-amt num font-bold min-h-[44px] 2xl:min-h-0 flex items-center 2xl:justify-end">${money(w.amount)}</div></div></div>`;
+}
+let pendingRebuild = false;
+const typingInWork = () => !!(document.activeElement && $("work-list").contains(document.activeElement));
+function renderWork(saved, force) {
+  const ids = new Set(saved.map((w) => w.id)); drafts.forEach((d, id) => { if (ids.has(id)) drafts.delete(id); });
+  const want = saved.map((w) => w.id).concat([...drafts.keys()]);
+  const have = [...$("work-list").children].map((r) => r.dataset.id);
+  const same = !force && have.length === want.length && want.every((id) => have.includes(id));
+  if (same) { syncRows(saved); return false; }                       // same rows: never rebuild (keeps focus + typed text)
+  if (!force && typingInWork()) { pendingRebuild = true; syncRows(saved); return false; }   // rebuild later, when the user leaves the row
+  const rows = saved.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)) || String(a.id).localeCompare(String(b.id))).concat([...drafts.values()]);
+  if (!rows.length) { const d = blankWork(); drafts.set(d.id, d); rows.push(d); }
+  $("work-list").innerHTML = rows.map(workRowHtml).join(""); hydrateIcons($("work-list")); pendingRebuild = false; return true;
+}
+/* Update untouched rows in place when another device changed them. Rows being edited are left alone. */
+function syncRows(saved) {
+  const by = new Map(saved.map((w) => [w.id, w]));
+  [...$("work-list").children].forEach((row) => {
+    const w = by.get(row.dataset.id); if (!w || timers.has(row.dataset.id) || row.contains(document.activeElement)) return;
+    const set = (sel, v) => { const el = row.querySelector(sel); const nv = v === undefined || v === null ? "" : String(v); if (el && el.value !== nv) el.value = nv; };
+    set(".w-date", w.date); set(".w-site", w.site); set(".w-desc", w.description); set(".w-m3", w.cubicMeter); set(".w-rate", w.rate);
+    row.querySelector(".w-amt").textContent = money(w.amount);
+  });
+}
+$("work-list").addEventListener("focusout", () => setTimeout(() => { if (pendingRebuild && !typingInWork()) renderRecords(); }, 0));
+function blankWork() { const l = byId(selectedId) || {}; return { id: newId("work_"), labourId: selectedId, date: todayISO(), site: $("prof-site").value || l.site || "", description: "", cubicMeter: "", rate: $("prof-rate").value || l.defaultRate || "", amount: 0 }; }
+$("btn-add-work").addEventListener("click", () => {
+  if (!selectedId) { toast("Please select or create a labour first.", "warning"); return; }
+  const d = blankWork(); drafts.set(d.id, d); $("work-list").insertAdjacentHTML("beforeend", workRowHtml(d)); hydrateIcons($("work-list")); $("work-list").lastElementChild.querySelector(".w-desc").focus();
+});
+function readRow(row) {
+  const m3 = parseFloat(row.querySelector(".w-m3").value) || 0, rate = parseFloat(row.querySelector(".w-rate").value) || 0;
+  return { id: row.dataset.id, labourId: selectedId, date: row.querySelector(".w-date").value, site: row.querySelector(".w-site").value, description: row.querySelector(".w-desc").value, cubicMeter: m3, rate, amount: Math.round(m3 * rate * 100) / 100 };
+}
+async function saveRow(row) {
+  if (!selectedId || !row.isConnected) return; const obj = readRow(row); const isDraft = drafts.has(obj.id);
+  if (isDraft) obj.createdAt = new Date().toISOString();
+  try { await setDoc(doc(db, "labourWorks", obj.id), obj); drafts.delete(obj.id); timers.delete(obj.id); } catch (err) { toast("Could not save work row: " + errMsg(err), "error", 6000); }
+}
+function liveWorkSummary() {   // totals reflect what is typed right now, before the debounce has saved it
+  const t = totalsFor(selectedId); const rows = [...$("work-list").children]; const ids = new Set(rows.map((r) => r.dataset.id));
+  let m3 = 0, earned = 0; rows.forEach((r) => { const o = readRow(r); m3 += o.cubicMeter; earned += o.amount; });
+  t.works.forEach((w) => { if (!ids.has(w.id)) { m3 += num(w.cubicMeter); earned += num(w.amount); } });
+  t.m3 = m3; t.earned = earned; t.balance = earned - t.expense - t.paid; return t;
+}
+$("work-list").addEventListener("input", (e) => {
+  const row = e.target.closest("[data-row]"); if (!row) return;
+  const o = readRow(row); row.querySelector(".w-amt").textContent = money(o.amount);
+  const t = liveWorkSummary(); const cards = $("summary").querySelectorAll("[data-val]");
+  if (cards.length === 5) { [t.m3, t.earned, t.expense, t.paid, t.balance].forEach((v, i) => { cards[i].dataset.val = v; cards[i].textContent = i === 0 ? v.toFixed(2) + " m\u00B3" : money(v); cards[i].classList.toggle("text-red-600", i === 4 && v < 0); }); }
+  clearTimeout(timers.get(o.id)); timers.set(o.id, setTimeout(() => saveRow(row), 500));
+});
+$("work-list").addEventListener("change", (e) => { const row = e.target.closest("[data-row]"); if (row) { clearTimeout(timers.get(row.dataset.id)); timers.set(row.dataset.id, true); saveRow(row); } });
+$("work-list").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-del-work]"); if (!b) return; const row = b.closest("[data-row]"), id = row.dataset.id;
+  clearTimeout(timers.get(id)); drafts.delete(id); row.remove();
+  if (state.works.some((w) => w.id === id)) { try { await deleteDoc(doc(db, "labourWorks", id)); toast("Work row removed.", "info"); } catch (err) { toast("Delete failed: " + errMsg(err), "error"); } }
+  if (!$("work-list").children.length) renderRecords(true);
+});
+
+/* ---------- Expenses / payments ---------- */
+async function saveSimple(kind) {
+  if (!selectedId) { toast("Please select a labour first.", "warning"); return; }
+  const isExp = kind === "exp", p = isExp ? "exp" : "pay";
+  const amount = parseFloat($(p + "-amount").value), date = $(p + "-date").value;
+  if (!date) { toast("Please choose a date.", "warning"); return; }
+  if (!amount || amount <= 0) { $(p + "-amount").classList.add("input-invalid"); $(p + "-amount").focus(); toast(`Please enter a valid ${isExp ? "expense" : "payment"} amount.`, "warning"); return; }
+  $(p + "-amount").classList.remove("input-invalid");
+  const id = (isExp ? "exp_" : "pay_") + Date.now(); const base = { id, labourId: selectedId, date, amount, remark: $(p + "-remark").value, createdAt: new Date().toISOString() };
+  const obj = isExp ? { ...base, type: $("exp-type").value } : { ...base, mode: $("pay-mode").value };
+  const btn = $(isExp ? "btn-save-exp" : "btn-save-pay"); btn.disabled = true;
+  try { await setDoc(doc(db, isExp ? "labourExpenses" : "labourPayments", id), obj); $(p + "-amount").value = ""; $(p + "-remark").value = ""; toast(isExp ? "Expense entry saved." : "Payment entry saved.", "success"); }
+  catch (err) { toast("Could not save: " + errMsg(err), "error", 6000); } finally { btn.disabled = false; }
+}
+$("btn-save-exp").addEventListener("click", () => saveSimple("exp")); $("btn-save-pay").addEventListener("click", () => saveSimple("pay"));
+$("expense-tbody").addEventListener("click", async (e) => { const b = e.target.closest("[data-del-exp]"); if (!b) return; if (!(await confirmDialog({ title: "Delete expense?", message: "Delete this expense entry?", confirmText: "Delete", danger: true }))) return; try { await deleteDoc(doc(db, "labourExpenses", b.dataset.delExp)); toast("Expense entry deleted.", "info"); } catch (err) { toast("Delete failed: " + errMsg(err), "error"); } });
+$("payment-tbody").addEventListener("click", async (e) => { const b = e.target.closest("[data-del-pay]"); if (!b) return; if (!(await confirmDialog({ title: "Delete payment?", message: "Delete this payment entry?", confirmText: "Delete", danger: true }))) return; try { await deleteDoc(doc(db, "labourPayments", b.dataset.delPay)); toast("Payment entry deleted.", "info"); } catch (err) { toast("Delete failed: " + errMsg(err), "error"); } });
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach((x) => { const on = x === t; x.className = "tab btn btn-sm !min-h-[44px] " + (on ? "btn-primary" : "btn-ghost"); x.setAttribute("aria-selected", String(on)); });
+  ["work", "expenses", "payments", "reports"].forEach((k) => $("tab-" + k).classList.toggle("hidden", k !== t.dataset.tab));
+}));
+
+/* ---------- Overview ---------- */
+function renderOverview() {
+  const b = $("overview-body"); if (!ready.has("labours")) { b.innerHTML = '<div class="skeleton h-40"></div>'; return; }
+  const list = filteredLabours();
+  if (!list.length) { b.innerHTML = emptyMsg("No labour to show."); return; }
+  let T = { m3: 0, earned: 0, expense: 0, paid: 0, balance: 0 };
+  const rows = list.map((l) => { const t = totalsFor(l.id); Object.keys(T).forEach((k) => { T[k] += t[k]; });
+    return `<tr class="cursor-pointer" data-pick="${esc(l.id)}" tabindex="0"><td><div class="flex items-center gap-2"><img src="${esc(avatar(l))}" alt="" class="w-7 h-7 rounded-full object-cover" loading="lazy"><span class="font-semibold">${esc(l.name)}</span></div></td><td class="font-mono text-xs text-muted">${esc(l.id)}</td><td>${esc(l.site)}</td><td><span class="badge ${badgeFor(l.status)}">${esc(l.status || "-")}</span></td><td class="text-right num">${t.m3.toFixed(2)}</td><td class="text-right num">${money(t.earned, false)}</td><td class="text-right num text-red-600">${money(t.expense, false)}</td><td class="text-right num text-emerald-700">${money(t.paid, false)}</td><td class="text-right num font-bold ${t.balance < 0 ? "text-red-600" : ""}">${money(t.balance, false)}</td></tr>`; }).join("");
+  b.innerHTML = `<div class="table-wrap"><table class="tbl"><thead><tr><th>Labour</th><th>ID</th><th>Site</th><th>Status</th><th class="text-right">m&sup3;</th><th class="text-right">Earned</th><th class="text-right">Expenses</th><th class="text-right">Paid</th><th class="text-right">Balance</th></tr></thead><tbody>${rows}</tbody>
+    <tfoot><tr><td colspan="4">Total (${list.length} labour)</td><td class="text-right num">${T.m3.toFixed(2)}</td><td class="text-right num">${money(T.earned, false)}</td><td class="text-right num">${money(T.expense, false)}</td><td class="text-right num">${money(T.paid, false)}</td><td class="text-right num">${money(T.balance, false)}</td></tr></tfoot></table></div>
+    <p class="mt-2 text-[11px] text-muted">Balance = earned - expenses - payments. Respects the site / status filters and the period above. Tap a row to open that labour.</p>`;
+}
+$("overview-body").addEventListener("click", (e) => { const r = e.target.closest("[data-pick]"); if (r) selectLabour(r.dataset.pick, true); });
+$("overview-body").addEventListener("keydown", (e) => { if (e.key === "Enter") { const r = e.target.closest("[data-pick]"); if (r) selectLabour(r.dataset.pick, true); } });
+
+/* ---------- Period filter ---------- */
+["p-from", "p-to"].forEach((id) => $(id).addEventListener("change", () => { renderRecords(true); if (view === "overview") renderOverview(); }));
+$("p-clear").addEventListener("click", () => { $("p-from").value = ""; $("p-to").value = ""; renderRecords(true); if (view === "overview") renderOverview(); });
+
+/* ---------- CSV (work log of the selected labour, for the selected period) ---------- */
+$("btn-csv").addEventListener("click", () => {
+  const l = byId(selectedId); if (!l) { toast("Select a labour first.", "warning"); return; }
+  const works = totalsFor(selectedId).works;
+  const rows = [["Labour ID", "Name", "Date", "Site", "Description", "Cubic Meter", "Rate", "Amount"], ...works.map((w) => [l.id, l.name, w.date, w.site, w.description, w.cubicMeter, w.rate, w.amount])];
+  downloadFile(`${String(l.name).replace(/[^\w-]+/g, "_")}_Work_Report.csv`, rows.map((r) => r.map(csvCell).join(",")).join("\r\n")); toast("CSV exported.", "success");
+});
+
+/* ---------- Backup / restore ---------- */
+$("btn-data").addEventListener("click", () => {
+  const m = showModal({ title: "Labour backup & restore", html: `<p class="text-sm text-muted mb-4">Export all labour data (profiles, work, expenses, payments) as JSON, or restore from a JSON file. Restore writes every record back to its <strong>original id</strong> (no duplicates); existing records with the same id are overwritten and nothing is deleted. Backups from the Dashboard (which also include invoices and quotations) can be restored here too.</p>
+    <div class="space-y-3"><button type="button" class="btn btn-primary w-full" data-export><i data-icon="download" data-cls="w-4 h-4"></i>Export JSON backup</button>
+    <label class="label" for="import-json-file">Restore JSON file</label><input id="import-json-file" type="file" accept="application/json,.json" class="input !py-2">
+    <button type="button" class="btn btn-outline w-full" data-import><i data-icon="upload" data-cls="w-4 h-4"></i>Restore data</button></div>` });
+  hydrateIcons(m.el);
+  m.el.querySelector("[data-export]").onclick = () => { const bk = buildBackup({ documents: [], ...state }); delete bk.documents; downloadFile(`KANIFNATH_LABOUR_BACKUP_${todayISO()}.json`, JSON.stringify(bk, null, 2), "application/json"); toast("Backup exported.", "success"); };
+  m.el.querySelector("[data-import]").onclick = async () => {
+    const f = m.el.querySelector("#import-json-file").files[0]; if (!f) { toast("Please choose a JSON file to restore.", "warning"); return; }
+    const res = await restoreFromFile(f, state, { confirmDialog, toast, errMsg });
+    if (res && !res.failed.length) m.close();
+  };
+});
+
+/* ---------- Reports (dedicated A4 print document) ---------- */
+const rupeesWords = (v) => (v === 0 ? "Zero Rupees Only" : (v < 0 ? "Minus " : "") + amountInWords(Math.abs(v)));
+const f2 = (v) => num(v).toFixed(2);
+function reportHtml(type, t) {
+  const sectionTbl = (title, head, rows, cols) => `<div class="erp-section-title">${title}</div><table class="erp-table"><thead><tr>${head}</tr></thead><tbody>${rows || `<tr><td colspan="${cols}" style="text-align:center;color:#94a3b8;">None recorded</td></tr>`}</tbody></table>`;
+  const sum = (extra) => `<div class="erp-summary-wrapper"><div class="erp-summary-box">
+      <div class="erp-summary-row"><span>Gross Work Earnings:</span><span class="font-mono"><strong>&#8377; ${f2(t.earned)}</strong></span></div>
+      <div class="erp-summary-row deduction"><span>(-) Total Expenses &amp; Advances:</span><span class="font-mono">- &#8377; ${f2(t.expense)}</span></div>
+      <div class="erp-summary-row deduction"><span>(-) Total Direct Salary Payments:</span><span class="font-mono">- &#8377; ${f2(t.paid)}</span></div><div class="erp-summary-divider"></div>
+      <div class="erp-net-balance-card"><span class="erp-net-label">${extra}</span><span class="erp-net-amount ${t.balance >= 0 ? "positive" : "negative"}">&#8377; ${f2(t.balance)}</span></div></div>
+      <div class="erp-words-box"><strong>Amount in Words:</strong> ${esc(rupeesWords(t.balance))}</div></div>`;
+  const expRows = t.exps.map((e) => `<tr><td>${fmtDate(e.date)}</td><td><strong>${esc(expenseLabel(e.type))}</strong></td><td>${esc(e.remark || "-")}</td><td class="text-right font-mono" style="color:#dc2626;">${f2(e.amount)}</td></tr>`).join("");
+  if (type === "full") {
+    const wRows = t.works.map((w) => `<tr><td>${fmtDate(w.date)}</td><td>${esc(w.site)}</td><td>${esc(w.description || "-")}</td><td class="text-right font-mono">${f2(w.cubicMeter)}</td><td class="text-right font-mono">${f2(w.rate)}</td><td class="text-right font-mono">${f2(w.amount)}</td></tr>`).join("");
+    const pRows = t.pays.map((p) => `<tr><td>${fmtDate(p.date)}</td><td><strong>${esc(p.mode || "-")}</strong></td><td>${esc(p.remark || "-")}</td><td class="text-right font-mono" style="color:#2563eb;">${f2(p.amount)}</td></tr>`).join("");
+    return sectionTbl("1. Cubic Meter Work Entries", '<th style="width:12%">Date</th><th style="width:20%">Site</th><th>Description / Structure</th><th class="text-right" style="width:12%">m&sup3;</th><th class="text-right" style="width:12%">Rate</th><th class="text-right" style="width:15%">Amount</th>', wRows, 6)
+      + sectionTbl("2. Expenses &amp; Advance Deductions", '<th style="width:15%">Date</th><th style="width:20%">Type</th><th>Remark / Purpose</th><th class="text-right" style="width:20%">Amount</th>', expRows, 4)
+      + sectionTbl("3. Direct Payment Transactions", '<th style="width:15%">Date</th><th style="width:20%">Mode</th><th>Reference / Remark</th><th class="text-right" style="width:20%">Amount Paid</th>', pRows, 4) + sum("NET PAYABLE BALANCE");
+  }
+  if (type === "salary") return `<div class="erp-section-title">Salary Settlement Breakdown</div>` + sum("FINAL NET PAYABLE AMOUNT");
+  return sectionTbl("Itemized Expenses &amp; Advances Log", '<th style="width:15%">Date</th><th style="width:25%">Category / Type</th><th>Remark / Detail</th><th class="text-right" style="width:25%">Amount</th>', expRows, 4)
+    + `<div class="erp-summary-wrapper"><div class="erp-net-balance-card" style="background:#fff;border:1.5px solid #dc2626;"><span class="erp-net-label" style="color:#dc2626;">TOTAL EXPENSE AMOUNT</span><span class="erp-net-amount negative">&#8377; ${f2(t.expense)}</span></div><div class="erp-words-box"><strong>Amount in Words:</strong> ${esc(rupeesWords(t.expense))}</div></div>`;
+}
+function generateReport(type) {
+  const l = byId(selectedId); if (!l) { toast("Please select a labour profile first.", "warning"); return; }
+  const t = totalsFor(selectedId), { from, to } = period();
+  const titles = { full: "COMPLETE LABOUR STATEMENT", salary: "SALARY SETTLEMENT SLIP", expense: "EXPENSE & ADVANCE STATEMENT" };
+  const printDate = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+  $("print-document").innerHTML = `
+    <div class="erp-watermark">KANIFNATH CONSTRUCTION</div>
+    <table class="erp-header-table"><tr>
+      <td style="width:80px;vertical-align:top;"><img id="print-logo" data-logo src="icon-1922.png" class="erp-brand-logo" alt=""></td>
+      <td style="vertical-align:top;padding-left:6px;"><h1 class="erp-company-name">KANIFNATH CONSTRUCTION</h1><p class="erp-company-tagline">Labour Supplier &amp; Developers</p>
+        <p class="erp-company-subtext">Kalewadi, Tal. Daund, Dist. Pune - 413801<br>Contact: +91 9325503934 / 9763739384 | Email: kanifnathr.c111@gmail.com<br><strong>GSTIN: 27DHBPC7233L1ZB</strong></p></td>
+      <td style="vertical-align:top;text-align:right;width:230px;"><h2 class="erp-doc-title">${titles[type]}</h2><div class="erp-meta-badge">
+        <div class="erp-meta-line"><strong>Statement No:</strong> ${esc(`KC/LAB/${l.id}/${String(Date.now()).slice(-4)}`)}</div><div class="erp-meta-line"><strong>Print Date:</strong> ${printDate}</div>
+        <div class="erp-meta-line"><strong>Period:</strong> ${from || to ? `${from ? fmtDate(from) : "Start"} - ${to ? fmtDate(to) : "Today"}` : "All records"}</div></div></td></tr></table>
+    <div class="erp-profile-card"><table class="erp-profile-grid">
+      <tr><td class="erp-profile-avatar-td" rowspan="3"><img id="print-photo" src="${esc(avatar(l))}" class="erp-profile-photo" alt=""></td><td class="lbl">Labour Name:</td><td class="val">${esc(l.name)}</td><td class="lbl">Site Name:</td><td class="val">${esc(l.site)}</td></tr>
+      <tr><td class="lbl">Labour ID:</td><td class="val">${esc(l.id)}</td><td class="lbl">Joined Date:</td><td class="val">${esc(fmtDate(l.joinedDate))}</td></tr>
+      <tr><td class="lbl">Mobile No:</td><td class="val">${esc(l.mobile)}</td><td class="lbl">Base Rate/m&sup3;:</td><td class="val">&#8377; ${f2(l.defaultRate)}</td></tr></table></div>
+    ${reportHtml(type, t)}
+    <table class="erp-signatures-table"><tr><td><div class="erp-sign-line"></div><div class="erp-sign-title">Employee Signature</div></td><td><div class="erp-sign-line"></div><div class="erp-sign-title">Site Supervisor</div></td><td><div class="erp-seal-circle">COMPANY<br>SEAL</div><div class="erp-sign-title">Company Seal</div></td><td><div class="erp-sign-line"></div><div class="erp-sign-title">Authorized Signatory</div></td></tr></table>
+    <div style="text-align:center;margin-top:18px;font-size:8.5pt;font-style:italic;color:#64748b;border-top:1px dashed #cbd5e1;padding-top:8px;">Thank you for your hard work and dedication to Kanifnath Construction projects!</div>
+    <table class="erp-footer-table"><tr><td style="text-align:left;">Generated by <strong>KANIFNATH CONSTRUCTION ERP</strong></td><td style="text-align:right;">Confidential Company Document</td></tr></table>`;
+  const logo = $("print-logo"), go = () => requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+  if (logo && !logo.complete) { let done = false; const fin = () => { if (!done) { done = true; go(); } }; logo.addEventListener("load", fin, { once: true }); logo.addEventListener("error", () => setTimeout(fin, 50), { once: true }); setTimeout(fin, 1500); } else go();
+}
+document.querySelectorAll("[data-report]").forEach((b) => b.addEventListener("click", () => generateReport(b.dataset.report)));
+
+/* ---------- Live data ---------- */
+$("exp-date").value = $("pay-date").value = todayISO(); renderList(); renderRecords();
+const urlLabour = new URLSearchParams(location.search).get("labour");
+subscribe(["labours", "expenses", "payments", "works"], (s, rd) => {
+  state = { ...s }; ready = new Set(rd); populateSites(); renderList();
+  if (!["labours", "expenses", "payments", "works"].every((k) => rd.has(k))) return;
+  if (firstLoad) {
+    firstLoad = false;
+    if (urlLabour && byId(urlLabour)) selectLabour(urlLabour, true);
+    else if (state.labours.length) selectLabour(filteredLabours()[0].id);
+    else createNew(true);
+    return;
+  }
+  if (selectedId && !byId(selectedId)) { const f = filteredLabours()[0]; if (f) selectLabour(f.id); else createNew(true); return; }
+  if (view === "overview") renderOverview();
+  renderRecords();   // reconciles in place; never rebuilds rows the user is typing in
+}, (err) => { failed = true; const b = $("error-box"); b.classList.remove("hidden"); b.innerHTML = `<strong>Could not load labour data.</strong> ${esc(errMsg(err))} <button type="button" class="btn btn-outline btn-sm ml-2" onclick="location.reload()">Retry</button>`; $("labour-selector-list").innerHTML = ""; });
+</script>
+</body>
+</html>

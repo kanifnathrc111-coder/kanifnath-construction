@@ -1,0 +1,16 @@
+{
+  "name": "Kanifnath Construction ERP",
+  "short_name": "Kanifnath",
+  "description": "Billing, quotations, labour and project management for Kanifnath Construction",
+  "id": "./index.html",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#850D0D",
+  "background_color": "#ffffff",
+  "icons": [
+    { "src": "icon-1922.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-5122.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

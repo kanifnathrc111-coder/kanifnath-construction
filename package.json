@@ -1,0 +1,13 @@
+{
+  "name": "kanifnath-construction-erp",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Kanifnath Construction ERP - static HTML + Firebase app styled with Tailwind CSS",
+  "scripts": {
+    "build:css": "tailwindcss -c tailwind.config.js -i src/input.css -o assets/app.css --minify",
+    "watch:css": "tailwindcss -c tailwind.config.js -i src/input.css -o assets/app.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}

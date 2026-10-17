@@ -1,0 +1,72 @@
+rules_version = '2';
+// Kanifnath Construction ERP - Firestore Security Rules
+// STATUS: PROPOSED. NOT deployed. NOT tested against a live project or the emulator (neither was available when this was written).
+//
+// BEFORE PUBLISHING:
+//  1. Replace BOTH placeholder UIDs with the real UIDs of your staff accounts
+//     (Firebase Console > Authentication > Users > "User UID"). Remove the second line if you only have one user.
+//     Publishing with placeholders locks everybody out (the app stops loading data).
+//  2. Firebase Console > Firestore Database > Rules > paste > Publish.
+//  3. Rules Playground: a signed-out read must be DENIED; a read as a staff UID must be ALLOWED; a read as any other UID DENIED.
+//  4. Open the app, create + edit + delete a test invoice, save a quotation, add a labour work/expense/payment, run a backup restore.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isStaff() {
+      return request.auth != null && request.auth.uid in [
+        "REPLACE_WITH_OWNER_UID",
+        "REPLACE_WITH_SECOND_STAFF_UID"
+      ];
+    }
+    function isInt(v) { return v is int || v is float; }
+
+    // ---- Invoices and quotations ----
+    // type and number can never change after creation (an Invoice cannot become a Quotation, numbers cannot be rewritten).
+    match /documents/{id} {
+      allow read: if isStaff();
+      allow create: if isStaff()
+        && request.resource.data.type in ["Invoice", "Quotation"]
+        && request.resource.data.number is string;
+      allow update: if isStaff()
+        && request.resource.data.type == resource.data.type
+        && request.resource.data.number == resource.data.number;
+      allow delete: if isStaff();
+    }
+
+    // ---- Number counters (invoice, quotation) ----
+    // Only these two counters, integer values, can only go UP (restores raise them to the highest restored number),
+    // a single step may not jump by more than 100000, and they can never be deleted or reset.
+    match /counters/{name} {
+      allow read: if isStaff();
+      allow create: if isStaff() && name in ["invoice", "quotation"]
+        && isInt(request.resource.data.value) && request.resource.data.value >= 0 && request.resource.data.value <= 100000;
+      allow update: if isStaff() && name in ["invoice", "quotation"]
+        && isInt(request.resource.data.value)
+        && request.resource.data.value >= resource.data.value
+        && request.resource.data.value <= resource.data.value + 100000;
+      allow delete: if false;
+    }
+
+    // ---- Labour ----
+    match /labours/{id} { allow read, write: if isStaff(); }
+    // Child records must name the labour they belong to and cannot be re-assigned to another labour.
+    match /labourWorks/{id} {
+      allow read, delete: if isStaff();
+      allow create: if isStaff() && request.resource.data.labourId is string && request.resource.data.labourId.size() > 0;
+      allow update: if isStaff() && request.resource.data.labourId == resource.data.labourId;
+    }
+    match /labourExpenses/{id} {
+      allow read, delete: if isStaff();
+      allow create: if isStaff() && request.resource.data.labourId is string && request.resource.data.labourId.size() > 0;
+      allow update: if isStaff() && request.resource.data.labourId == resource.data.labourId;
+    }
+    match /labourPayments/{id} {
+      allow read, delete: if isStaff();
+      allow create: if isStaff() && request.resource.data.labourId is string && request.resource.data.labourId.size() > 0;
+      allow update: if isStaff() && request.resource.data.labourId == resource.data.labourId;
+    }
+
+    // ---- Everything else is closed ----
+    match /{document=**} { allow read, write: if false; }
+  }
+}

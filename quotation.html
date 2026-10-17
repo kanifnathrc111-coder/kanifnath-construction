@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quotation - Kanifnath Construction ERP</title>
+<meta name="theme-color" content="#850D0D">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-1922.png">
+<link rel="apple-touch-icon" href="icon-1922.png">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="print.css">
+</head>
+<body>
+<main id="page-content" class="hidden px-3 sm:px-6 py-4 sm:py-6 max-w-6xl mx-auto w-full space-y-4">
+
+  <div id="load-state" class="hidden card p-6 text-center text-sm"></div>
+
+  <div id="editor" class="space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0"><span id="mode-badge" class="badge badge-blue whitespace-nowrap shrink-0">New quotation</span><span id="mode-note" class="text-xs text-muted truncate"></span></div>
+      <a id="new-link" href="quotation.html" class="hidden btn btn-outline btn-sm"><i data-icon="plus" data-cls="w-4 h-4"></i>New quotation</a>
+    </div>
+
+    <div class="card p-2 sm:p-3 flex flex-wrap items-center gap-2 sm:sticky sm:top-[68px] z-10" role="toolbar" aria-label="Quotation actions">
+      <button type="button" id="btn-add" class="btn btn-primary btn-sm"><i data-icon="plus" data-cls="w-4 h-4"></i>Add item</button>
+      <button type="button" id="btn-lwh" class="btn btn-outline btn-sm" aria-pressed="true"><i data-icon="ruler" data-cls="w-4 h-4"></i>L/W/H</button>
+      <button type="button" id="btn-amt" class="btn btn-outline btn-sm" aria-pressed="true"><i data-icon="rupee" data-cls="w-4 h-4"></i>Amount</button>
+      <button type="button" id="btn-gst" class="btn btn-outline btn-sm" aria-pressed="true">GST 18%</button>
+      <div class="flex-1"></div>
+      <button type="button" id="btn-print" class="btn btn-outline btn-sm"><i data-icon="print" data-cls="w-4 h-4"></i><span class="hidden sm:inline">Print / PDF</span><span class="sm:hidden">Print</span></button>
+      <button type="button" id="btn-delete" class="hidden btn btn-danger-soft btn-sm"><i data-icon="trash" data-cls="w-4 h-4"></i><span class="hidden sm:inline">Delete</span></button>
+      <button type="button" id="btn-save" class="btn btn-primary btn-sm"><i data-icon="save" data-cls="w-4 h-4"></i><span id="save-label">Save quotation</span></button>
+    </div>
+
+    <section class="card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <img data-logo src="icon-1922.png" alt="Kanifnath Construction logo" class="w-16 h-16 rounded-xl border border-line object-cover bg-white">
+        <div class="min-w-0"><div class="text-lg font-extrabold text-brand tracking-wide">KANIFNATH CONSTRUCTION</div>
+          <div class="text-xs text-muted font-semibold">Labour Supplier &amp; Developers</div>
+          <label class="sr-only" for="docTitle">Document title</label>
+          <input id="docTitle" value="QUOTATION" maxlength="40" class="mt-2 w-52 max-w-full rounded-lg bg-brand-soft text-brand text-xs font-bold tracking-wide px-3 py-2 min-h-[40px] border border-line focus:ring-2 focus:ring-brand/40 focus:outline-none" title="Document title (editable, shown on the printout)"></div>
+      </div>
+      <div class="text-xs text-muted leading-relaxed sm:text-right">Kalewadi, Tal. Daund, Dist. Pune - 413801<br>Mob: 9763739384 / 9325503934<br><strong class="text-ink">GSTIN: 27DHBPC7233L1ZB</strong></div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="card p-4 sm:p-5">
+        <div class="card-title"><i data-icon="users" data-cls="w-4 h-4"></i>Client &amp; project</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div><label class="label" for="qClient">Client *</label><input id="qClient" class="input" placeholder="Client name" autocomplete="off" aria-describedby="qClientErr"><div id="qClientErr" class="field-error hidden">Client name is required.</div></div>
+          <div><label class="label" for="qSite">Site</label><input id="qSite" class="input" placeholder="Project / site location" autocomplete="off"></div>
+        </div>
+      </div>
+      <div class="card p-4 sm:p-5">
+        <div class="card-title"><i data-icon="file" data-cls="w-4 h-4"></i>Quotation details</div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div><label class="label" for="qno">Quote no.</label><input id="qno" class="input font-semibold" readonly></div>
+          <div><label class="label" for="qdate">Date</label><input id="qdate" type="date" class="input"></div>
+          <div><label class="label" for="qValidity">Validity</label><input id="qValidity" class="input" value="7 Days"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card p-4 sm:p-5">
+      <div class="card-title"><i data-icon="invoice" data-cls="w-4 h-4"></i>Quotation items</div>
+            <div id="items" class="space-y-3"></div>
+      <button type="button" id="btn-add2" class="btn btn-outline w-full mt-3"><i data-icon="plus" data-cls="w-4 h-4"></i>Add another item</button>
+    </section>
+
+    <section id="summaryBox" class="card p-4 sm:p-5 sm:max-w-md sm:ml-auto w-full">
+      <div class="card-title"><i data-icon="rupee" data-cls="w-4 h-4"></i>Summary</div>
+      <dl class="space-y-2 text-sm">
+        <div class="flex justify-between"><dt>Total qty</dt><dd class="num font-semibold" id="sumQty">0</dd></div>
+        <div class="flex justify-between"><dt>Sub total</dt><dd class="num font-semibold">&#8377; <span id="subTotal">0.00</span></dd></div>
+        <div id="gstSection" class="flex justify-between"><dt>GST 18%</dt><dd class="num font-semibold">&#8377; <span id="gstAmt">0.00</span></dd></div>
+        <div class="flex justify-between items-center pt-3 border-t border-line text-base font-extrabold text-brand"><dt>Grand total</dt><dd class="num text-xl">&#8377; <span id="finalTotal">0.00</span></dd></div>
+      </dl>
+    </section>
+
+    <section class="card p-4 sm:p-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div><label class="card-title" for="scopeText"><i data-icon="building" data-cls="w-4 h-4"></i>Scope of work</label>
+        <textarea id="scopeText" class="input resize-y" rows="4">Supply and installation of gabion boxes including tying, placement and filling with stone material as per site requirements.</textarea></div>
+      <div><label class="card-title" for="specsText"><i data-icon="ruler" data-cls="w-4 h-4"></i>Technical specifications</label>
+        <textarea id="specsText" class="input resize-y" rows="4">GI Hexagonal Double Twisted Mesh
+Wire Diameter: 4.00 mm Zinc Coated
+Mesh Opening: 100 x 120 mm
+Stone Size: 100 mm - 200 mm
+Binding Wire: 2.20 mm</textarea></div>
+      <div><label class="card-title" for="termsText"><i data-icon="file" data-cls="w-4 h-4"></i>Terms &amp; conditions</label>
+        <textarea id="termsText" class="input resize-y" rows="4">Quotation validity: 7 days
+GST extra as applicable
+Transportation extra if required
+Work completion depends on site conditions</textarea></div>
+      <div><label class="card-title" for="paymentText"><i data-icon="wallet" data-cls="w-4 h-4"></i>Payment terms</label>
+        <textarea id="paymentText" class="input resize-y" rows="4">20% advance before starting work
+50% after material delivery
+Balance after completion</textarea></div>
+    </section>
+
+    <section class="card p-4 sm:p-5 grid sm:grid-cols-2 gap-4 text-xs text-muted">
+      <div>Thank you for giving us the opportunity to quote for your project. We look forward to serving you.</div>
+      <div class="sm:text-right"><strong class="text-ink">For Kanifnath Construction</strong><br><br>Authorized Signatory</div>
+    </section>
+  </div>
+</main>
+
+<div id="print-quotation-doc"></div>
+
+<script type="module">
+import { quotationTotals, toPaise } from "./js/finance.js";
+import { requireAuth, mountShell, esc, fmtDate, todayISO, toast, errMsg, confirmDialog, hydrateIcons, icon } from "./js/common.js";
+import { db, doc, getDoc, collection, addDoc, updateDoc, deleteDoc, getNextCounterValue } from "./firebase.js";
+
+await requireAuth();
+mountShell({ active: "quotation", title: "Quotation" });
+hydrateIcons();
+
+const $ = (id) => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+let editingId = params.get("id") || null, original = null;
+let dirty = false, saving = false, lwhOn = true, amtOn = true, gstOn = true;
+
+/* ---------- Rows ---------- */
+function layoutHead() { /* column headings are not needed: every field carries its own label */ }
+const autosize = (t) => { t.style.height = "auto"; t.style.height = Math.max(44, t.scrollHeight + 2) + "px"; };
+function rowHtml(it = {}) {
+  const v = (x, d = "") => esc(x === undefined || x === null ? d : x);
+  const qty = v(it.qty, "");
+  const f = (cls, label, inner) => `<div class="${cls}"><label class="label">${label}</label>${inner}</div>`;
+  const num = (c, label, val) => `<input type="number" min="0" step="any" inputmode="decimal" class="input ${c}" aria-label="${label}" value="${val}">`;
+  return `<div data-row class="rounded-xl border border-line bg-surface p-3 sm:p-4 space-y-3 animate-fade-up">
+    <div class="flex items-start gap-3">
+      <span data-sr class="shrink-0 mt-6 w-8 h-8 rounded-full bg-brand-soft text-brand text-sm font-bold grid place-items-center" aria-hidden="true"></span>
+      <div class="flex-1 min-w-0"><label class="label">Work description</label><textarea rows="1" class="input desc !min-h-[44px] resize-none leading-snug py-2.5" placeholder="Describe the work item..." aria-label="Work description">${esc(v(it.description ?? it.desc))}</textarea></div>
+      <button type="button" data-del class="btn btn-danger-soft btn-sm btn-icon mt-5 shrink-0" aria-label="Remove item">${icon("trash", "w-4 h-4")}</button>
+    </div>
+    <div class="grid grid-cols-2 min-[480px]:grid-cols-3 md:grid-cols-4 xl:grid-cols-7 gap-3 sm:pl-11">
+      ${["l", "w", "h"].map((k) => f(`${lwhOn ? "" : "hidden"}`, k.toUpperCase(), num(k, k.toUpperCase(), it[k] === 0 ? "" : v(it[k]))).replace("<div class=", "<div data-lwh class=")).join("")}
+      ${f("", "Qty", num("qty text-right", "Quantity", qty))}
+      ${f("", "Unit", `<input class="input unit" aria-label="Unit" value="${esc(v(it.unit, "Cum"))}">`)}
+      ${f(amtOn ? "" : "hidden", "Rate", num("rate text-right", "Rate", v(it.rate, ""))).replace("<div class=", "<div data-amt class=")}
+      ${f(amtOn ? "" : "hidden", "Amount (&#8377;)", `<div class="min-h-[44px] rounded-xl bg-subtle border border-line px-3 flex items-center justify-end"><span class="amt num font-bold">0.00</span></div>`).replace("<div class=", "<div data-amt class=")}
+    </div>
+  </div>`;
+}
+function addRow(it) {
+  $("items").insertAdjacentHTML("beforeend", rowHtml(it));
+  const row = $("items").lastElementChild; const q = row.querySelector(".qty");
+  // a saved qty that differs from L*W*H was typed manually - keep it manual
+  const l = +it?.l || 0, w = +it?.w || 0, h = +it?.h || 0;
+  if (it && it.qty != null && !(l && w && h && Math.abs(it.qty - l * w * h) < 0.001)) q.dataset.manual = "true";
+  hydrateIcons(row); const dt = row.querySelector(".desc"); autosize(dt); update();
+}
+$("items").addEventListener("input", (e) => { if (e.target.classList && e.target.classList.contains("desc")) autosize(e.target); });
+function rebuildRows() { const items = collectItems(true); $("items").innerHTML = ""; items.forEach(addRow); layoutHead(); }
+
+/* ---------- Calculations (unchanged: GST fixed at 18%) ---------- */
+function update() {
+  let sub = 0, qtyTotal = 0;
+  [...$("items").children].forEach((r, i) => {
+    r.querySelector("[data-sr]").textContent = i + 1;
+    const l = parseFloat(r.querySelector(".l").value) || 0, w = parseFloat(r.querySelector(".w").value) || 0, h = parseFloat(r.querySelector(".h").value) || 0;
+    const qi = r.querySelector(".qty");
+    if (l && w && h && !qi.dataset.manual) qi.value = (l * w * h).toFixed(3);
+    const q = parseFloat(qi.value) || 0, rate = parseFloat(r.querySelector(".rate").value) || 0, amt = toPaise(q * rate) / 100;
+    r.querySelector(".amt").textContent = amt.toFixed(2); sub += toPaise(amt); qtyTotal += q;
+  });
+  const qt = quotationTotals(sub / 100, gstOn); sub = qt.subtotal; const gst = qt.gstAmount;
+  $("sumQty").textContent = qtyTotal.toFixed(3); $("subTotal").textContent = sub.toFixed(2); $("gstAmt").textContent = gst.toFixed(2); $("finalTotal").textContent = qt.total.toFixed(2);
+}
+function collectItems(raw = false) {
+  return [...$("items").children].map((r) => ({
+    description: r.querySelector(".desc").value || "", l: parseFloat(r.querySelector(".l").value) || 0, w: parseFloat(r.querySelector(".w").value) || 0, h: parseFloat(r.querySelector(".h").value) || 0,
+    qty: raw ? r.querySelector(".qty").value : (parseFloat(r.querySelector(".qty").value) || 0), unit: r.querySelector(".unit").value || "",
+    rate: raw ? r.querySelector(".rate").value : (parseFloat(r.querySelector(".rate").value) || 0), amount: parseFloat(r.querySelector(".amt").textContent) || 0,
+  }));
+}
+
+/* ---------- Events ---------- */
+$("items").addEventListener("input", (e) => { if (!e.target.closest("[data-row]")) return; dirty = true; if (e.target.classList.contains("qty")) e.target.dataset.manual = "true"; update(); });
+$("items").addEventListener("click", (e) => { const b = e.target.closest("[data-del]"); if (!b) return; b.closest("[data-row]").remove(); dirty = true; if (!$("items").children.length) addRow(); update(); });
+["qClient", "qSite", "qdate", "qValidity", "docTitle", "scopeText", "specsText", "termsText", "paymentText"].forEach((id) => $(id).addEventListener("input", () => { dirty = true; if (id === "qClient") setInvalid(false); }));
+$("btn-add").addEventListener("click", () => { addRow(); dirty = true; $("items").lastElementChild.querySelector(".desc").focus(); });
+$("btn-add2").addEventListener("click", () => $("btn-add").click());
+$("btn-lwh").addEventListener("click", () => { lwhOn = !lwhOn; $("btn-lwh").setAttribute("aria-pressed", String(lwhOn)); rebuildRows(); });
+$("btn-amt").addEventListener("click", () => { amtOn = !amtOn; dirty = true; $("btn-amt").setAttribute("aria-pressed", String(amtOn)); $("summaryBox").classList.toggle("hidden", !amtOn); $("btn-gst").disabled = !amtOn; rebuildRows(); });
+$("btn-gst").addEventListener("click", () => { gstOn = !gstOn; dirty = true; $("btn-gst").setAttribute("aria-pressed", String(gstOn)); $("gstSection").classList.toggle("hidden", !gstOn); update(); });
+function setInvalid(on) { $("qClient").classList.toggle("input-invalid", on); $("qClientErr").classList.toggle("hidden", !on); }
+window.addEventListener("beforeunload", (e) => { if (dirty && !saving) { e.preventDefault(); e.returnValue = ""; } });
+
+/* ---------- Mode / load ---------- */
+function setMode() {
+  const edit = !!editingId;
+  $("mode-badge").textContent = edit ? "Editing " + (original ? original.number : "") : "New quotation";
+  $("mode-badge").className = "badge whitespace-nowrap shrink-0 " + (edit ? "badge-amber" : "badge-blue");
+  $("mode-note").textContent = edit ? "Changes update this saved quotation; the number stays the same." : "Quotation number is assigned when you save.";
+  $("save-label").textContent = edit ? "Save changes" : "Save quotation";
+  $("btn-delete").classList.toggle("hidden", !edit); $("new-link").classList.toggle("hidden", !edit);
+}
+function fill(d) {
+  $("qno").value = d.number || ""; $("qdate").value = d.date || todayISO(); $("qClient").value = d.client || ""; $("qSite").value = d.site || ""; $("qValidity").value = d.validity || "";
+  if (d.docTitle) $("docTitle").value = d.docTitle;
+  ["scope", "specs", "terms", "payment"].forEach((k) => { if (d[k] != null) $(k + "Text").value = d[k]; });   // older quotations did not store these; keep defaults for them
+  gstOn = d.gstIncluded !== false; amtOn = d.showAmounts !== false;
+  $("btn-gst").setAttribute("aria-pressed", String(gstOn)); $("gstSection").classList.toggle("hidden", !gstOn);
+  $("btn-amt").setAttribute("aria-pressed", String(amtOn)); $("summaryBox").classList.toggle("hidden", !amtOn); $("btn-gst").disabled = !amtOn;
+  $("items").innerHTML = ""; layoutHead(); (Array.isArray(d.items) && d.items.length ? d.items : [{}]).forEach(addRow); update();
+}
+async function init() {
+  layoutHead();
+  if (!editingId) {
+    $("qdate").value = todayISO(); addRow(); setMode();
+    try { const snap = await getDoc(doc(db, "counters", "quotation")); const cur = snap.exists() ? (Number(snap.data().value) || 0) : 0; $("qno").value = "KC/" + String(cur + 1).padStart(3, "0"); } catch (e) { $("qno").value = "KC/---"; }
+    return;
+  }
+  $("editor").classList.add("hidden"); $("load-state").classList.remove("hidden");
+  $("load-state").innerHTML = `<div class="skeleton h-6 w-1/2 mx-auto mb-3"></div><div class="skeleton h-32"></div>`;
+  try {
+    const snap = await getDoc(doc(db, "documents", editingId));
+    if (!snap.exists() || snap.data().type !== "Quotation") throw Object.assign(new Error("This quotation could not be found. It may have been deleted."), { notFound: true });
+    original = { ...snap.data(), id: snap.id }; setMode(); $("load-state").classList.add("hidden"); $("editor").classList.remove("hidden"); fill(original);
+    if (params.get("print") === "1") setTimeout(printQuotation, 300);
+  } catch (err) {
+    $("load-state").innerHTML = `<div class="py-6 flex flex-col items-center gap-3">${icon("alert", "w-8 h-8 text-red-600")}<p class="font-semibold">${esc(err.notFound ? err.message : "Could not load quotation: " + errMsg(err))}</p><div class="flex gap-2"><a class="btn btn-primary btn-sm" href="history.html">Back to history</a><a class="btn btn-outline btn-sm" href="quotation.html">New quotation</a></div></div>`;
+  }
+}
+
+/* ---------- Save / delete ---------- */
+function payload() {
+  return {
+    date: $("qdate").value, client: $("qClient").value.trim(), site: $("qSite").value, validity: $("qValidity").value, items: collectItems(),
+    subTotal: parseFloat($("subTotal").textContent) || 0, gstAmount: parseFloat($("gstAmt").textContent) || 0, amount: parseFloat($("finalTotal").textContent) || 0,
+    // additive fields (older records simply do not have them)
+    docTitle: $("docTitle").value.trim() || "QUOTATION", scope: $("scopeText").value, specs: $("specsText").value, terms: $("termsText").value, payment: $("paymentText").value,
+    gstIncluded: gstOn, showAmounts: amtOn,
+  };
+}
+async function save() {
+  if (saving) return;
+  if (!$("qClient").value.trim()) { setInvalid(true); $("qClient").focus(); toast("Enter the client name.", "error"); return; }
+  saving = true; const btn = $("btn-save"); btn.disabled = true; $("save-label").textContent = "Saving...";
+  try {
+    if (editingId) {
+      await updateDoc(doc(db, "documents", editingId), { ...payload(), updatedAt: new Date().toISOString() });
+      original = { ...original, ...payload() }; toast("Quotation updated.", "success");
+    } else {
+      const n = await getNextCounterValue("quotation"); const no = "KC/" + String(n).padStart(3, "0");
+      const ref = await addDoc(collection(db, "documents"), { type: "Quotation", number: no, ...payload(), createdAt: new Date().toISOString() });
+      editingId = ref.id; original = { id: ref.id, number: no, ...payload() }; $("qno").value = no;
+      history.replaceState(null, "", "?id=" + encodeURIComponent(ref.id));
+      toast("Quotation " + no + " saved.", "success");
+    }
+    dirty = false; setMode();
+  } catch (err) { toast("Could not save quotation: " + errMsg(err), "error", 6000); }
+  finally { saving = false; btn.disabled = false; $("save-label").textContent = editingId ? "Save changes" : "Save quotation"; }
+}
+$("btn-save").addEventListener("click", save);
+$("btn-delete").addEventListener("click", async () => {
+  if (!editingId) return;
+  const ok = await confirmDialog({ title: "Delete quotation?", message: `Delete ${original ? original.number : "this quotation"} permanently? This cannot be undone.`, confirmText: "Delete", danger: true });
+  if (!ok) return;
+  try { await deleteDoc(doc(db, "documents", editingId)); dirty = false; toast("Quotation deleted.", "success"); setTimeout(() => { location.href = "history.html"; }, 600); }
+  catch (err) { toast("Delete failed: " + errMsg(err), "error"); }
+});
+
+/* ---------- Print ---------- */
+const multi = (t) => esc(t).replace(/\n/g, "<br>");
+function buildPrint() {
+  const items = collectItems();
+  const rows = items.map((it, i) => `<tr><td>${i + 1}</td><td class="desc">${esc(it.description)}${(it.l || it.w || it.h) ? `<br><span style="color:#94a3b8;font-size:7.5pt;">L:${it.l} &times; W:${it.w} &times; H:${it.h}</span>` : ""}</td><td class="num">${it.qty}</td><td>${esc(it.unit)}</td>${amtOn ? `<td class="num">${it.rate.toFixed(2)}</td><td class="num">${it.amount.toFixed(2)}</td>` : ""}</tr>`).join("") || `<tr><td colspan="${amtOn ? 6 : 4}" style="text-align:center;color:#94a3b8;">No items added</td></tr>`;
+  $("print-quotation-doc").innerHTML = `
+    <div class="print-doc-watermark">KANIFNATH CONSTRUCTION</div>
+    <div class="print-doc-header"><div class="print-doc-brand"><img id="print-quotation-logo" data-logo class="print-doc-logo" src="icon-1922.png" alt="">
+      <div><div class="print-doc-company-name">Kanifnath Construction</div><div class="print-doc-company-tag">Labour Supplier &amp; Developers</div></div></div>
+      <div class="print-doc-contact">Kalewadi, Tal. Daund, Dist. Pune - 413801<br>Mob: 9763739384 / 9325503934<br><strong>GSTIN: 27DHBPC7233L1ZB</strong></div></div>
+    <div class="print-doc-title-bar"><span class="doc-name">${esc($("docTitle").value || "Quotation")}</span></div>
+    <div class="print-doc-meta-grid">
+      <div class="print-doc-meta-box"><div class="box-label">Quoted To</div><div class="meta-line"><strong>${esc($("qClient").value || "-")}</strong></div><div class="meta-line">${esc($("qSite").value)}</div></div>
+      <div class="print-doc-meta-box"><div class="box-label">Quotation Details</div><div class="meta-line">Quote No: <strong>${esc($("qno").value)}</strong></div><div class="meta-line">Date: <strong>${esc(fmtDate($("qdate").value))}</strong></div><div class="meta-line">Validity: <strong>${esc($("qValidity").value)}</strong></div></div></div>
+    <table class="print-doc-table"><thead><tr><th style="width:28px;">Sr</th><th class="text-left">Description</th><th>Qty</th><th>Unit</th>${amtOn ? "<th>Rate</th><th>Amount</th>" : ""}</tr></thead><tbody>${rows}</tbody></table>
+    ${amtOn ? `<div class="print-doc-summary-wrap"><div class="print-doc-summary">
+      <div class="row"><span>Total Qty</span><span>${esc($("sumQty").textContent)}</span></div>
+      <div class="row"><span>Sub Total</span><span>&#8377; ${esc($("subTotal").textContent)}</span></div>
+      ${gstOn ? `<div class="row"><span>GST 18%</span><span>&#8377; ${esc($("gstAmt").textContent)}</span></div>` : ""}
+      <div class="row grand"><span>Grand Total</span><span>&#8377; ${esc($("finalTotal").textContent)}</span></div></div></div>` : ""}
+    <div class="print-doc-section"><div class="section-title">Technical Specifications</div>${multi($("specsText").value)}</div>
+    <div class="print-doc-section"><div class="section-title">Scope of Work</div>${multi($("scopeText").value)}</div>
+    <div class="print-doc-payment"><div class="pay-box"><strong>Terms &amp; Conditions</strong><br>${multi($("termsText").value)}</div><div class="pay-box"><strong>Payment Terms</strong><br>${multi($("paymentText").value)}</div></div>
+    <div class="print-doc-signature-row"><div class="thanks">Thank you for giving us the opportunity to quote for your project. We look forward to serving you.</div>
+      <div class="sign-block">For Kanifnath Construction<div class="sign-line"></div>Authorized Signatory</div></div>
+    <div class="print-doc-footer">Generated by Kanifnath Construction Quotation System</div>`;
+}
+function printQuotation() {
+  buildPrint(); const logo = $("print-quotation-logo");
+  const go = () => requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+  if (logo && !logo.complete) { let done = false; const fin = () => { if (!done) { done = true; go(); } }; logo.addEventListener("load", fin, { once: true }); logo.addEventListener("error", () => setTimeout(fin, 50), { once: true }); setTimeout(fin, 1500); } else go();
+}
+$("btn-print").addEventListener("click", printQuotation);
+
+init();
+</script>
+</body>
+</html>

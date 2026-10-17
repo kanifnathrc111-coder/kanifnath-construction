@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>History - Kanifnath Construction ERP</title>
+<meta name="theme-color" content="#850D0D">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-1922.png">
+<link rel="apple-touch-icon" href="icon-1922.png">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+<main id="page-content" class="hidden px-3 sm:px-6 py-4 sm:py-6 max-w-[1500px] mx-auto w-full space-y-4">
+
+  <section class="card p-3 sm:p-4 space-y-3" aria-label="Filters">
+    <div class="relative"><label for="searchInput" class="sr-only">Search</label>
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted"><i data-icon="search"></i></span>
+      <input id="searchInput" type="search" class="input pl-10" placeholder="Search number, client, labour or site..." autocomplete="off"></div>
+    <div class="grid grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto_auto] gap-3 items-end">
+      <div><label class="label" for="typeFilter">Type</label><select id="typeFilter" class="input">
+        <option value="All">All</option><option>Invoice</option><option>Quotation</option><option>Labour Expense</option><option>Labour Payment</option><option>Labour Work</option></select></div>
+      <div><label class="label" for="projectFilter">Project / site</label><select id="projectFilter" class="input"><option value="All">All</option></select></div>
+      <div><label class="label" for="fromDate">From</label><input id="fromDate" type="date" class="input"></div>
+      <div><label class="label" for="toDate">To</label><input id="toDate" type="date" class="input"></div>
+      <button id="clearBtn" type="button" class="btn btn-outline"><i data-icon="refresh" data-cls="w-4 h-4"></i>Clear</button>
+      <button id="csvBtn" type="button" class="btn btn-outline"><i data-icon="download" data-cls="w-4 h-4"></i>CSV</button>
+    </div>
+  </section>
+
+  <section class="grid grid-cols-2 lg:grid-cols-4 gap-3" aria-label="Totals for the records shown">
+    <div class="card p-3 sm:p-4"><div class="label !mb-0">Invoiced (shown)</div><div class="mt-1 text-lg sm:text-xl font-extrabold num">&#8377; <span id="totalRevenue">0.00</span></div></div>
+    <div class="card p-3 sm:p-4"><div class="label !mb-0">Pending balance</div><div class="mt-1 text-lg sm:text-xl font-extrabold num text-amber-700">&#8377; <span id="totalPending">0.00</span></div></div>
+    <div class="card p-3 sm:p-4"><div class="label !mb-0">Labour paid out</div><div class="mt-1 text-lg sm:text-xl font-extrabold num">&#8377; <span id="totalLabourOut">0.00</span></div></div>
+    <div class="card p-3 sm:p-4"><div class="label !mb-0">Records shown</div><div class="mt-1 text-lg sm:text-xl font-extrabold num" id="recordCount">0</div></div>
+  </section>
+
+  <div id="error-box" class="hidden card border-red-300 p-4 text-sm text-red-700" role="alert"></div>
+
+  <section class="card p-2 sm:p-3">
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead><tr><th>Type</th><th>Ref no.</th><th>Date</th><th>Client / labour</th><th>Project / site</th><th class="text-right">Amount</th><th class="text-right">Actions</th></tr></thead>
+        <tbody id="historyTable"></tbody>
+      </table>
+    </div>
+    <div id="more-wrap" class="hidden pt-3 text-center"><button id="moreBtn" type="button" class="btn btn-outline btn-sm">Show more</button></div>
+  </section>
+</main>
+
+<script type="module">
+import { requireAuth, mountShell, esc, num, money, fmtDate, siteKey, toast, errMsg, confirmDialog, showModal, hydrateIcons, icon, csvCell, downloadFile, expenseLabel, debounce, todayISO } from "./js/common.js";
+import { db, doc, deleteDoc } from "./firebase.js";
+import { subscribe, tsMillis } from "./js/data.js";
+import { invoiceTotal, invoicePending, invoiceStatus } from "./js/finance.js";
+
+await requireAuth();
+mountShell({ active: "history", title: "History" });
+hydrateIcons();
+
+const $ = (id) => document.getElementById(id);
+const PAGE = 100;
+let state = { documents: [], labours: [], expenses: [], payments: [], works: [] };
+let ready = new Set(), failed = false, shown = PAGE, unified = [], filtered = [];
+/* Only these collections can ever be deleted from this page, and each record deletes from ITS OWN source collection. */
+const DELETABLE = new Set(["documents", "labourExpenses", "labourPayments", "labourWorks"]);
+
+const labById = () => new Map(state.labours.map((l) => [l.id, l]));
+function buildUnified() {
+  const L = labById(); const name = (id) => (L.get(id) || {}).name || "Unknown Labour"; const site = (id) => (L.get(id) || {}).site || "";
+  const out = [];
+  state.documents.forEach((d) => out.push({ id: d.id, src: "documents", type: d.type || "Document", number: d.number || "-", date: d.date || "", person: d.client || "Unknown", project: d.site || "", amount: d.type === "Invoice" ? invoiceTotal(d) : num(d.amount), pending: d.type === "Invoice" ? invoicePending(d) : 0, ts: tsMillis(d.createdAt), raw: d }));
+  state.expenses.forEach((e) => out.push({ id: e.id, src: "labourExpenses", type: "Labour Expense", number: e.id, date: e.date || "", person: name(e.labourId), project: site(e.labourId), amount: num(e.amount), pending: 0, ts: tsMillis(e.createdAt), raw: e }));
+  state.payments.forEach((p) => out.push({ id: p.id, src: "labourPayments", type: "Labour Payment", number: p.id, date: p.date || "", person: name(p.labourId), project: site(p.labourId), amount: num(p.amount), pending: 0, ts: tsMillis(p.createdAt), raw: p }));
+  state.works.forEach((w) => out.push({ id: w.id, src: "labourWorks", type: "Labour Work", number: w.id, date: w.date || "", person: name(w.labourId), project: w.site || site(w.labourId), amount: num(w.amount), pending: 0, ts: tsMillis(w.createdAt), raw: w }));
+  return out.sort((a, b) => String(b.date).localeCompare(String(a.date)) || b.ts - a.ts);
+}
+const shortRef = (r) => (r.src === "documents" ? r.number : "…" + String(r.id).slice(-6));
+const badge = (t) => ({ Invoice: "badge-blue", Quotation: "badge-gray", "Labour Expense": "badge-amber", "Labour Payment": "badge-red", "Labour Work": "badge-green" }[t] || "badge-gray");
+
+function populateSites() {
+  const cur = $("projectFilter").value; const seen = new Map();
+  unified.forEach((r) => { const k = siteKey(r.project); if (k && !seen.has(k)) seen.set(k, String(r.project).trim()); });
+  $("projectFilter").innerHTML = '<option value="All">All</option>' + [...seen.entries()].sort((a, b) => a[1].localeCompare(b[1])).map(([k, n]) => `<option value="${esc(k)}">${esc(n)}</option>`).join("");
+  $("projectFilter").value = seen.has(cur) ? cur : "All";
+}
+function applyFilters() {
+  const q = $("searchInput").value.trim().toLowerCase(), type = $("typeFilter").value, site = $("projectFilter").value, from = $("fromDate").value, to = $("toDate").value;
+  filtered = unified.filter((r) => {
+    if (type !== "All" && r.type !== type) return false;
+    if (site !== "All" && siteKey(r.project) !== site) return false;
+    if (from && (!r.date || r.date < from)) return false;
+    if (to && (!r.date || r.date > to)) return false;
+    if (q && !`${r.number} ${r.person} ${r.project} ${r.type}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+function render() {
+  const tb = $("historyTable");
+  if (failed) return;
+  if (!["documents", "labours", "expenses", "payments", "works"].every((k) => ready.has(k))) {
+    tb.innerHTML = Array.from({ length: 6 }, () => `<tr>${'<td><div class="skeleton h-5"></div></td>'.repeat(7)}</tr>`).join(""); return;
+  }
+  applyFilters();
+  const inv = filtered.filter((r) => r.type === "Invoice");
+  $("totalRevenue").textContent = money(inv.reduce((s, r) => s + r.amount, 0), false);
+  $("totalPending").textContent = money(inv.reduce((s, r) => s + r.pending, 0), false);
+  $("totalLabourOut").textContent = money(filtered.filter((r) => r.type === "Labour Expense" || r.type === "Labour Payment").reduce((s, r) => s + r.amount, 0), false);
+  $("recordCount").textContent = filtered.length.toLocaleString("en-IN");
+  if (!filtered.length) { tb.innerHTML = `<tr><td colspan="7"><div class="py-10 text-center text-sm text-muted flex flex-col items-center gap-2">${icon("history", "w-7 h-7 opacity-60")}<span>No records match your filters.</span></div></td></tr>`; $("more-wrap").classList.add("hidden"); return; }
+  const slice = filtered.slice(0, shown);
+  tb.innerHTML = slice.map((r) => {
+    const isDoc = r.src === "documents", href = r.type === "Invoice" ? "Billing Calculator Page.html" : "quotation.html";
+    const btn = (a, ic, label, cls = "btn-ghost") => `<button type="button" class="btn ${cls} btn-sm btn-icon" data-act="${a}" data-src="${r.src}" data-id="${esc(r.id)}" aria-label="${label} ${esc(shortRef(r))}" title="${label}">${icon(ic, "w-4 h-4")}</button>`;
+    const link = (u, ic, label) => `<a class="btn btn-ghost btn-sm btn-icon" href="${u}" aria-label="${label} ${esc(shortRef(r))}" title="${label}">${icon(ic, "w-4 h-4")}</a>`;
+    return `<tr>
+      <td><span class="badge ${badge(r.type)}">${esc(r.type)}</span></td>
+      <td class="font-semibold whitespace-nowrap ${isDoc ? "" : "text-muted font-mono text-xs"}">${esc(shortRef(r))}</td>
+      <td class="whitespace-nowrap">${fmtDate(r.date)}</td>
+      <td class="max-w-[220px] truncate" title="${esc(r.person)}">${esc(r.person)}</td>
+      <td class="max-w-[180px] truncate text-muted" title="${esc(r.project)}">${esc(r.project || "-")}</td>
+      <td class="text-right num whitespace-nowrap font-semibold">${money(r.amount, false)}${r.pending ? `<div class="text-[11px] font-normal text-amber-700">Balance ${money(r.pending, false)}</div>` : ""}</td>
+      <td class="text-right whitespace-nowrap"><div class="inline-flex gap-0.5">
+        ${btn("view", "eye", "View")}
+        ${isDoc ? link(`${href}?id=${encodeURIComponent(r.id)}`, "edit", "Edit") + link(`${href}?id=${encodeURIComponent(r.id)}&print=1`, "print", "Print") : link(`labour-management.html?labour=${encodeURIComponent(r.raw.labourId || "")}`, "users", "Open labour")}
+        ${btn("del", "trash", "Delete", "btn-danger-soft")}</div></td></tr>`;
+  }).join("");
+  $("more-wrap").classList.toggle("hidden", filtered.length <= shown);
+  $("moreBtn").textContent = `Show more (${filtered.length - shown} remaining)`;
+}
+
+/* ---------- Details ---------- */
+const kv = (k, v) => `<div class="flex justify-between gap-4 py-1.5 border-b border-line text-sm"><span class="text-muted">${esc(k)}</span><span class="font-semibold text-right break-words min-w-0">${v}</span></div>`;
+function details(r) {
+  const x = r.raw; let h = "";
+  if (r.src === "documents") {
+    h += kv("Number", esc(x.number)) + kv("Client", esc(x.client)) + kv("Site", esc(x.site || "-")) + kv("Date", fmtDate(x.date));
+    if (x.clientAddress) h += kv("Address", esc(x.clientAddress)); if (x.clientContact) h += kv("Contact", esc(x.clientContact)); if (x.validity) h += kv("Validity", esc(x.validity));
+    if (r.type === "Invoice") h += kv("Subtotal", money(x.subtotal)) + kv("GST (" + num(x.gstPercent) + "%)", money(x.gstAmount)) + kv("Invoice total", money(invoiceTotal(x))) + kv("Advance", money(x.advance)) + kv("Balance", money(x.amount)) + kv("Status", esc(invoiceStatus(x) || "-")) + (x.dueDate ? kv("Due date", fmtDate(x.dueDate)) : "");
+    else h += kv("Sub total", money(x.subTotal)) + kv("GST", money(x.gstAmount)) + kv("Grand total", money(x.amount));
+    const items = Array.isArray(x.items) ? x.items : [];
+    if (items.length) h += `<div class="table-wrap mt-3"><table class="tbl"><thead><tr><th>#</th><th>Description</th><th class="text-right">Qty</th><th class="text-right">Rate</th><th class="text-right">Amount</th></tr></thead><tbody>${items.map((i, n) => `<tr><td>${n + 1}</td><td>${esc(i.description || i.desc || "")}</td><td class="text-right num">${esc(i.qty)}${i.unit ? " " + esc(i.unit) : ""}</td><td class="text-right num">${money(i.rate, false)}</td><td class="text-right num">${money(i.amount, false)}</td></tr>`).join("")}</tbody></table></div>`;
+  } else {
+    h += kv("Labour", esc(r.person)) + kv("Site", esc(r.project || "-")) + kv("Date", fmtDate(x.date));
+    if (r.src === "labourExpenses") h += kv("Expense type", esc(expenseLabel(x.type))) + kv("Amount", money(x.amount)) + (x.remark ? kv("Remark", esc(x.remark)) : "");
+    else if (r.src === "labourPayments") h += kv("Amount", money(x.amount)) + (x.mode ? kv("Mode", esc(x.mode)) : "") + (x.remark ? kv("Remark", esc(x.remark)) : "");
+    else h += kv("Quantity (m\u00B3)", esc(x.cubicMeter ?? "-")) + (x.description ? kv("Description", esc(x.description)) : "") + kv("Rate", money(x.rate)) + kv("Amount", money(x.amount));
+    h += kv("Record id", `<span class="font-mono text-xs">${esc(r.id)}</span>`);
+  }
+  return h;
+}
+function find(src, id) { return unified.find((r) => r.src === src && r.id === id); }
+$("historyTable").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const r = find(b.dataset.src, b.dataset.id); if (!r) return;
+  if (b.dataset.act === "view") { showModal({ title: `${r.type} - ${shortRef(r)}`, html: details(r), wide: r.src === "documents" }); return; }
+  if (b.dataset.act === "del") {
+    if (!DELETABLE.has(r.src)) { toast("This record type cannot be deleted here.", "error"); return; }
+    const ok = await confirmDialog({ title: `Delete ${r.type.toLowerCase()}?`, danger: true, confirmText: "Delete", message: `${r.type} ${shortRef(r)} (${r.person}, ${money(r.amount)}) will be permanently removed from "${r.src}". This cannot be undone.` });
+    if (!ok) return;
+    try { await deleteDoc(doc(db, r.src, r.id)); toast(`${r.type} deleted.`, "success"); }
+    catch (err) { toast("Delete failed: " + errMsg(err), "error", 6000); }
+  }
+});
+
+/* ---------- Filters / export ---------- */
+const refresh = () => { shown = PAGE; render(); };
+$("searchInput").addEventListener("input", debounce(refresh, 200));
+["typeFilter", "projectFilter", "fromDate", "toDate"].forEach((id) => $(id).addEventListener("change", refresh));
+$("clearBtn").addEventListener("click", () => { $("searchInput").value = ""; $("typeFilter").value = "All"; $("projectFilter").value = "All"; $("fromDate").value = ""; $("toDate").value = ""; refresh(); });
+$("moreBtn").addEventListener("click", () => { shown += PAGE; render(); });
+$("csvBtn").addEventListener("click", () => {
+  if (!filtered.length) { toast("Nothing to export.", "warning"); return; }
+  const rows = [["Type", "Ref", "Date", "Client/Labour", "Site", "Amount", "Pending balance"], ...filtered.map((r) => [r.type, r.src === "documents" ? r.number : r.id, r.date, r.person, r.project, r.amount.toFixed(2), r.pending ? r.pending.toFixed(2) : ""])];
+  downloadFile(`Kanifnath_History_${todayISO()}.csv`, rows.map((r) => r.map(csvCell).join(",")).join("\r\n"));
+  toast(`Exported ${filtered.length} records.`, "success");
+});
+
+/* ---------- Live data ---------- */
+render();
+subscribe(["documents", "labours", "expenses", "payments", "works"], (s, rd) => { state = { ...s }; ready = new Set(rd); unified = buildUnified(); populateSites(); render(); }, (err) => {
+  failed = true; const b = $("error-box"); b.classList.remove("hidden");
+  b.innerHTML = `<strong>Could not load history.</strong> ${esc(errMsg(err))} <button type="button" class="btn btn-outline btn-sm ml-2" onclick="location.reload()">Retry</button>`;
+  $("historyTable").innerHTML = ""; });
+</script>
+</body>
+</html>
