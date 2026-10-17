@@ -3,7 +3,7 @@
    Auth guard, app shell (sidebar / mobile drawer / header), toasts, modals,
    icons, formatting. No business data lives here.
    ========================================================================== */
-import { auth, onAuthStateChanged, signOut } from "../firebase.js";
+import { auth, onAuthStateChanged, signOut } from "./firebase.js";
 import { num, siteKey, expenseLabel } from "./finance.js";
 export { num, siteKey, expenseLabel };
 
