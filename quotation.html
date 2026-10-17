@@ -108,8 +108,8 @@ Balance after completion</textarea></div>
 <div id="print-quotation-doc"></div>
 
 <script type="module">
-import { quotationTotals, toPaise } from "./js/finance.js";
-import { requireAuth, mountShell, esc, fmtDate, todayISO, toast, errMsg, confirmDialog, hydrateIcons, icon } from "./js/common.js";
+import { quotationTotals, toPaise } from "./finance.js";
+import { requireAuth, mountShell, esc, fmtDate, todayISO, toast, errMsg, confirmDialog, hydrateIcons, icon } from "./common.js";
 import { db, doc, getDoc, collection, addDoc, updateDoc, deleteDoc, getNextCounterValue } from "./firebase.js";
 
 await requireAuth();
