@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-1922.png">
 <link rel="apple-touch-icon" href="icon-1922.png">
-<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="/app.css">
 </head>
 <body>
 <main id="page-content" class="hidden px-3 sm:px-6 py-4 sm:py-6 max-w-[1500px] mx-auto w-full space-y-4">
@@ -49,10 +49,10 @@
 </main>
 
 <script type="module">
-import { requireAuth, mountShell, esc, num, money, fmtDate, siteKey, toast, errMsg, confirmDialog, showModal, hydrateIcons, icon, csvCell, downloadFile, expenseLabel, debounce, todayISO } from "./js/common.js";
+import { requireAuth, mountShell, esc, num, money, fmtDate, siteKey, toast, errMsg, confirmDialog, showModal, hydrateIcons, icon, csvCell, downloadFile, expenseLabel, debounce, todayISO } from "./common.js";
 import { db, doc, deleteDoc } from "./firebase.js";
-import { subscribe, tsMillis } from "./js/data.js";
-import { invoiceTotal, invoicePending, invoiceStatus } from "./js/finance.js";
+import { subscribe, tsMillis } from "./data.js";
+import { invoiceTotal, invoicePending, invoiceStatus } from "./finance.js";
 
 await requireAuth();
 mountShell({ active: "history", title: "History" });
