@@ -102,9 +102,9 @@
 </main>
 
 <script type="module">
-import { requireAuth, mountShell, esc, money, moneyShort, fmtDate, todayISO, siteKey, icon, hydrateIcons, toast, errMsg, showModal, confirmDialog, downloadFile, expenseLabel, debounce } from "./js/common.js";
-import { subscribe, buildBackup, restoreFromFile, tsMillis } from "./js/data.js";
-import { computeFinance, invoiceTotal, invoiceStatus, invoicePending, invoiceReceived, isOverdue } from "./js/finance.js";
+import { requireAuth, mountShell, esc, money, moneyShort, fmtDate, todayISO, siteKey, icon, hydrateIcons, toast, errMsg, showModal, confirmDialog, downloadFile, expenseLabel, debounce } from "./common.js";
+import { subscribe, buildBackup, restoreFromFile, tsMillis } from "./data.js";
+import { computeFinance, invoiceTotal, invoiceStatus, invoicePending, invoiceReceived, isOverdue } from "./finance.js";
 
 await requireAuth();
 mountShell({ active: "dashboard", title: "Dashboard" });
