@@ -3,7 +3,7 @@
    Collections used by the app (unchanged from the original project):
    documents, labours, labourExpenses, labourPayments, labourWorks, counters
    ========================================================================== */
-import { db, collection, onSnapshot, doc, setDoc, addDoc, runTransaction } from "../firebase.js";
+import { db, collection, onSnapshot, doc, setDoc, addDoc, runTransaction } from "./firebase.js";
 
 export const COLLECTIONS = {
   documents: "documents", labours: "labours", expenses: "labourExpenses",
