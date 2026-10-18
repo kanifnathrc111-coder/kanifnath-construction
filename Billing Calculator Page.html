@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-1922.png">
 <link rel="apple-touch-icon" href="icon-1922.png">
-<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="./app.css">
 <link rel="stylesheet" href="print.css">
 </head>
 <body>
@@ -112,8 +112,8 @@
 <div id="print-invoice-doc"></div>
 
 <script type="module">
-import { invoiceTotals, toPaise } from "./js/finance.js";
-import { requireAuth, mountShell, esc, num, money, rupeesInWords, fmtDate, todayISO, toast, errMsg, confirmDialog, hydrateIcons, icon } from "./js/common.js";
+import { invoiceTotals, toPaise } from "./finance.js";
+import { requireAuth, mountShell, esc, num, money, rupeesInWords, fmtDate, todayISO, toast, errMsg, confirmDialog, hydrateIcons, icon } from "./common.js";
 import { db, doc, getDoc, collection, addDoc, updateDoc, deleteDoc, getNextCounterValue } from "./firebase.js";
 
 await requireAuth();
