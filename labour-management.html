@@ -149,10 +149,10 @@
 <div id="print-document"></div>
 
 <script type="module">
-import { requireAuth, mountShell, esc, num, money, fmtDate, todayISO, siteKey, toast, errMsg, confirmDialog, showModal, hydrateIcons, icon, csvCell, downloadFile, expenseLabel, numberToWords, amountInWords, debounce } from "./js/common.js";
+import { requireAuth, mountShell, esc, num, money, fmtDate, todayISO, siteKey, toast, errMsg, confirmDialog, showModal, hydrateIcons, icon, csvCell, downloadFile, expenseLabel, numberToWords, amountInWords, debounce } from "./common.js";
 import { db, doc, setDoc, deleteDoc } from "./firebase.js";
-import { subscribe, buildBackup, restoreFromFile } from "./js/data.js";
-import { inRange } from "./js/finance.js";
+import { subscribe, buildBackup, restoreFromFile } from "./data.js";
+import { inRange } from "./finance.js";
 
 await requireAuth();
 mountShell({ active: "labour", title: "Labour Management" });
