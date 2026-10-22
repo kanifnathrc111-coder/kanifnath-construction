@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-1922.png">
 <link rel="apple-touch-icon" href="icon-1922.png">
-<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href=".app.css">
 </head>
 <body class="min-h-screen bg-gradient-to-br from-brand-dark via-brand to-[#3a0505] flex flex-col items-center justify-center p-4">
 
@@ -41,7 +41,7 @@
 
 <script type="module">
 import { auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "./firebase.js";
-import { icon, hydrateIcons, fixLogos } from "./js/common.js";
+import { icon, hydrateIcons, fixLogos } from "./common.js";
 
 const $ = (id) => document.getElementById(id);
 $("year").textContent = new Date().getFullYear();
